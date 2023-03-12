@@ -1,0 +1,19 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "backend for online bidding ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Firaol2727/FinalYearProdject.git"
+  },
+  "author": "Firaol Getachew, Yohannes Dejene, Liul Girma ,Mihiret",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Firaol2727/FinalYearProdject/issues"
+  },
+  "homepage": "https://github.com/Firaol2727/FinalYearProdject#readme"
+}
