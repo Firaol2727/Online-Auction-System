@@ -11,6 +11,30 @@ const server = http.createServer(app);
 const { Server, Socket } = require("socket.io");
 const io = new Server(server);
 const { Op} = require('sequelize');
+var nodemailer = require('nodemailer');
+
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'youremail@gmail.com',
+    pass: 'yourpassword'
+  }
+});
+
+var mailOptions = {
+  from: 'youremail@gmail.com',
+  to: 'myfriend@yahoo.com',
+  subject: 'Sending Email using Node.js',
+  text: 'That was easy!'
+};
+
+// transporter.sendMail(mailOptions, function(error, info){
+//   if (error) {
+//     console.log(error);
+//   } else {
+//     console.log('Email sent: ' + info.response);
+//   }
+// });
 // trying the request 
 app.use(express.json());
 app.use(express.urlencoded({
@@ -23,7 +47,7 @@ app.use(cors({
 const adminRoutes=require('./routes/adminRoutes');
 const buyerRoute=require('./routes/buyerRoute');
 const sellerRoute=require('./routes/sellerRoute');
-const{Admin,Auction,Banker,ReportedAuction,Buyer,Category,ClosedBid,Notification,Payment,Pictures,Product,Seller,Transaction}=sequelize.models;
+const{Admin,Auction,Banker,ReportedAuction,Buyer,Category,ClosedBid,Notification,Payment,Pictures,Product,Seller,Notifyme}=sequelize.models;
 app.options('*', cors());
 app.use(express.json()); 
 app.use(cookieParser());
@@ -403,21 +427,27 @@ const auctionManage=async ()=>{
             })
         }
         if (auction.enddate==date) {
-            await auction.update({
-                status:"closed",
-                winnerId:winner.buyerId,
-                where:{id:auction.id}
-            })
             let winner=await Bid.findOne({
                 where:{
                     AuctionId:auction.id,
                     bidprice:auction.hammerprice
                 }
             })
+            await auction.update({
+                status:"closed",
+                winnerId:winner.buyerId,
+                where:{id:auction.id}
+            })
             await Notification.create({
                 id:"",
                 AuctionId:auction.id,
                 BuyerId:winner.BuyerId,
+                message:`Congratulations you have won the auction ${auction.name} you can reach the vendor with phonenumber - ${auction.Seller.phonenumber} `
+            })
+            await Notification.create({
+                id:"",
+                AuctionId:auction.id,
+                BuyerId:auction.Seller.id,
                 message:`Congratulations you have won the auction ${auction.name} you can reach the vendor with phonenumber - ${auction.Seller.phonenumber} `
             })
             let bidders=Bid.findAll(
@@ -430,10 +460,11 @@ const auctionManage=async ()=>{
                     await Notification.create({
                         id:"",
                         AuctionId:auction.id,
-                        BuyerId:bidders.BuyerId,
+                        BuyerId:bid.BuyerId,
                         message:`The auction ${auction.name} you were participating on has been closed with winning price ${auction.hammerprice}`
                 })
             })
+            
             // await ClosedBid.create({
 
             // })
@@ -472,16 +503,16 @@ function Hello() {
 io.on("connection",async(socket)=>{
     console.log(socket.handshake
         )
-
+    // addOnlineUser();
     console.log("The socket header is ", socket.handshake.headers.cookie)
-    //     setInterval(() => {
-    //         if (thereisStart) {
-    //             socket.emit('message',{message:"the aution has started"});
-    //         }else{
-    //             socket.emit('message',{message:"the aution hasn't  started yet "});
-    //         }
+        setInterval(() => {
+            if (thereisStart) {
+                socket.emit('message',{message:"the aution has started"});
+            }else{
+                socket.emit('message',{message:"the aution hasn't  started yet "});
+            }
         
-    // },4000)
+    },4000)
     // Types of Notification 
     /**
      *  Types of Notifications in our project
@@ -501,31 +532,58 @@ io.on("connection",async(socket)=>{
     let data=[];
     // bidplaced notification
     socket.on("bidupdate",async(userid,auctionid)=>{
-        await bidders
+        let bidders=await Bid.findAll({
+            where:{AuctionId:auctionid}
+        });
+        onlineUsers.map(async(user)=>{
+            bidders.map((bid)=>{
+                if(user.userid==bid.BuyerId){
+                    socket.to(user.socketid).emit("bidupdate","new notification")
+                }
+            })
+        })
         socket.broadcast.emit('message',data);
+        
+    })
+    socket.on("start",async(userid,auctionid)=>{
+        let Notifymis=await Notifyme.findAll({
+            where:{AuctionId:auctionid}
+        });
+        onlineUsers.map(async(user)=>{
+            Notifymis.map((nott)=>{
+                if(user.userid==nott.BuyerId){
+                    socket.to(user.socketid).emit("start","new notification")
+                }
+            })
+        })
+        // socket.broadcast.emit('message',data);
         console.log(data);
     })
-    socket.on("start",(userid,type)=>{
+    socket.on("closed",(userid,auctionid)=>{
         
         socket.broadcast.emit('message',data);
         console.log(data);
     })
-    socket.on("closed",(userid,type)=>{
-        
-        socket.broadcast.emit('message',data);
+    socket.on("deleted",async(userid,auctionid)=>{
+        let bidders=await Bid.findAll({
+            where:{AuctionId:auctionid}
+        });
+        onlineUsers.map(async(user)=>{
+            bidders.map((bidder)=>{
+                if(user.userid==bidder.BuyerId){
+                    socket.to(user.socketid).emit("deleted","new notification")
+                }
+            })
+        })
+        // socket.broadcast.emit('message',data);
         console.log(data);
     })
-    socket.on("deleted",(userid,type)=>{
+    // socket.on("message",(data)=>{
+    //     console.log(data);
+    //     socket.broadcast.emit('message',data);
         
-        socket.broadcast.emit('message',data);
-        console.log(data);
-    })
-    socket.on("message",(data)=>{
-        console.log(data);
-        socket.broadcast.emit('message',data);
-        
-    })
-    var i=0;
+    // })
+    // var i=0;
     // setInterval(() => {
     //     socket.emit('message', {
     //         message: i++
@@ -533,6 +591,6 @@ io.on("connection",async(socket)=>{
     // }, 3000);
     socket.on('disconnect', () => {
         console.log("Some one has disconnected")
-        // removeonlineUser(socket.id);
+        removeonlineUser(socket.id);
       });
 })
