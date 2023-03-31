@@ -229,12 +229,20 @@ router.post('/login',authorizeSeller,(req,res)=>{
     res.sendStatus(200);
 })
 
-router.get('/notification',checkAuthorizationSeller,(req,res)=>{
+router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
     let uid=req.user;
     return Notification.findAll({
-        where:{BuyerId:uid}
-    }).then(data=>{
+        where:{selid:uid}
+    }).then( async data=>{
         res.send(data);
+        await Notification.update({
+            read:true
+        },{
+            where:{
+                read:false,
+                selid:uid
+            }
+        })
     })
 
 })

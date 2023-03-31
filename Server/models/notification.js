@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey:true},
     AuctionId:{
       type:DataTypes.STRING,
-      allowNull:false
+      allowNull:true
     },
     message: {
       type:DataTypes.STRING,
@@ -34,6 +34,14 @@ module.exports = (sequelize, DataTypes) => {
     read:{
       type:DataTypes.BOOLEAN,
       defaultValue:false
+    },
+    nottype:{
+      type:DataTypes.STRING,
+      allowNull:true
+    },
+    selid:{
+      type:DataTypes.STRING,
+      allowNull:true
     }
   }, {
     sequelize,

@@ -61,11 +61,13 @@ async function main() {
     console.log("finished")
 } 
 async function tableChange() {
-    await Auction.sync({alter:true});
+    //  a function used to commit database changes just change the name of the model you want to update and call the function 
+    await Notification.sync({alter:true});
     console.log("finished")
 }
 // tableChange();
 async function addAdmin(){
+    // adding the admin user to the database 
     const hash = await bcrypt.hashSync("123", bcrypt.genSaltSync(10));
     console.log(hash);
     return sequelize.models.Admin.create({
@@ -82,6 +84,7 @@ async function addAdmin(){
 }
 
 async function addCategories() {
+    // Adding categories to the database 
     await  Category.bulkCreate([
         {
             id:"",
@@ -135,7 +138,8 @@ function CreateAuction(type) {
 //     next();
 // })
 let onlineUsers=[];
-
+let thereisStart=false;
+let waitingchangeauctions=[];
 app.get('/images/:picid',(req,res)=>{
     let id=req.params.picid;
     console.log("fetch image - ",id)
@@ -347,6 +351,7 @@ app.get('/details/:id',async(req,res)=>{
 
     })
 })
+
 app.post('/chargeaccount',async(req,res)=>{
     console.log(req.body)
     let bankerId=req.body.bankerId;
@@ -364,30 +369,45 @@ app.post('/chargeaccount',async(req,res)=>{
         console.log(amount,buy.account)
         let recharge=Number(amount)+ Number(buy.account);
         console.log(recharge)
-        return Buyer.update(
-        {
-            account:recharge,
-        },
-        { where:{
-            phonenumber:userphone
-            }
-        }
-        ).then(async(data)=>{
-           
-            if(data){
-                await Payment.create({
-                id:"",
-                bankerId:bankerId,
-                BuyerId:buy.id,
-                date:now
-            })
-            }
-            res.sendStatus(200)
-        }).catch((err)=>{
-            console.log(err);
-            console.log("Some error has occured");
-            res.sendStatus(400)
+        let buyer =await Buyer.findOne({
+            where:{phonenumber:phonenumbere}
         })
+        if(buyer){
+            
+        return Buyer.update(
+                {
+                    account:recharge,
+                },
+                { where:{
+                    phonenumber:userphone
+                    }
+                }
+
+                ).then(async(data)=>{
+                    if(data){
+                        await  Notification.create({
+                            id:"",
+                            AuctionId:"",
+                            BuyerId:winner.BuyerId,
+                            message:`Dear customer you have successfully recharged your account` 
+                        })
+                        await Payment.create({
+                        id:"",
+                        bankerId:bankerId,
+                        BuyerId:buy.id,
+                        date:now
+                    })
+                    }
+                    res.sendStatus(200)
+                }).catch((err)=>{
+                    console.log(err);
+                    console.log("Some error has occured");
+                    res.sendStatus(400)
+                })
+        }else{
+            
+        }
+        
     }else{
         res.sendStatus(400)
     }
@@ -396,7 +416,6 @@ app.post('/chargeaccount',async(req,res)=>{
 server.listen(6000,()=>{
     console.log("The server is running on 6000");
 })
-
 const auctionManage=async ()=>{
     const date=new Date();
     let auctions=await Auction.findAll(
@@ -415,6 +434,8 @@ const auctionManage=async ()=>{
     );
     auctions.map(async(auction)=>{
         if(auction.startdate==date){
+
+            waitingchangeauctions.push(auction);
             await Auction.update({
                 status:"started",
                 include:{
@@ -425,8 +446,29 @@ const auctionManage=async ()=>{
                 },
                 where:{id:auction.id}
             })
+            let notifimies=await Notifyme.findAll({
+                aid:auction.id
+            })
+            notifimies.map(async(notifime)=>{
+                await Notification.create({
+                    id:"",
+                AuctionId:auction.id,
+                BuyerId:winner.BuyerId,
+                message:`The auction  ${auction.name} you want to participate on has started }`,
+                nottype:"start"
+                })
+            })
+            await Notification.create({
+                id:"",
+                AuctionId:auction.id,
+                selid:auction.SellerId,
+                message:`your auction ${auction.name} has started }`,
+                nottype:"start"
+                })
+            
         }
         if (auction.enddate==date) {
+            waitingchangeauctions.push(auction);
             let winner=await Bid.findOne({
                 where:{
                     AuctionId:auction.id,
@@ -471,6 +513,7 @@ const auctionManage=async ()=>{
         }
     });
 }
+
 const addOnlineUser=(userid,socketid)=>{
     !onlineUsers.some((user)=>user.userid===userid)&&
     onlineUsers.push({userid,socketid});
@@ -482,6 +525,7 @@ const removeonlineUser=(socketid)=>{
 
 const authSocketMiddleware = (socket, next) => {
     // since you are sending the token with the query
+    console.log(socket.handshake)
     const token = socket.handshake.query?.token;
     try {
         const decoded = jwt.verify(token, process.env.TOKEN_SECRET_KEY);
@@ -491,42 +535,11 @@ const authSocketMiddleware = (socket, next) => {
     }
     next();
 };
-let thereisStart=false;
-function Hello() {
-    setInterval(() => {
-        console.log("Changing the start")
-        thereisStart=!thereisStart;
-    }, 6000);
-    
-}
-// Hello();
+
 io.on("connection",async(socket)=>{
     console.log(socket.handshake
         )
-    // addOnlineUser();
-    console.log("The socket header is ", socket.handshake.headers.cookie)
-        setInterval(() => {
-            if (thereisStart) {
-                socket.emit('message',{message:"the aution has started"});
-            }else{
-                socket.emit('message',{message:"the aution hasn't  started yet "});
-            }
-        
-    },4000)
-    // Types of Notification 
-    /**
-     *  Types of Notifications in our project
-     * 1. Hammerprice update in notification  
-     * 2. Auction completed notification
-     * 3. Auction deleted Notification
-     * 4. Auction win and closed notification 
-     * 5. Auction start notification
-     * 6. 
-     * 
-     * */
-    
-    // addOnlineUser(userid,socket.id);
-
+    addOnlineUser();
     console.log("The socket id is ",socket.id);
     console.log("The number of users are ", io.engine.clientsCount);
     let data=[];
@@ -544,39 +557,6 @@ io.on("connection",async(socket)=>{
         })
         socket.broadcast.emit('message',data);
         
-    })
-    socket.on("start",async(userid,auctionid)=>{
-        let Notifymis=await Notifyme.findAll({
-            where:{AuctionId:auctionid}
-        });
-        onlineUsers.map(async(user)=>{
-            Notifymis.map((nott)=>{
-                if(user.userid==nott.BuyerId){
-                    socket.to(user.socketid).emit("start","new notification")
-                }
-            })
-        })
-        // socket.broadcast.emit('message',data);
-        console.log(data);
-    })
-    socket.on("closed",(userid,auctionid)=>{
-        
-        socket.broadcast.emit('message',data);
-        console.log(data);
-    })
-    socket.on("deleted",async(userid,auctionid)=>{
-        let bidders=await Bid.findAll({
-            where:{AuctionId:auctionid}
-        });
-        onlineUsers.map(async(user)=>{
-            bidders.map((bidder)=>{
-                if(user.userid==bidder.BuyerId){
-                    socket.to(user.socketid).emit("deleted","new notification")
-                }
-            })
-        })
-        // socket.broadcast.emit('message',data);
-        console.log(data);
     })
     // socket.on("message",(data)=>{
     //     console.log(data);

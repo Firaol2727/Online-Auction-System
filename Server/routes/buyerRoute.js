@@ -4,7 +4,29 @@ const router=require('express').Router();
 const bcrypt=require('bcrypt');
 const bodyParser=require('body-parser');
 var jsonParser=bodyParser.json();
-
+var nodemailer = require('nodemailer');
+const {uid}=require('uid'); 
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'Nucherata@gmail.com',
+    pass: 'nuchereta'
+  }
+});
+let userverification=[];
+function ClearVerificationCodes() {
+    setInterval(() => {
+        userverification=[];
+    }, 3000000);
+}
+ClearVerificationCodes();
+// transporter.sendMail(mailOptions, function(error, info){
+//   if (error) {
+//     console.log(error);
+//   } else {
+//     console.log('Email sent: ' + info.response);
+//   }
+// });
 const{ReportAuction,Auction,Banker,Bid,Buyer,Category,ClosedBid,Notification,Payment,Pictures,Product,Seller,Transaction}=sequelize.models;
 const authorizeCustomer=async(req,res,next)=>{
     let {phonenumber,password}=req.body;
@@ -119,7 +141,7 @@ router.post('/register',async(req,res)=>{
             res.status(500).send("some thing went wrong ");
         })
 })
-router.post('/changepp',checkAuthorizationCustomer,async(req,res)=>{
+router.post('/changeprofile',checkAuthorizationCustomer,async(req,res)=>{
     let {fname,lname,telUname,email,region,city}=req.body;
  
     let uid=req.user;
@@ -265,7 +287,7 @@ router.post('/placebid',checkAuthorizationCustomer,async(req,res)=>{
             await Auction.update({
                 hammerprice:bidprice,
             },
-              {  where:{id:aid}}
+                {  where:{id:aid}}
             )
             
             let users=await Bid.findAll({
@@ -280,10 +302,18 @@ router.post('/placebid',checkAuthorizationCustomer,async(req,res)=>{
                         id:"",
                         AuctionId:aid,
                         BuyerId:user.BuyerId,
-                        message:`The auction ${name} you are participating has got an offer of ${bidprice}`
+                        message:`The auction ${name} you are participating has got an offer of ${bidprice}`,
+                        nottype:"bidupdate"
                 })
                 }
                 
+            })
+            await Notification.create({
+                id:"",
+                AuctionId:aid,
+                selid:user.BuyerId,
+                message:`The auction ${name} you are participating has got an offer of ${bidprice}`,
+                nottype:"bidupdate"
             })
             res.sendStatus(200);
         }else{
@@ -338,10 +368,75 @@ router.get('/notification',checkAuthorizationCustomer,(req,res)=>{
     let uid=req.user;
     return Notification.findAll({
         where:{BuyerId:uid}
-    }).then(data=>{
+    }).then(async data=>{
         res.send(data);
+        await Notification.update({
+            read:true
+        },{
+            where:{
+                read:false,
+                BuyerId:uid
+            }
+        })
     })
-
+    
 })
-
+router.post('/forgotpassword',async(req,res)=>{
+    let email =req.body.email;
+    let buyer=Buyer.findOne({where:{email:email}})
+    if(buyer){
+    let verificationcode=uid(5);
+    userverification.push({
+        "email":email,
+        "verificationcode":verificationcode
+    })
+    var mailOptions = {
+        from: 'nuchereta@gmail.com',
+        to: email,
+        subject: 'User verification',
+        text: `Your Verification code is  ${verificationcode}`
+    };
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+        });
+    }
+    else{
+        res.send("invalid email").status(400)
+    }
+})
+router.post('/codesent',async(req,res)=>{
+    let {email,verificationcode}=req.body;
+    let verified=userverification.filter((user)=>{user.useremail==useremail && user.verificationcode==verificationcode});
+    let newpassword=uid(6);
+    const hash = await bcrypt.hashSync(newpassword, bcrypt.genSaltSync(10));
+    let buyer=await Buyer.findOne({where:{email:email}});
+    if(buyer){
+       if(verified){
+        Buyer.update({
+            password:hash
+        })
+        //send the new password to the user via email and remind him to change it after login 
+        var mailOptions = {
+            from: 'nuchereta@gmail.com',
+            to: email,
+            subject: 'Password Changed',
+            text: `Your password has been updated to ${newpassword} please Login and change it to a password that you will not forget `
+        };
+    transporter.sendMail(mailOptions, function(error, info){
+    if (error) {
+        console.log(error);
+    } else {
+        console.log('Email sent: ' + info.response);
+    }
+    });
+    } 
+    }else{
+        res.send("Invalide user email")
+    }
+    
+})
 module.exports=router;
