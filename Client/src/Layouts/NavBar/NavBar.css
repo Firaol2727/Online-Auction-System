@@ -1,64 +1,120 @@
-.nav {
-  /* box-shadow: 0 0px 50px 0px rgb(223, 217, 217); */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 80px;
+  height: 100%;
+}
+
+.navbar {
+  background-image: linear-gradient(#04519b, #044687 60%, #033769);
+  position: relative;
+  position: fixed;
+  width: 100%;
+  top: 0px;
+  height:70px;
+}
+.navMore {
+  width: 50px;
+  height: 50px;
+}
+
+.menu-icon {
+  display: none;
+}
+.logo {
+  display: flex;
+  text-align: center;
+  align-items: center;
+  padding-right: 50px;
+}
+.brand {
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  margin-left: 17px;
+}
+
+.navImages {
+  width: 15px;
+  height: 15px;
+  padding-right: 10px;
+  padding-left: 1px;
+}
+.nav-elements ul {
+  display: flex;
+  justify-content: space-between;
+  list-style-type: none;
+}
+.nav-elements ul li:hover {
+  background-color: rgb(60, 62, 128);
+
+  transform: scale(1.2);
+}
+.nav-elements ul li:not(:last-child) {
+  margin-right: 60px;
+}
+
+.nav-elements ul a {
+  font-size: 16px;
+  font-weight: 400;
+  color: white;
+  text-decoration: none;
+}
+
+.nav-elements ul a.active {
+  color: white;
+  font-weight: 500;
   position: relative;
 }
-.navright {
-  display: flex;
-  align-items: center;
-  padding-right: 30px;
-}
-.signup {
-  font-size: 30px;
-}
-.signin {
-  padding-left: 50px;
-  font-size: 30px;
+
+.nav-elements ul a.active::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: black;
 }
 
+@media (max-width: 768px) {
+  .nav-elements ul li:not(:last-child) {
+    margin-right: 30px;
+  }
+}
 
-@media only screen and (min-width: 0px) and (max-width: 400px) {
-  .navright {
+@media (max-width: 600px) {
+  .menu-icon {
+    display: block;
+    cursor: pointer;
+  }
+
+  .nav-elements {
+    position: absolute;
+    right: 0;
+    top: 60px;
+    background-image: linear-gradient(#04519b, #044687 60%, #033769);
+    z-index: 1;
+    width: 0px;
+    height: calc(100vh - 60px);
+    transition: all 0.3s ease-in;
+    overflow: hidden;
+  }
+
+  .nav-elements.active {
+    width: 270px;
+  }
+
+  .nav-elements ul {
     display: flex;
-    align-items: center;
-    padding-right: 20px;
+    flex-direction: column;
   }
-  .signin {
-    padding-left: 20px;
-    font-size: 20px;
-  }
-  .signup {
-    font-size: 20px;
-  }
-}
-@media only screen and (min-width: 401px) and (max-width: 600px) {
-  .navright {
-    display: flex;
-    align-items: center;
-    padding-right: 25px;
-  }
-  .signin {
-    padding-left: 10px;
-    font-size: 25px;
-  }
-  .signup {
-    font-size: 25px;
-  }
-}
-@media only screen and (min-width: 601px) and (max-width: 801px) {
-  .navright {
-    display: flex;
-    align-items: center;
-    padding-right: 25px;
-  }
-  .signin {
-    padding-left: 20px;
-    font-size: 30px;
-  }
-  .signup {
-    font-size: 30px;
+
+  .nav-elements ul li {
+    margin-right: unset;
+    margin-top: 22px;
   }
 }

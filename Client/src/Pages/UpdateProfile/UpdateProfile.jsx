@@ -1,6 +1,6 @@
 import "./UpdateProfile.css";
-// import NavBar from ".../Layouts/NavBar/NavBar";
-// import Footer from ".../Layouts/Footer/Footer";
+import NavBar from "../../Layouts/NavBar/NavBar";
+import Footer from "../../Layouts/Footer/Footer";
 
 function UpdateProfile() {
   return (
@@ -11,4 +11,4 @@ function UpdateProfile() {
     </>
   );
 }
-export default  UpdateProfile;
+export default UpdateProfile;

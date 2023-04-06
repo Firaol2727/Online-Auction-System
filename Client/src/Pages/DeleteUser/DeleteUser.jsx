@@ -1,5 +1,5 @@
-// import NavBar from ".../Layouts/NavBar/NavBar";
-// import Footer from ".../Layouts/Footer/Footer";
+import NavBar from "../../Layouts/NavBar/NavBar";
+import Footer from "../../Layouts/Footer/Footer";
 import "./DeleteUser.css";
 export default function DeleteUser() {
   return (
