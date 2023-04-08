@@ -25,6 +25,7 @@ import DeleteAuction from "./Pages/DeleteAuction/DeleteAuction";
 import DeleteUser from "./Pages/DeleteUser/DeleteUser";
 
 import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
+import AdminAuctions from "./Pages/adminpages/auctions";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -36,7 +37,7 @@ function App() {
           <Route path="/" element={<Home />} />
 
           {/* ####   common routes */}
-          <Route path="/auctions" element={<Auctions />} />
+          <Route path="/auctions" element={<Auctions />} /> 
 
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
@@ -59,6 +60,7 @@ function App() {
 
           {/* ### admin routes */}
           <Route path="/deleteauction" element={<DeleteAuction />} />
+          <Route path="/auctioncontrol" element={<AdminAuctions/>} />
           <Route path="/deleteuser" element={<DeleteUser />} />
           <Route path="/*" element={<NotFound />} />
         </Routes>
