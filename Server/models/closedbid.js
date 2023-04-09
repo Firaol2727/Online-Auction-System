@@ -28,9 +28,13 @@ module.exports = (sequelize, DataTypes) => {
         type:DataTypes.STRING,
         allowNull:false
     },
-    buyerId:{
-        type:DataTypes.STRING,
-        allowNull:false
+    winnerId:{
+      type:DataTypes.STRING,
+      allowNull:true
+    },
+    announced:{
+      type:DataTypes.BOOLEAN,
+      defaultValue:false
     },
     date:{
       type:DataTypes.STRING,

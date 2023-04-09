@@ -1,10 +1,15 @@
 import React ,{useEffect,useState}from "react";
 import {Link,Icon, Stack, Divider} from '@mui/material';
 import { Box} from "@mui/material";
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PersonIcon from '@mui/icons-material/Person';
+import HistoryToggleOffIcon from '@mui/icons-material/HistoryToggleOff';
+import ReportIcon from '@mui/icons-material/Report';
 import LogoutIcon from '@mui/icons-material/Logout';
-
+import EventBusyIcon from '@mui/icons-material/EventBusy';
 import List from '@mui/material/List';
+import CommentIcon from '@mui/icons-material/Comment';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -39,69 +44,65 @@ const Sidebar=()=>{
               position:"static"
             }} 
             >
-        <Box bgcolor= 'white' sx={{marginTop:"60px"
+        <Box bgcolor= 'white' sx={{marginTop:"30px"
           }}> 
         <List   aria-label="contacts" >
-        < nav aria-label="main mailbox folders" >
+        <nav aria-label="bid history" >
           <ListItem disablePadding >
-          <ListItemButton onClick={()=>{ 
-            op==0?setOp(1): setOp(0)
-            }} >
+          <ListItemButton  >
             <ListItemIcon>
-              <PersonIcon />
+              <HistoryToggleOffIcon />
             </ListItemIcon>
-            <ListItemText secondary="Closed Auctions"/>
+            <ListItemText secondary="Bid History"/>
           </ListItemButton >
           </ListItem>
           <Divider/>
         </nav>
-        <nav aria-label="main mailbox folders" >
-        
+          <Link href="./reports" underline="none">
           <ListItem disablePadding >
-          <ListItemButton
-                onClick={()=>{ document.getElementById("mySidenav").style.width = "350px"}}
-          >
+          <ListItemButton>
             <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            <ListItemText secondary="Active Auctions"/>
-          </ListItemButton>
-        </ListItem>
-          
-        <Divider/>
-        </nav>
-        <nav aria-label="main mailbox folders" >
-        
-          <ListItem disablePadding >
-          <ListItemButton
-                onClick={()=>{ document.getElementById("mySidenav").style.width = "350px"}}
-          >
-            <ListItemIcon>
-              <PersonIcon />
-            </ListItemIcon>
-            
-            <ListItemText secondary="Message"/>
-          </ListItemButton>
-        </ListItem>
-        
-        <Divider/>
-        </nav>
-        <nav aria-label="main mailbox folders" >
-        
-          <ListItem disablePadding >
-          <ListItemButton
-                onClick={()=>{ document.getElementById("mySidenav").style.width = "350px"}}
-          >
-            <ListItemIcon>
-              <PersonIcon />
+              <ReportIcon />
             </ListItemIcon>
             <ListItemText secondary="Reports"/>
+          </ListItemButton>
+        </ListItem>
+          </Link>
+        <Divider/>
+        <nav aria-label="notification" >
+        
+          <ListItem disablePadding >
+          <ListItemButton
+                onClick={()=>{ 
+                  op==0?setOp(1): setOp(0)
+                  }}
+          >
+            <ListItemIcon>
+              <NotificationsIcon />
+            </ListItemIcon>
+            
+            <ListItemText secondary="Notifications"/>
+          </ListItemButton>
+        </ListItem>
+        
+        <Divider/>
+        </nav>
+        <nav aria-label="comment" >
+        
+          <ListItem disablePadding >
+          <ListItemButton
+                onClick={()=>{ document.getElementById("mySidenav").style.width = "350px"}}
+          >
+            <ListItemIcon>
+              <CommentIcon />
+            </ListItemIcon>
+            <ListItemText secondary="Comments"/>
           </ListItemButton>
         </ListItem>
        
         <Divider/>
         </nav>
-        <nav aria-label="main mailbox folders" >
+        <nav aria-label="account management" >
         {/* <Link  key ={subcategory} href={`/custom/${subcategory}`} underline="none" 
           sx={{
             border:"1px black"
@@ -109,13 +110,12 @@ const Sidebar=()=>{
           > */}
           <ListItem disablePadding >
           <ListItemButton
-                onClick={()=>{ document.getElementById("mySidenav").style.width = "350px"}}
+               
           >
             <ListItemIcon>
-              <PersonIcon />          
-
+              < ManageAccountsIcon />          
             </ListItemIcon>
-            <ListItemText secondary="Profile"/>
+            <ListItemText secondary=" Manage Seller "/>
           </ListItemButton>
         </ListItem>
           {/* <ListItemButton>
@@ -127,7 +127,7 @@ const Sidebar=()=>{
         {/* </Link> */}
         <Divider/>
         </nav>     
-        <nav aria-label="main mailbox folders" >
+        <nav aria-label="auction management" >
         {/* <Link  key ={subcategory} href={`/custom/${subcategory}`} underline="none" 
           sx={{
             border:"1px black"
@@ -135,12 +135,11 @@ const Sidebar=()=>{
           > */}
           <ListItem disablePadding >
           <ListItemButton
-                onClick={()=>{ document.getElementById("mySidenav").style.width = "350px"}}
           >
             <ListItemIcon>
-              <PersonIcon />
+              <EventBusyIcon />
             </ListItemIcon>
-            <ListItemText secondary= "Notifications"/>
+            <ListItemText secondary= "Manage Auction"/>
           </ListItemButton>
         </ListItem>
           {/* <ListItemButton>
@@ -152,11 +151,58 @@ const Sidebar=()=>{
         {/* </Link> */}
         <Divider/>
         </nav>
-        
+        <nav aria-label="profile management" >
+        {/* <Link  key ={subcategory} href={`/custom/${subcategory}`} underline="none" 
+          sx={{
+            border:"1px black"
+          }} 
+          > */}
+          <ListItem disablePadding >
+          <ListItemButton
+          >
+            <ListItemIcon>
+              <PersonIcon />
+            </ListItemIcon>
+            <ListItemText secondary= "Profile"/>
+          </ListItemButton>
+        </ListItem>
+          {/* <ListItemButton>
+            <ListItem disablePadding >
+              <ListItemText primary={subcategory} sx={{color:"black"}} />
+            </ListItem>
+          </ListItemButton> */}
+
+        {/* </Link> */}
+        <Divider/>
+        </nav>
+        <nav aria-label="logout" >
+        {/* <Link  key ={subcategory} href={`/custom/${subcategory}`} underline="none" 
+          sx={{
+            border:"1px black"
+          }} 
+          > */}
+          <ListItem disablePadding >
+          <ListItemButton
+          >
+            <ListItemIcon>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText secondary= "Log Out"/>
+          </ListItemButton>
+        </ListItem>
+          {/* <ListItemButton>
+            <ListItem disablePadding >
+              <ListItemText primary={subcategory} sx={{color:"black"}} />
+            </ListItem>
+          </ListItemButton> */}
+
+        {/* </Link> */}
+        <Divider/>
+        </nav>
     </List>
         </Box>
         </Box>
-        <Notifications open={op} setopen={setOp} />
+        <Notifications open={op} setopen={setOp}   />
         </div>
       
     );

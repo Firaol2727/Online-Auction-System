@@ -66,10 +66,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       defaultValue:"not started"
     },
-    winnerId:{
-      type:DataTypes.STRING,
-      allowNull:true
-    },
+    
     see:{
       type:DataTypes.STRING,
       allowNull:true
