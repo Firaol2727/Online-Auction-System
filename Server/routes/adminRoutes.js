@@ -33,11 +33,9 @@ const authorize=async(req,res,next)=>{
                 find.uid=data.Aid;
                 find.allow=true;
             }
-            return find;
         }
-        else{
             return find;
-        }
+    
     }).then(async (find)=>{
         console.log("the find is ",find);
     if(find.allow)
@@ -51,7 +49,7 @@ const authorize=async(req,res,next)=>{
     }
     else {
         console.log(find);
-        res.status(400).send("error username or password");
+        res.status(403).send("error username or password");
     }
     })
     .catch((err)=>{
@@ -63,7 +61,7 @@ const checkAuthorization =async(req,res,next)=>{
     if(req.cookies.jwt){
         const token=req.cookies.jwt;
         if(token==null){
-            res.status(400).send("not logged in")
+            res.status(403).send("not logged in")
         }
         jwt.verify(
             token,process.env.ACCESS_TOKEN_SECRET,
@@ -111,7 +109,7 @@ router.post('/deleteauction',checkAuthorization,async(req,res)=>{
     }
 } catch (error) {
       console.log("The error was ",err);
-      res.sendStatus(500);  
+      res.status(500).send("Internal Server Error");  
 }
 })
 router.post('/deletseller',checkAuthorization,async (req,res)=>{
@@ -121,11 +119,10 @@ router.post('/deletseller',checkAuthorization,async (req,res)=>{
         })
         res.sendStatus(200);
     } catch (error) {
-        res.sendStatus(400);
+        res.status(500).send("Internal Server Error");
         console.log("The error occuted is ",error)
     }
 }
-
 )
 router.get('/myprofile',checkAuthorization,(req,res)=>{
     let userid=req.user;
@@ -133,12 +130,9 @@ router.get('/myprofile',checkAuthorization,(req,res)=>{
         where:{id:uid}
     }).then((data)=>{
         res.send(data);
-
     }).catch(err=>{
         console.log("The error occures is ",err);
-        res.sendStatus(
-            400
-        );
+        res.status(500).send("Internal Server Error");
     })
 })
 router.post('/changepassword',checkAuthorization,async(req,res)=>{
@@ -162,14 +156,14 @@ router.post('/changepassword',checkAuthorization,async(req,res)=>{
                 },{
                     where:{cid:uid}
                 }).then((data)=>{
-                    console.log("succesful update")
+                    console.log("successful update")
                     if(data){
                         res.status(200).send("ok");
                     }
                 })
             }else{
                 console.log("false")
-                res.sendStatus(404);
+                res.status(404).send("password error");
             }
         })
         .catch((err)=>{
@@ -177,6 +171,8 @@ router.post('/changepassword',checkAuthorization,async(req,res)=>{
             res.status(404);
         })
     
+    }else{
+        res.status(400).send("Enter similar password")
     }
 })
 router.get('/closedbid',checkAuthorization,async(req,res)=>{
@@ -195,7 +191,7 @@ router.get('/reportedAuction',(req,res)=>{
         res.send(data);
     }).catch((err)=>{
         console.log(err);
-        res.sendStatus(400)
+        res.status(500).send("Internal server error")
     })
 })
 

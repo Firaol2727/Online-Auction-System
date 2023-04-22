@@ -25,9 +25,15 @@ import DeleteAuction from "./Pages/DeleteAuction/DeleteAuction";
 import DeleteUser from "./Pages/DeleteUser/DeleteUser";
 
 import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
+/*   -  ADMIN ROUTE IMPORTS    */
 import AdminAuctions from "./Pages/adminpages/auctions";
 import Reports from "./Pages/adminpages/reports";
-
+import ManageAuction from "./Pages/adminpages/manageAuction";
+import ManageSeller from "./Pages/adminpages/manageSeller";
+import Adprofile from "./Pages/adminpages/profile";
+import MoreDetail from "./Pages/adminpages/moreDetail";
+/*   -  SELLER ROUTE IMPORTS    */
+import SelHome from "./Pages/sellerpages/selhome";
 function App() {
   const [count, setCount] = useState(0);
 
@@ -51,6 +57,7 @@ function App() {
           <Route path="/updateProfile" element={<UpdateProfile />} />
 
           {/* ### seller routes */}
+          <Route path="/selhome" element={<SelHome />} />
           <Route path="/createAuction" element={<CreateAuction />} />
           <Route path="/updateAuction" element={<UpdateAuction />} />
 
@@ -60,9 +67,12 @@ function App() {
 
           {/* ### admin routes */}
           <Route path="/reports" element={<Reports />} />
-          <Route path="/deleteauction" element={<DeleteAuction />} />
+          <Route path="/manageauction" element={<ManageAuction />} /> 
+          <Route path="/manageseller" element={<ManageSeller />} />
+          <Route path="/moreon/:id" element={<MoreDetail/>} />
           <Route path="/auctioncontrol" element={<AdminAuctions/>} />
-          <Route path="/deleteuser" element={<DeleteUser />} />
+          <Route path="/adprofile" element={<Adprofile/>}/>
+          {/* <Route path="/deleteuser" element={<DeleteUser />} /> */}
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -17,7 +17,7 @@ import ListItemText from '@mui/material/ListItemText';
 import StarIcon from '@mui/icons-material/Star';
 import { useNavigate,useParams } from "react-router-dom";
 import axios from "axios";
-import Notifications from "./notification";
+import SelNotifications from "./selnotification";
 const api=axios.create({
   baseURL:"http://localhost:5000"
 })
@@ -31,7 +31,7 @@ let sub=[
   "Profile",
   "Notifications",
 ]
-const Sidebar=()=>{
+const SelSidebar=()=>{
   const [op,setOp]=useState(0);
     useEffect(()=>{
       console.log("running the use Effect")
@@ -202,9 +202,9 @@ const Sidebar=()=>{
     </List>
         </Box>
         </Box>
-        <Notifications open={op} setopen={setOp}   />
+        <SelNotifications open={op} setopen={setOp}   />
         </div>
       
     );
 }
-export default Sidebar;
+export default SelSidebar;

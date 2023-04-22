@@ -118,20 +118,7 @@ async function addCategories() {
 // main();
 
 // addAdmin();
-function CreateAuction(type) {
-    // Types of Notification 
-    /**
-     *  Types of Notifications in our project
-     * 1. Hammerprice update in notification  - 
-     * 2. Auction completed notification
-     * 3. Auction deleted Notification
-     * 4. Auction win and closed notification 
-     * 5. Auction start notification
-     * 6. 
-     * 
-     * */
-    
-}
+
 // CreateAuction();
 // io.use((socket,next)=>{
 //     console.log("handshake",socket.handshake);
@@ -143,7 +130,6 @@ let waitingchangeauctions=[];
 app.get('/images/:picid',(req,res)=>{
     let id=req.params.picid;
     console.log("fetch image - ",id)
-    if(!isNaN(id)){
         return Pictures.findOne({
             where:{id:id}
         }).then(data=>{
@@ -155,14 +141,12 @@ app.get('/images/:picid',(req,res)=>{
             res.sendFile(__dirname+'/dbImages/'+data)
         }
         else{
-            res.sendStatus(404);
+            res.status(404).send("Image not found");
         }
     }).catch(err=>{
         console.log(err);
     })
-    }else{
-        res.sendStatus(404);
-    }
+   
 
 })
 

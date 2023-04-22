@@ -2,24 +2,11 @@ import NavbarAdmin from "./adminNavbar";
 import * as React from 'react';
 import Sidebar from "./sideBar";
 import Pagination from '@mui/material/Pagination';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import PhoneIcon from '@mui/icons-material/Phone';
 import "./css/notifications.css"
 import "./css/auction.css"
 import {Link,Icon, Stack, AppBar, CardHeader, ImageList} from '@mui/material';
 import Box from '@mui/material/Box';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
-import Button from '@mui/material/Button';
-import MoneyIcon from '@mui/icons-material/Money';
-// import List from '@mui/material/List';
-// import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-// import ListItemButton from '@mui/material/ListItemButton';
-// import ListItemIcon from '@mui/material/ListItemIcon';
-// import ListItemText from '@mui/material/ListItemText';
-// import InboxIcon from '@mui/icons-material/MoveToInbox';
-// import MailIcon from '@mui/icons-material/Mail';
-// import Notifications from "./notification";
 const AdminAuctions=()=>{
     React.useEffect(()=>{
         console.log("Running the useeffect of notification page ")
@@ -52,7 +39,7 @@ const AdminAuctions=()=>{
                             </tr>
     <tr>
         <td>1</td>
-        <td>4DFG51GH1DFFG</td>
+        <Link href="/moreon/:dfg54ghj5" underline="none" ><td>4DFG51GH1DFFG</td></Link>
         <td>Lorem ipsum dolor, sit amet consectetur adipisicing elit.</td>
         <td>4/07/2022 </td>
         <td>10/07/2022</td>

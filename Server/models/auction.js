@@ -54,7 +54,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull:false
     },
     hammerprice:{ 
-      type:DataTypes.STRING,
+      type:DataTypes.DOUBLE,
       allowNull:true
     },
     state:{ 
@@ -66,7 +66,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       defaultValue:"not started"
     },
-    
     see:{
       type:DataTypes.STRING,
       allowNull:true

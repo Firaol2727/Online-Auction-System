@@ -34,8 +34,7 @@ const Reports=()=>{
                 <td><Button color="error" variant="contained">Delete</Button></td>
             </tr>
         </table>
-                    </Box></Box>
-        
+        </Box></Box>
         </Stack>
         
     </div>
