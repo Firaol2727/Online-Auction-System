@@ -15,6 +15,10 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { Link, Stack } from "@mui/material";
 import { NavLink } from "react-router-dom";
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import AddIcon from '@mui/icons-material/Add';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+
 const drawerWidth = 240;
 const navItems = ['MyProduct','AddProduct', 'Myprofile'];
 
@@ -134,15 +138,13 @@ return (
                     <ReportIcon/>
                     <Stack direction={"Column"} spacing={2} >
                         <p> My Auctions</p>
-                        <hr style={{color:"white",width:"100px"}}/>
                         </Stack>
             </Button></Link>
-        <Link href="http://localhost:3000/myprofilea" underline="none" >
+        <Link href="http://localhost:3000/myprofilea" underline="none" sx={{width:"100px"}} >
                 <Button  sx={{ color: '#fff' }}>
                     <ReportIcon/>
                     <Stack direction={"Column"} spacing={2} >
                         <p>New</p>
-                        <hr style={{color:"blue",width:"100px"}}/>
                         </Stack>
             </Button></Link>
         <Link href="http://localhost:3000/myprofilea" underline="none" >
@@ -150,19 +152,15 @@ return (
                 <ReportIcon/>
                 <Stack direction={"Column"} spacing={2} >
                     <p> Notification</p>
-                    <hr style={{width:"100px"}}/>
                     </Stack>
         </Button></Link>
         <Link href="http://localhost:3000/myprofilea" underline="none" >
             <Button  sx={{ color: '#fff' }}>
                 <ReportIcon/>
-                <Stack direction={"Column"} spacing={2} >
+               
                     <p> Profile</p>
-                    <hr style={{width:"100px"}}/>
-                    </Stack>
+                 
         </Button></Link>
-           
-            
         </Box>
         <IconButton
             color="inherit"
