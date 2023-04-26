@@ -7,7 +7,7 @@ export default function Auctions() {
   return (
     <div>
       <NavBar />
-      <AuctionCard />
+      <AuctionCard  />
       <Footer />
     </div>
   );
