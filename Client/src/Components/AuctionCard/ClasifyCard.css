@@ -1,0 +1,134 @@
+.search {
+  margin-top: 80px;
+  display: block;
+  text-align: center;
+}
+.searchButton {
+  height: 36px;
+}
+.searchInput {
+  width: 300px;
+  height: 30px;
+}
+.searchInput:focus {
+  border: 4px solid rgb(251, 46, 46);
+}
+
+.mainAuctions {
+  float: right;
+  width: 80%;
+  height: auto;
+}
+.classification {
+  float: left;
+  background-color: white;
+  margin-top: 0px;
+  width: 18%;
+  text-align: center;
+}
+.regionCategory {
+  width: 95%;
+  height: 30px;
+  text-align: center;
+}
+.priceInput {
+  width: 80%;
+  margin: 10px;
+  height: 20px;
+}
+.classifyContainer {
+  /* position: relative; */
+  margin-top: 50px;
+  height: auto;
+  /* text-align: center; */
+  align-items: center;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.clasifyPageContainer {
+  display: flow-root;
+  position: relative;
+  background-color: white;
+}
+
+.options {
+  width: 10%;
+}
+.categoryTitleTypography {
+  font-size: 20px;
+  padding-bottom: 10px;
+  font-weight: 700;
+}
+
+.categoryTypography {
+  font-size: 20px;
+}
+.regionTypography {
+  font-size: 13px;
+}
+.pricerangeTypography {
+  font-size: 13px;
+}
+.pagination {
+  margin-top: 10px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+@media only screen and (max-width: 500px) {
+  .categoryTitleTypography {
+    font-size: 17px;
+    padding-bottom: 10px;
+    font-weight: 700;
+  }
+  .classifyContainer {
+    /* position: relative; */
+    margin-top: 50px;
+    height: auto;
+    /* text-align: center; */
+    align-items: center;
+    margin-left: 4px;
+    margin-right: 4px;
+  }
+  .offerButton {
+    font-size: 10px;
+    width: 100%;
+  }
+  .categoryTypography {
+    font-size: 16px;
+  }
+  .regionTypography {
+    font-size: 10px;
+  }
+  .pricerangeTypography {
+    font-size: 10px;
+  }
+}
+@media only screen and (min-width: 0) and (max-width: 500px) {
+  .searchInput {
+    width: 200px;
+    height: 30px;
+  }
+}
+
+@media only screen and (min-width: 401) and (max-width: 800px) {
+  .categoryTitleTypography {
+    font-size: 17px;
+    padding-bottom: 10px;
+    font-weight: 700;
+  }
+
+  .offerButton {
+    font-size: 10px;
+    width: 100%;
+  }
+  .categoryTypography {
+    font-size: 10px;
+  }
+  .regionTypography {
+    font-size: 10px;
+  }
+  .pricerangeTypography {
+    font-size: 10px;
+  }
+}

@@ -1,6 +1,6 @@
 import "./About.css";
-import NavBar from "../../Layouts/NavBar/NavBar";
-import Footer from "../../Layouts/Footer/Footer";
+import NavBar from "../../../Layouts/NavBar/NavBar";
+import Footer from "../../../Layouts/Footer/Footer";
 
 export default function About() {
   return (
