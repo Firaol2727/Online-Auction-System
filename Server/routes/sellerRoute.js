@@ -1,98 +1,15 @@
+require("dotenv");
 const {sequelize}=require('../models');
 const jwt =require('jsonwebtoken');
 const bcrypt=require("bcrypt");
 const router=require('express').Router();
 const fs=require('fs');
 var bodyParser = require('body-parser');
+const cors=require("cors");
+
 const date = new Date();
 const{Admin,Auction,Banker,Bid,Buyer,Category,ClosedBid,Notification,Payment,Pictures,Product,Seller,Transaction}=sequelize.models;
-const authorizeSeller=async(req,res,next)=>{
-    let {phonenumber,password}=req.body;
-    return Seller.findOne(
-        {
-            where: {
-                phoneNo:phonenumber,
-        },
-        attributes:['sid','password']
-        }
-    ).then(async(data)=>{
-        // console.log("the data is ",data.Aid,data.password);
-        const find={
-            allow:false,
-            uid:null
-        }
-        if (data) {
-            const hashed=data.password;
-            const compared=await bcrypt.compare(password,hashed);
-            if(compared){
-                console.log("correct password")
-                find.uid=data.sid;
-                find.allow=true;
-                return find;
-            }else{
-                console.log("Invalid  password")
-                return find;
-            }
-        }
-        else{
-            return find;
-        }
-    }).then(async (find)=>{
-        console.log("the find is ",find);
-    if(find.allow)
-    {  
-        const user=find.uid;
-        const accessToken=await jwt.sign(user,
-            process.env.ACCESS_TOKEN_SECRET);
-        console.log("accessToken",accessToken);
-        res.cookie("jwt",accessToken,{maxAge: 7200000,httpOnly:true});
-        next();
-    }
-    else {
-        console.log(find);
-        res.status(400).send("error username or password");
-    }
-    })
-    .catch((err)=>{
-        console.log("The error occures is  " +err);
-        res.sendStatus(500);
-    })
-}
-const checkAuthorizationSeller=async(req,res,next)=>{
-    if(req.cookies.jwt){
-        const token=req.cookies.jwt;
-        if(token==null){
-            res.status(400).send("not logged in")
-        }
-        jwt.verify(
-            token,process.env.ACCESS_TOKEN_SECRET,
-            (err,user)=>{
-                if(err){
-                    res.sendStatus(403);
-                }
-                req.user=user;
-                next();
-            }
-        )
-    }
-    else if(req.headers.cookies){
-        let contentincookie=req.headers.cookies;
-        const token=contentincookie.slice(2);
-        jwt.verify(
-            token,process.env.ACCESS_TOKEN_SECRET,
-            (err,user)=>{
-                if(err){
-                    res.sendStatus(403);
-                }
-                req.user=user;
-                next();
-            }
-        )
-    }
-    else{
-        res.sendStatus(403);
-    }
-}
+
 let filname;
 const multer =require('multer');
 const path=require("path");
@@ -124,7 +41,104 @@ const upload=multer({
     {name:"image",maxCount:7}
 ]);
 router.use(jsonParser);
+router.use(cors({
+    origin: ['http://localhost:7494','http://127.0.0.1:3000'],
+    credentials:true,
+}));
+const authorizeSeller=async(req,res,next)=>{
+    console.log(req.body);
+    
+    let {username,password}=req.body;
+    console.log("username",username);
+    console.log("password",password);
+    return Seller.findOne(
+        {
+            where: {
+                phonenumber:username,
+        },
+        attributes:['id','password']
+        }
+    ).then(async(data)=>{
+        console.log("the data is ",data);
+        const find={
+            allow:false,
+            uid:null
+        }
+        if (data) {
+            const hashed=data.password;
+            const compared=await bcrypt.compare(password,hashed);
+            if(compared){
+                console.log("correct password")
+                find.uid=data.id;
+                find.allow=true;
+                return find;
+            }else{
+                console.log("Invalid  password")
+                return find;
+            }
+        }
+        else{
+            return find;
+        }
+    }).then(async (find)=>{
+        console.log("the find is ",find);
+    if(find.allow)
+    {  
+        const user=find.uid;
+        const accessToken=await jwt.sign(user,
+            process.env.REFRESH_TOKEN_SECRET);
+        console.log("accessToken",accessToken);
+        res.cookie("jwt",accessToken,{maxAge: 7200000,httpOnly:true});
+        next();
+    }
+    else {
+        console.log(find);
+        res.status(400).send("error username or password");
+    }
+    })
+    .catch((err)=>{
+        console.log("The error occures is  " +err);
+        res.sendStatus(500);
+    })
+}
+const checkAuthorizationSeller=async(req,res,next)=>{
+    console.log("cookies",req.cookies)
+    if(req.cookies.jwt){
+        const token=req.cookies.jwt;
+        if(token==null){
+            res.status(403).send("not logged in")
+        }
+        jwt.verify(
+            token,process.env.REFRESH_TOKEN_SECRET,
+            (err,user)=>{
+                if(err){
+                    res.send(403).send("not logged in");
+                }
+                req.user=user;
+                next();
+            }
+        )
+    }
+    else if(req.headers.cookies){
+        let contentincookie=req.headers.cookies;
+        const token=contentincookie.slice(2);
+        jwt.verify(
+            token,process.env.ACCESS_TOKEN_SECRET,
+            (err,user)=>{
+                if(err){
+                    res.sendStatus(403);
+                }
+                req.user=user;
+                next();
+            }
+        )
+    }
+    else{
+        res.sendStatus(403);
+    }
+}
 
+// Seller registration
 router.post('/register',async(req,res)=>{
     let {fname,lname,region,city,phonenumber,password}=req.body;
     console.log(req.body);
@@ -146,6 +160,7 @@ router.post('/register',async(req,res)=>{
         })
     
 })
+// change profile
 router.post('/changepp',checkAuthorizationSeller,async(req,res)=>{
     let {fname,lname,email,region,city}=req.body;
     /**
@@ -187,6 +202,7 @@ router.post('/changepp',checkAuthorizationSeller,async(req,res)=>{
     })
   
 })
+// change password
 router.post('/changepassword',checkAuthorizationSeller,async(req,res)=>{
     let {pp, np, cp}=req.body;
     let uid=req.user;
@@ -225,10 +241,12 @@ router.post('/changepassword',checkAuthorizationSeller,async(req,res)=>{
     
     }
 })
+// seller login
 router.post('/login',authorizeSeller,(req,res)=>{
     res.sendStatus(200);
 })
 
+//seller notification
 router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
     let uid=req.user;
     return Notification.findAll({
@@ -245,9 +263,11 @@ router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
         })
     })
 
-})
+}) 
+
+// create auction
 router.post('/createAuction',(req,res)=>{
-    let {name,location,baseprice,startdate,enddate,description}=req.body;
+    let {name,region,city,baseprice,startdate,enddate,description}=req.body;
     let items=jsonParser(req.body);
     console.log(items)
     console.log(req.body)
@@ -255,7 +275,8 @@ router.post('/createAuction',(req,res)=>{
         id:"",
         name:name,
         description:description,
-        location:location,
+        region:region,
+        city:city,
         baseprice: baseprice,
         startdate:startdate,
         enddate:enddate,
@@ -330,6 +351,7 @@ router.post('/createAuction',(req,res)=>{
     }
     )
 })
+// delete auction
 router.post('/deleteauction',async(req,res)=>{
     let aid=req.body.aid;
     try {
@@ -371,7 +393,8 @@ router.post('/deleteauction',async(req,res)=>{
       res.sendStatus(500);  
 }
 })
-router.post("/myauction",checkAuthorizationSeller,(req,res)=>{
+// my auction
+router.get("/myauction",checkAuthorizationSeller,(req,res)=>{
     let uid=req.user;
     return Auction.findAll({
         where:{id:uid}
@@ -379,6 +402,7 @@ router.post("/myauction",checkAuthorizationSeller,(req,res)=>{
         res.send(data);
         }))
 })
+/
 router.get('/h',(req,res)=>{
     let now=formatDate(new Date());
     console.log("The current date is" ,now);

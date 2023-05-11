@@ -39,7 +39,16 @@ module.exports = (sequelize, DataTypes) => {
       type:DataTypes.STRING,
       allowNull:false,
     },
+    sector:{
+      // Government  company person
+      type:DataTypes.STRING,
+      allowNull:false
+    },
     email: {
+      type:DataTypes.STRING,
+      allowNull:true
+    },
+    telUsername :{
       type:DataTypes.STRING,
       allowNull:true
     },

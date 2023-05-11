@@ -17,6 +17,7 @@ import Clasify from "./Pages/Auctions/Clasify";
 
 import Loading from "./Pages/Loading/Loading";
 import NotFound from "./Pages/NotFound/NotFound";
+<<<<<<< Updated upstream
 ////buyer
 
 import Notification from "./Pages/Buyer/BuyerNotification/BuyerNotification";
@@ -32,6 +33,13 @@ import Payment from "./Pages/Buyer/Payment/Payment";
 import PlaceBid from "./Pages/Buyer/PlaceBid/PlaceBid";
 
 import CreateAuction from "./Pages/CreateAuction/CreateAuction";
+=======
+import Notification from "./Pages/Notification/Notification";
+import Payment from "./Pages/Payment/Payment";
+import Profile from "./Pages/Profile/Profile";
+import SingleAuction from "./Pages/SingleAuction/SingleAuction";
+
+>>>>>>> Stashed changes
 import UpdateAuction from "./Pages/UpdateAuction/UpdateAuction";
 import UpdateProfile from "./Pages/UpdateProfile/UpdateProfile";
 import DeleteAuction from "./Pages/DeleteAuction/DeleteAuction";
@@ -47,6 +55,11 @@ import Adprofile from "./Pages/adminpages/profile";
 import MoreDetail from "./Pages/adminpages/moreDetail";
 /*   -  SELLER ROUTE IMPORTS    */
 import SelHome from "./Pages/sellerpages/selhome";
+import CreateAuction from "./Pages/sellerpages/createauctions";
+import SelProfie from "./Pages/sellerpages/selprofile";
+import SelChangePassword from "./Pages/sellerpages/selchangePassord";
+import EditAuction from "./Pages/sellerpages/EditAuction";
+import LoginTrial from "./Pages/sellerpages/loginTrial";
 function App() {
   const [count, setCount] = useState(0);
 
@@ -79,9 +92,13 @@ function App() {
           <Route path="/updateProfile" element={<UpdateProfile />} />
 
           {/* ### seller routes */}
-          <Route path="/selhome" element={<SelHome />} />
-          <Route path="/createAuction" element={<CreateAuction />} />
-          <Route path="/updateAuction" element={<UpdateAuction />} />
+          <Route path="/sel/login" element={<LoginTrial />} />
+          <Route path="/sel/home" element={<SelHome />} />
+          <Route path="/sel/newauction" element={<CreateAuction />} />
+          <Route path="/sel/updateAuction" element={<UpdateAuction />} />
+          <Route path="/sel/profile" element={< SelProfie />}/>
+          <Route path="/sel/changepassword" element={< SelChangePassword />}/>
+          <Route path="/sel/detail/:id" element={<EditAuction/>}/>
 
           {/* ### buyer routes */}
       

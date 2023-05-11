@@ -1,179 +1,211 @@
-import React from "react";
+import {useState,useEffect} from "react";
 import ReportIcon from '@mui/icons-material/Report';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import MenuIcon from '@mui/icons-material/Menu';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { Link, Stack } from "@mui/material";
-import { NavLink } from "react-router-dom";
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import AddIcon from '@mui/icons-material/Add';
+import { CircularProgress, Link, Stack } from "@mui/material";
+import LogoutIcon from '@mui/icons-material/Logout';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-
+import PersonIcon from '@mui/icons-material/Person';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import { NavLink } from "react-router-dom";
+import Badge from '@mui/material/Badge';
+import Popper from '@mui/material/Popper';
+import NotificationPop from "./Notificationpop";
 const drawerWidth = 240;
 const navItems = ['MyProduct','AddProduct', 'Myprofile'];
-
+import axios from "axios";
 function SellerNavbar(props) {
     const { window } = props;
-    const [mobileOpen, setMobileOpen] = React.useState(false);
-
-    const handleDrawerToggle = () => {
-        setMobileOpen(!mobileOpen);
+    const baseapi=axios.create({
+        baseURL:"http://localhost:3000/sel"
+    })
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [Notifications,setNotifications]=useState([]);
+    const [hasnotification,sethasnotifications]=useState(1); 
+    //  0 for loading 1 for hasnotification and 2 for no notification
+    // function fetchNotifications(params) {
+    //     baseapi.get("/notification")
+    //     .then(response=>{
+    //         if(response.status==200)
+    //             setNotifications(response.data);
+    //     })
+    //     .catch(err=>{
+    //         console.log(err);
+    //     })
+    // }
+    const open = Boolean(anchorEl);
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
     };
 
-const drawer = (
-    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-        <Typography variant="h6" sx={{ my: 2, backgroundImage: "linear-gradient(#04519b, #044687 60%, #033769)" ,position:"absolute",width:"100%",marginTop:"0%",height:"60px",color:"white"}}>
-            <p style={{marginTop:"10px"}}>NU CHERETA </p> 
-        </Typography> 
-        <Divider />
-        <Box sx={{
-            position:"absolute",width:"100%",marginTop:"62px",
-        }}>
-        <List>
-            <Link href="http://localhost:3000/watchorder" underline="none">
-            <ListItem disablePadding sx={{
-                border:"1px black"
-            }}>
-                <ListItemButton sx={{ textAlign: 'center' }}>
-                    <ListItemText primary={"watchOrder"} />
-                </ListItemButton>
-            </ListItem>
-            </Link>
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const container = window !== undefined ? () => window().document.body : undefined;
+    const [anchorElNotification, setAnchorElNotification] = useState(null);
 
-            <Divider variant="inset" component="li" />
+    const handleClickNotification= (event) => {
+        setAnchorElNotification(anchorElNotification ? null : event.currentTarget);
+    };
 
-            <Link href="http://localhost:3000/totalsell" underline="none">
-            <ListItem disablePadding sx={{
-                border:"1px black"
-            }}>
-                <ListItemButton sx={{ textAlign: 'center' }}>
-                    <ListItemText primary={"Total Sell"} />
-                </ListItemButton>
-            </ListItem>
-            </Link>
-
-            <Divider variant="inset" component="li" />
-
-            <Link href="http://localhost:3000/addseller" underline="none">
-            <ListItem disablePadding>
-                <ListItemButton sx={{ textAlign: 'center' }}>
-                    <ListItemText primary={"addSeller"} />
-                </ListItemButton>
-            </ListItem>
-            </Link>
-
-            <Divider variant="inset" component="li" />
-
-            <Link href="http://localhost:3000/sellers" underline="none">
-            <ListItem disablePadding>
-                <ListItemButton sx={{ textAlign: 'center' }}>
-                    <ListItemText primary={"sellers"} />
-                </ListItemButton>
-            </ListItem>
-            </Link>
-
-            <Divider variant="inset" component="li" />
-
-            <Link href="http://localhost:3000/myprofilea" underline="none">
-            <ListItem disablePadding>
-                <ListItemButton sx={{ textAlign: 'center' }}>
-                    <ListItemText primary={"Myprofile"} />
-                </ListItemButton>
-            </ListItem>
-            </Link>
-
-            <Divider variant="inset" component="li" />
-            
-            <Link href="http://localhost:3000/addseller" underline="none">
-            <ListItem disablePadding>
-                <ListItemButton sx={{ textAlign: 'center' }}>
-                    <ListItemText primary={"AddSeller"} />
-                </ListItemButton>
-            </ListItem>
-            </Link>
-
-            <Divider variant="inset" component="li" />
-            
-            <Link href="http://localhost:3000/addcategory" underline="none">
-            <ListItem disablePadding>
-                <ListItemButton sx={{ textAlign: 'center' }}>
-                    <ListItemText primary={"AddCategory"} />
-                </ListItemButton>
-            </ListItem>
-            </Link>
-        </List>
-        </Box>
-    </Box>
-);
-const container = window !== undefined ? () => window().document.body : undefined;
+    const openNotification = Boolean(anchorElNotification);
+    const id = openNotification ? 'simple-popper' : undefined;
 return (
     <Box sx={{ display: 'flex' }}>
-    <AppBar component="nav"  sx={{ backgroundImage: "linear-gradient(#04519b, #044687 60%, #033769)" ,height:"60px" }} >
+        {/* backgroundImage: "linear-gradient(#04519b, #044687 60%, #033769)" */}
+    <AppBar component="nav"  sx={{ backgroundColor: "#B54E47", height:"60px" }} >
         <Toolbar >
         <img
             alt="Home Page"
             src="https://oaresources.azureedge.net/images/oa-gavel-sm.png"
             style={{ width: "40px", margin: "6px 10px " }}
         ></img>
-            <Typography
+        <Typography
             variant="h6"
             component="div"
-            sx={{ flexGrow: 1, display: {  sm: 'block' } }} // xs: 'none',
+            sx={{ flexGrow: 1, display: {  xs: 'none', sm: 'block' }  }} // xs: 'none',
         >
             NU CHERETA
         </Typography>
         <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-        <Link href="http://localhost:3000/myprofilea" underline="none" >
-                <Button  sx={{ color: '#fff' }}>
-                    <ReportIcon/>
-                    <Stack direction={"Column"} spacing={2} >
-                        <p> My Auctions</p>
+        
+        <NavLink
+            to="/sel/home"
+            style={({ isActive, isPending }) => {
+                return {
+                // fontWeight: isPending ? "bold" : "",
+                color: isActive ?"#e0ffff" : "#fff" ,
+               
+                };
+            }}>
+                <Button  color="inherit" >
+                    <Stack direction={"Column"} spacing={2} sx={{alignItems:"center"}}>
+                        <ReceiptIcon/>
+                        <p>My Auctions</p>
                         </Stack>
-            </Button></Link>
-        <Link href="http://localhost:3000/myprofilea" underline="none" sx={{width:"100px"}} >
-                <Button  sx={{ color: '#fff' }}>
-                    <ReportIcon/>
-                    <Stack direction={"Column"} spacing={2} >
+                </Button>
+        </NavLink>
+        
+        <NavLink
+            to="/sel/newauction"
+            style={({ isActive, isPending }) => {
+                return {
+                // fontWeight: isPending ? "bold" : "",
+                color: isActive ?"#e0ffff" : "#fff" ,
+                
+                };
+            }}>
+                <Button  color="inherit">
+                    <Stack direction={"Column"} spacing={2} sx={{alignItems:"center"}}>
+                        <AddCircleIcon/>
                         <p>New</p>
                         </Stack>
-            </Button></Link>
-        <Link href="http://localhost:3000/myprofilea" underline="none" >
-            <Button  sx={{ color: '#fff' }}>
-                <ReportIcon/>
-                <Stack direction={"Column"} spacing={2} >
-                    <p> Notification</p>
-                    </Stack>
-        </Button></Link>
-        <Link href="http://localhost:3000/myprofilea" underline="none" >
-            <Button  sx={{ color: '#fff' }}>
-                <ReportIcon/>
-               
-                    <p> Profile</p>
-                 
-        </Button></Link>
+            </Button></NavLink>
+        
+        <Button  color="inherit" onClick={handleClickNotification} >
+            <Stack direction={"Column"} spacing={2} sx={{alignItems:"center"}}>
+                <NotificationsNoneIcon/>
+                <p> Notification</p>
+                </Stack>
+        </Button>
+
+            <Button 
+                aria-controls={open ? 'demo-positioned-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? 'true' : undefined}
+                color="inherit" onClick={handleClick}>
+            <Stack direction={"Column"} spacing={2} sx={{alignItems:"center"}} >
+            {/* <IconButton 
+                id="demo-positioned-button"
+                color="inherit"
+                aria-controls={open ? 'demo-positioned-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? 'true' : undefined}
+                
+                size="small"
+                sx={{ mr: 2, display: { sm: 'none' }}}
+            > */}
+                <PersonIcon />
+            {/* </IconButton> */}
+                {/* <PersonIcon/> */}
+                <p> Profile</p>
+            </Stack>
+        </Button>
         </Box>
-        <IconButton
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 , display: { xs: 'block', sm: 'none' },} }>
+            
+        </Typography>
+            <Stack direction={"row"} spacing={2}   sx={{ mr: 2, display: { sm: 'none' }}}>
+            <NavLink
+            to="/sel/home"
+            style={({ isActive, isPending }) => {
+                return {
+                // fontWeight: isPending ? "bold" : "",
+                color: isActive ?"#e0ffff" : "#fff" ,
+                };
+            }}>
+                <IconButton 
+                    color="inherit"
+                    aria-label="open drawer"
+                    // edge="end"
+                    size="small"
+                    aria-haspopup="true"
+                    >
+                <ReceiptIcon />
+            </IconButton>
+            </NavLink>
+            <NavLink
+            to="/sel/newauction"
+            style={({ isActive, isPending }) => {
+                return {
+                // fontWeight: isPending ? "bold" : "",
+                color: isActive ?"#e0ffff" : "#fff" ,
+               
+                };
+            }}><IconButton 
             color="inherit"
             aria-label="open drawer"
             // edge="end"
-            size="large"
+            size="small"
             aria-haspopup="true"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
             >
-            <MenuIcon />
-        </IconButton>
-        
+                <AddCircleIcon />
+            </IconButton></NavLink>
+            <IconButton 
+            color="inherit"
+            aria-label="open drawer"
+            // edge="end"
+            size="small"
+            aria-haspopup="true"
+            onClick={handleClickNotification} >
+                <Badge badgeContent={4} color="error"><NotificationsNoneIcon  sx={{color:"white"}}/></Badge>
+                
+            </IconButton>
+            
+            <IconButton 
+                id="demo-positioned-button"
+                color="inherit"
+                aria-controls={open ? 'demo-positioned-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? 'true' : undefined}
+                onClick={handleClick}
+                size="small"
+                sx={{ mr: 2, display: { sm: 'none' }}}
+            >
+                <PersonIcon />
+            </IconButton>
+            </Stack>
         </Toolbar>
     </AppBar>
     <Box component="nav">
@@ -181,7 +213,6 @@ return (
             container={container}
             variant="temporary"
             open={mobileOpen}
-            onClose={handleDrawerToggle}
             anchor="right"
             ModalProps={{
                 keepMounted: true, // Better open performance on mobile.
@@ -191,11 +222,89 @@ return (
                 '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
             }}
         >
-            {drawer}
+            
         </Drawer>
     </Box>
+    <Menu
+        id="demo-positioned-menu"
+        aria-labelledby="demo-positioned-button"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+        }}
+        transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+        }}
+    >
+         <Link href="/sel/profile"  underline="none" sx={{color:"inherit"}} onClick={handleClose}>
+            <MenuItem >
+                <ListItemIcon>
+                    <PersonIcon fontSize="small" />
+                </ListItemIcon>
+                <Typography variant="inherit">Account</Typography>
+               
+            </MenuItem>
+            </Link>
+        <MenuItem onClick={handleClose}>
+            <ListItemIcon>
+                <LogoutIcon fontSize="small" />
+            </ListItemIcon>
+            <Typography variant="inherit">Logout</Typography>
+        </MenuItem>
+        {/* <MenuItem onClick={handleClose}>My account</MenuItem> */}
+    </Menu>
+    <Popper id={id} open={openNotification} anchorEl={anchorElNotification}>
+        {
+            hasnotification==0 && <Box sx={{
+                border: 1, p: 1,width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginTop:"20px"} }}>
+                <center><CircularProgress/></center>
+            </Box>
+        }
+        {hasnotification==1&& <Box sx={{ border: 1, p: 1, bgcolor: 'background.paper',height:"700px",overflow:"scroll",paddingTop:"22px" }}>
+            <Box sx={{
+                width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
+            }}
+            ></Box>
+            <Box sx={{
+                width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
+            }}
+            ></Box>
+            <Box sx={{
+                width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
+            }}
+            ></Box>
+            <Box sx={{
+                width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
+            }}
+            ></Box>
+            <Box sx={{
+                width:{sm:"400px",xs:"300px",backgroundColor:"lightblue",height:"100px",marginBottom:"5px"}
+            }}
+            ></Box>
+            <Box sx={{
+                width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
+            }}
+            ></Box>
+            <Box sx={{
+                width:{sm:"400px",xs:"300px",backgroundColor:"lightblue",height:"100px",marginBottom:"5px"}
+            }}
+            ></Box>
+            <Box sx={{
+                width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
+            }}
+            ></Box>
+            <Box sx={{
+                width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
+            }}
+            ></Box>
+        </Box>}
+    </Popper>
     </Box>
-  );
+    );
 }
 
 export default SellerNavbar;

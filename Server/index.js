@@ -12,7 +12,6 @@ const { Server, Socket } = require("socket.io");
 const io = new Server(server);
 const { Op} = require('sequelize');
 var nodemailer = require('nodemailer');
-
 var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -27,7 +26,6 @@ var mailOptions = {
   subject: 'Sending Email using Node.js',
   text: 'That was easy!'
 };
-
 // transporter.sendMail(mailOptions, function(error, info){
 //   if (error) {
 //     console.log(error);
@@ -36,25 +34,45 @@ var mailOptions = {
 //   }
 // });
 // trying the request 
-app.use(express.json());
-app.use(express.urlencoded({
-    extended:true
-}));
-app.use(cors({
-    origin: ['http://localhost:3000','http://localhost:7494'],
-    credentials:true,
-}));
+
+// app.use(cors({ origin: 'http://127.0.0.1:5173' }))
 const adminRoutes=require('./routes/adminRoutes');
 const buyerRoute=require('./routes/buyerRoute');
 const sellerRoute=require('./routes/sellerRoute');
 const{Admin,Auction,Banker,ReportedAuction,Buyer,Category,ClosedBid,Notification,Payment,Pictures,Product,Seller,Notifyme}=sequelize.models;
-app.options('*', cors());
+
 app.use(express.json()); 
+app.use(express.urlencoded({
+    extended:true
+}));
+app.options('*', cors());
 app.use(cookieParser());
 app.use('/custom',buyerRoute);
 app.use('/special',adminRoutes);
 app.use('/sel',sellerRoute);
+// app.use(function (req, res, next) {
 
+//     // Website you wish to allow to connect
+//     res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1:3000');
+
+//     // Request methods you wish to allow
+//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+//     // Request headers you wish to allow
+//     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+//     // Set to true if you need the website to include cookies in the requests sent
+//     // to the API (e.g. in case you use sessions)
+//     res.setHeader('Access-Control-Allow-Credentials', true);
+
+//     // Pass to next layer of middleware
+//     next();
+// });
+app.use(cors({
+    // credentials:true,
+    origin: ['http://localhost:7494','http://127.0.0.1:3000'],
+    credentials:true,
+}));
 async function main() {
     // creating database structures
     await sequelize.sync({alter:true});
@@ -62,7 +80,7 @@ async function main() {
 } 
 async function tableChange() {
     //  a function used to commit database changes just change the name of the model you want to update and call the function 
-    await Notification.sync({alter:true});
+    await Seller.sync({alter:true});
     console.log("finished")
 }
 // tableChange();
@@ -82,7 +100,18 @@ async function addAdmin(){
         console.log(err);
     })
 }
-
+async function selRegistrationTrial() {
+    await  Seller.create({
+        id:"",
+        fname:"Liul", 
+        lname:"Girma",
+        password:"123",
+        phonenumber:"0902312218",
+        city:"Goba",
+        region:"Oromia",
+        type:"seller"
+    })
+}
 async function addCategories() {
     // Adding categories to the database 
     await  Category.bulkCreate([
@@ -263,7 +292,13 @@ app.get('/search',async(req,res)=>{
     // console.log(count);
     // console.log(rows);
 })
+app.post("/hele",(req,res)=>{
+    console.log(req.body)
+    console.log("Connected successfully");
+    res.cookie("u","token")
+    res.sendStatus(200)
 
+})
 // app.get('/subcategory/',async(req,res)=>{
 //     const cname=req.query.cname;
 //     const page=req.query.page!=null?req.query.page:1;
@@ -397,8 +432,8 @@ app.post('/chargeaccount',async(req,res)=>{
     }
 })
 
-server.listen(6000,()=>{
-    console.log("The server is running on 6000");
+server.listen(5000,()=>{
+    console.log("The server is running on 5000");
 })
 const auctionManage=async ()=>{
     const date=new Date();

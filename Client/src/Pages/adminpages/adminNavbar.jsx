@@ -24,7 +24,7 @@ function NavbarAdmin() {
 const container = window !== undefined ? () => window().document.body : undefined;
 return (
     <Box sx={{ display: 'flex' }}>
-    <AppBar component="nav" sx={{      backgroundImage: "linear-gradient(#04519b, #044687 60%, #033769)"}} >
+    <AppBar component="nav" sx={{  backgroundImage: "linear-gradient(#04519b, #044687 60%, #033769)"}} >
         <Toolbar>
         <img
             alt="Home Page"

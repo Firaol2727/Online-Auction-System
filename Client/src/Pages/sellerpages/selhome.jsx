@@ -2,9 +2,10 @@ import './selnav';
 import './selSidebar'
 import SellerNavbar from './selnav';
 import SelSidebar from './selSidebar';
-import { useRef } from 'react';
+import { useRef,useEffect,useState, useDebugValue } from 'react';
 import { Box ,List,Stack} from '@mui/material';
 import { Component } from 'react';
+import axios from 'axios';
 const getmarings=()=>{
     let materialwidth=window.innerWidth;
     if (materialwidth>800){
@@ -14,19 +15,36 @@ const getmarings=()=>{
     }
 }
 const selHome=()=>{
-    
+    const baseapi=axios.create(
+    { baseURL:"http://localhost:5000/sel"
+      });
+    useEffect(()=>{
+        baseapi.get("/myauction",{withCredentials:true}).then(data=>{
+            console.log("The data fetched is ",data);
+        }).catch(
+            err=>{
+                console.log("The error found is",err);
+            }
+        )
+    },[])
     return (
         <div>
             <SellerNavbar/>
                 <Box sx={{
                     position:"absolute",
                     marginTop:"80px",
-                    left:getmarings,
-                    right:getmarings
+                    left:{
+                        sm:"20%",
+                        xs:"0%"
+                    },
+                    right:{
+                        sm:"20%",
+                        xs:"0%"
+                    }
                 }} >
                     <div>
                         
-                    <h3>Overview</h3>
+                    <h2>Overview</h2>
                     
                     <div style={{height:"200px", backgroundColor:"white",marginBottom:"5px"}}>
                             <div className="picture" style={{position:"absolute",width:"180px", height:"180px", backgroundColor:"pink"
@@ -122,6 +140,7 @@ const selHome=()=>{
                     </div>
                     </div>
                 </Box>
+                
         </div>
     );
 }
