@@ -21,8 +21,8 @@ import Dialog from "@mui/material/Dialog";
 import RadioGroup from "@mui/material/RadioGroup";
 import Radio from "@mui/material/Radio";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import ReportDialogBox from "./ReportDialogBox";
-import "./ProductsCard.css";
+
+
 const options = [
   "Violence",
   "Pornography",
@@ -127,11 +127,29 @@ function ProductsCard(props) {
         }
         return (
           <Grid className="gridItem" item xs={6} sm={4} md={3} lg={3}>
-            <Paper elevation={2} className="paper">
+            <Paper
+              sx={{
+                "&:hover": {
+                  opacity: [2, 2, 2],
+                  scale:"1.05"
+                },
+              }}
+              elevation={2}
+              className="paper"
+            >
               <Box>
-                <List sx={{margin:"0px",padding:"0px"}}component="div" role="group">
+                <List
+                  sx={{ margin: "0px", padding: "0px" }}
+                  component="div"
+                  role="group"
+                >
                   <Button
-                    sx={{ margin: "0px",padding:"0px",float:"right", color: "#CC0505" }}
+                    sx={{
+                      margin: "0px",
+                      padding: "0px",
+                      float: "right",
+                      color: "#CC0505",
+                    }}
                     onClick={handleClickListItem}
                   >
                     <ReportIcon />
@@ -171,6 +189,7 @@ function ProductsCard(props) {
                     component="h6"
                   >
                     {auction.name}
+                   
                   </Typography>
 
                   <Typography
@@ -210,9 +229,7 @@ function ProductsCard(props) {
                   </Typography>
                 </Box>
               </Box>
-              {/* <div> */}
-
-              {/* </div> */}
+            
             </Paper>
           </Grid>
         );

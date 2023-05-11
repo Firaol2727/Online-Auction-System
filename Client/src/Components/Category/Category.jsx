@@ -1,5 +1,6 @@
 import { useParams, NavLink, Link } from "react-router-dom";
 import "./Category.css";
+import { Typography } from "@mui/material";
 function Category() {
   return (
     <div className="category">
@@ -11,12 +12,12 @@ function Category() {
             className="categoryLink"
             to="/auctions/auctions"
           >
-            Auctions
+            <Typography>Auctions</Typography>
           </Link>
         </li>
         <li className="categoryLi">
           <Link name="category" className="categoryLink" to="/auctions/homes">
-            Homes and real states
+            <Typography>Homes and real states</Typography>
           </Link>
         </li>
         <li className="categoryLi">
@@ -25,7 +26,7 @@ function Category() {
             className="categoryLink"
             to="/auctions/furnitures"
           >
-            Furnitures
+            <Typography>Furnitures</Typography>
           </Link>
         </li>
         <li className="categoryLi">
@@ -34,7 +35,7 @@ function Category() {
             className="categoryLink"
             to="/auctions/jewelerys"
           >
-            Jewelrys
+            <Typography>Jewelrys</Typography>
           </Link>
         </li>
         <li className="categoryLi">
@@ -43,7 +44,7 @@ function Category() {
             className="categoryLink"
             to="/auctions/artworks"
           >
-            Art works
+            <Typography>Art works</Typography>
           </Link>
         </li>
         <li className="categoryLi">
@@ -52,7 +53,7 @@ function Category() {
             className="categoryLink"
             to="/auctions/electronics"
           >
-            Electronics
+            <Typography>Electronics</Typography>
           </Link>
         </li>
         <li className="categoryLi">
@@ -61,7 +62,7 @@ function Category() {
             className="categoryLink"
             to="/auctions/manufacturing materials"
           >
-            Manufacturing materials
+            <Typography>Manufacturing materials</Typography>
           </Link>
         </li>
         <hr />
