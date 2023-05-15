@@ -27,6 +27,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CloseIcon from "@mui/icons-material/Close";
+import AuctionPagination from "../AuctionPagination";
 import data from "../../data.json";
 import {
   DateCategory,
@@ -486,12 +487,12 @@ function ClasifyCard(props) {
           }}
         >
           <Divider />
-          {mydata.map((x) => {
+          {data.auction.map((x) => {
             return (
               <Box
                 sx={{
                   borderRadius: "30px",
-                  margin:"7px",
+                  margin: "7px",
                   border: "1px solid #E8E5E5 ",
                   "&:hover": {
                     border: "1px solid red",
@@ -503,6 +504,9 @@ function ClasifyCard(props) {
               </Box>
             );
           })}
+          <Box className="pagination" justifyContent="center" textAlign="center">
+          <AuctionPagination />
+          </Box>
 
           <Divider />
         </Box>

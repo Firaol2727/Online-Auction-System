@@ -16,13 +16,13 @@ import Loading from "./Pages/Loading/Loading";
 import NotFound from "./Pages/NotFound/NotFound";
 ////buyer
 
-import BuyerAccount from "./Pages/Buyer/BuyerAccount";
 import BuyerLogout from "./Pages/Buyer/BuyerLogout";
 import BuyerEditProfile from "./Pages/Buyer/BuyerEditProfile";
 import BuyerProfile from "./Pages/Buyer/BuyerProfile";
 import SingleAuction from "./Pages/Buyer/SingleAuction";
 import Payment from "./Pages/Buyer/Payment";
 import PlaceBid from "./Pages/Buyer/PlaceBid";
+import BuyerAuctions from "./Pages/Buyer/BuyerAuctions";
 
 import CreateAuction from "./Pages/CreateAuction/CreateAuction";
 import UpdateAuction from "./Pages/UpdateAuction/UpdateAuction";
@@ -57,11 +57,11 @@ function App() {
           {/* ### buyer routes */}
 
           <Route path="/singleauction/:id" element={<SingleAuction />} />
-          <Route path="/account" element={<BuyerAccount />} />
           <Route path="/profile" element={<BuyerProfile />} />
           <Route path="/editprofile" element={<BuyerEditProfile />} />
 
           <Route path="/payment" element={<Payment />} />
+          <Route path="/buyerauctions" element={<BuyerAuctions />} />
           <Route path="/placebid" element={<PlaceBid />} />
           <Route path="/singleauction:id" element={<SingleAuction />} />
           <Route path="/updateProfile" element={<UpdateProfile />} />

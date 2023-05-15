@@ -1,23 +1,21 @@
 import { useParams, NavLink, Link } from "react-router-dom";
 import "./Category.css";
-import { Typography } from "@mui/material";
+import { Typography, Box, Button } from "@mui/material";
+import HomeIcon from "@mui/icons-material/Home";
 function Category() {
   return (
     <div className="category">
       <ul className="categoryUl">
         <hr />
         <li className="categoryLi">
-          <Link
-            name="category"
-            className="categoryLink"
-            to="/auctions/auctions"
-          >
-            <Typography>Auctions</Typography>
-          </Link>
-        </li>
-        <li className="categoryLi">
-          <Link name="category" className="categoryLink" to="/auctions/homes">
-            <Typography>Homes and real states</Typography>
+          <Link name="category" className="categoryLink" to="/">
+            <Box
+              sx={{
+                display: "flex",
+              }}
+            >
+              <Typography>Home</Typography>
+            </Box>
           </Link>
         </li>
         <li className="categoryLi">
@@ -29,6 +27,12 @@ function Category() {
             <Typography>Furnitures</Typography>
           </Link>
         </li>
+        <li className="categoryLi">
+          <Link name="category" className="categoryLink" to="/auctions/homes">
+            <Typography>Homes and real states</Typography>
+          </Link>
+        </li>
+
         <li className="categoryLi">
           <Link
             name="category"

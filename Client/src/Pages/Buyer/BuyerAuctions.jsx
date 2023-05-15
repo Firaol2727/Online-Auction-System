@@ -1,13 +1,13 @@
 import NavBuyer from "../../Layouts/NavBar/NavBuyer";
 import Footer from "../../Layouts/Footer/Footer";
-import BuyerProfileBody from "../../Components/BuyerProfileBody";
-function BuyerProfile() {
+import BuyerAuctionsBody from "../../Components/BuyerAuctionsBody";
+function BuyerAuctions() {
   return (
     <>
       <NavBuyer />
-      <BuyerProfileBody />
+      <BuyerAuctionsBody />
       <Footer />
     </>
   );
 }
-export default BuyerProfile;
+export default BuyerAuctions;

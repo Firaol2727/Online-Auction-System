@@ -11,20 +11,16 @@ import InputBase from "@mui/material/InputBase";
 import Badge from "@mui/material/Badge";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
+import Link from "@mui/material/Link";
 import MenuIcon from "@mui/icons-material/Menu";
-
+import PersonIcon from "@mui/icons-material/Person";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MoreIcon from "@mui/icons-material/MoreVert";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+
 import { NavLink } from "react-router-dom";
-import {
-  DateCategory,
-  RegionCategory,
-  PriceRangeCategory,
-  PriceInputCategory,
-} from "../../Components/Category/SubCategory";
 
 const NotoficationText = [
   "Thank you for using this service",
@@ -36,9 +32,11 @@ const NotoficationText = [
 export default function NavBuyer() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [notify, setNotify] = React.useState(null);
+  const [account, setAccount] = React.useState(null);
 
   const isMenuOpen = Boolean(anchorEl);
   const notifyOpen = Boolean(notify);
+  const accountOpen = Boolean(account);
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -54,7 +52,12 @@ export default function NavBuyer() {
   const handleNotification = (event) => {
     setNotify(event.currentTarget);
   };
-
+  const accountClose = (event) => {
+    setAccount(null);
+  };
+  const handleAccount = (event) => {
+    setAccount(event.currentTarget);
+  };
   const menuId = "primary-search-account-menu";
 
   const Notification = (
@@ -76,6 +79,49 @@ export default function NavBuyer() {
       {NotoficationText.map((option, index) => (
         <MenuItem key={option}>{option}</MenuItem>
       ))}
+    </Menu>
+  );
+  const Account = (
+    <Menu
+      // notify={notify}
+      anchorOrigin={{
+        vertical: "top",
+        horizontal: "center",
+      }}
+      keepMounted
+      transformOrigin={{
+        vertical: "center",
+        horizontal: "center",
+      }}
+      getContentAnchorEl={null}
+      open={accountOpen}
+      onClose={accountClose}
+      sx={{
+        marginTop: "50px",
+        marginLeft: {
+          lg: "250px",
+          md: "100px",
+          sm: "190px",
+          xs: "50px",
+        },
+      }}
+    >
+      <MenuItem onClose={accountClose}>
+        <Box className="account" sx={{ display: "block" }}>
+          <Box sx={{ display: "flex", margin: "10px" }}>
+            <PersonIcon size="large" />
+            <Typography className="account name">Yohannes dejene</Typography>
+          </Box>
+          <Box sx={{ margin: "20px" }}>
+            <Typography className="balance">Balance :$500</Typography>
+          </Box>
+          <Box sx={{ margin: "20px" }}>
+            <Link href="/payment">
+              <Typography sx={{ color: "red" }}>Deposite</Typography>
+            </Link>
+          </Box>
+        </Box>
+      </MenuItem>
     </Menu>
   );
 
@@ -103,20 +149,18 @@ export default function NavBuyer() {
           </NavLink>
         </Box>
       </MenuItem>
+
       <MenuItem onClick={handleMenuClose}>
         <Box>
-          <NavLink to="/account">
-            <Typography>My account</Typography>
+          <NavLink to="/buyerauctions">
+            <Typography>My auctions</Typography>
           </NavLink>
         </Box>
       </MenuItem>
       <MenuItem onClick={handleMenuClose}>
         <Box>
-          <NavLink
-            style={{ textDecoration: "none", hover: "underline" }}
-            to="/editprofile"
-          >
-            <Typography>Edit profile</Typography>
+          <NavLink to="/payment">
+            <Typography>Deposite</Typography>
           </NavLink>
         </Box>
       </MenuItem>
@@ -138,11 +182,11 @@ export default function NavBuyer() {
   );
 
   return (
-    <Box sx={{ flexGrow: 1, }}>
+    <Box sx={{ flexGrow: 1 }}>
       <AppBar
-        position="relative" 
+        position="relative"
         elevation={1}
-        sx={{ backgroundColor: "white " ,}}
+        sx={{ backgroundColor: "white " }}
       >
         <Toolbar>
           <Box
@@ -160,15 +204,26 @@ export default function NavBuyer() {
             }}
           >
             {/* <img src="air.jpg" alt="images_place" /> */}
-            <img
-              alt="Home Page"
-              src="https://oaresources.azureedge.net/images/oa-gavel-sm.png"
-              style={{
-                width: "40px",
-                margin: "10px 15px ",
-                backgroundColor: "black",
+            <Box
+              sx={{
+                display: {
+                  lg: "block",
+                  md: "block",
+                  sm: "block",
+                  xs: "none",
+                },
               }}
-            ></img>
+            >
+              <img
+                alt="Home Page"
+                src="https://oaresources.azureedge.net/images/oa-gavel-sm.png"
+                style={{
+                  width: "40px",
+                  margin: "10px 15px ",
+                  backgroundColor: "black",
+                }}
+              ></img>
+            </Box>
             <Typography
               sx={{ marginLeft: "10px", fontWeight: "800", color: "black" }}
             >
@@ -179,6 +234,25 @@ export default function NavBuyer() {
 
           <Box sx={{ flexGrow: 1 }} />
           <Box>
+            <IconButton
+              size="large"
+              aria-label="show 17 new notifications"
+              color="inherit"
+              onClick={handleAccount}
+            >
+              <AccountBalanceWalletIcon sx={{ color: "black" }} />
+
+              <Typography
+                sx={{
+                  marginLeft: "20px",
+                  fontFamily: "Monospace",
+                  fontWieght: "900",
+                  display: { xs: "none", md: "flex", color: "black" },
+                }}
+              >
+                Balance
+              </Typography>
+            </IconButton>
             <IconButton
               size="large"
               aria-label="show 17 new notifications"
@@ -196,7 +270,7 @@ export default function NavBuyer() {
                   display: { xs: "none", md: "flex", color: "black" },
                 }}
               >
-                Notifications
+                Notification
               </Typography>
             </IconButton>
             {/* <p sx={{}}>Notifications</p> */}
@@ -228,6 +302,7 @@ export default function NavBuyer() {
       </AppBar>
       {renderMenu}
       {Notification}
+      {Account}
     </Box>
   );
 }

@@ -457,7 +457,7 @@ const PriceRangeCategory = () => {
                 }}
               />
             }
-            label={<Typography>50,000,75,000</Typography>}
+            label={<Typography>50,000-75,000</Typography>}
           />
           <FormControlLabel
             value="E"
@@ -471,7 +471,7 @@ const PriceRangeCategory = () => {
                 }}
               />
             }
-            label={<Typography>75,000,,100,000</Typography>}
+            label={<Typography>75,000-100,000</Typography>}
           />
           <FormControlLabel
             value="F"

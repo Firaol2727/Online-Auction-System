@@ -1,10 +1,12 @@
 import NavBuyer from "../../Layouts/NavBar/NavBuyer";
-
+import Footer from "../../Layouts/Footer/Footer";
+import PaymentBody from "../../Components/PaymentBody";
 function Paymnet() {
   return (
     <>
       <NavBuyer />
-      <h1 style={{ marginTop: "200px" }}>payment page</h1>
+      <PaymentBody />
+      <Footer />
     </>
   );
 }
