@@ -1,11 +1,15 @@
+import { useState } from "react";
 import ClasifyCard from "../../Components/AuctionCard/ClasifyCard";
 import NavBar from "../../Layouts/NavBar/NavBar";
+import NavBuyer from "../../Layouts/NavBar/NavBuyer";
 import Footer from "../../Layouts/Footer/Footer";
 
 export default function Clasify() {
+  const [loggedin, setLogedin] = useState(0);
   return (
     <div>
-      <NavBar />
+      <NavBuyer />
+      {/* <NavBar /> */}
       <ClasifyCard />
       <Footer />
     </div>

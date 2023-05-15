@@ -1,29 +1,52 @@
 import { useState, useEffect, useReducer } from "react";
 
-import { useParams, NavLink, Link } from "react-router-dom";
+import { useParams, NavLink } from "react-router-dom";
+import IconButton from "@mui/material/IconButton";
+import SearchIcon from "@mui/icons-material/Search";
+import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import { Button, Typography } from "@mui/material";
-import Pagination from "@mui/material/Pagination";
-import InputLabel from "@mui/material/InputLabel";
+import Link from "@mui/material/Link";
 import MenuItem from "@mui/material/MenuItem";
 import FormHelperText from "@mui/material/FormHelperText";
 import FormControl from "@mui/material/FormControl";
+import Container from "@mui/material/Container";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormLabel from "@mui/material/FormLabel";
+import Input from "@mui/material/Input";
 import Select from "@mui/material/Select";
-import ProductsCard from "./ProductsCard";
-import "./ClasifyCard.css";
+import Drawer from "@mui/material/Drawer";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import MenuIcon from "@mui/icons-material/Menu";
+import ProductCard from "./ProductCard";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CloseIcon from "@mui/icons-material/Close";
+import AuctionPagination from "../AuctionPagination";
 import data from "../../data.json";
-
+import {
+  DateCategory,
+  RegionCategory,
+  PriceRangeCategory,
+  PriceInputCategory,
+} from "../Category/SubCategory";
+import Category from "../Category/Category";
 const initialState = {
   search: "",
   products: data.auction,
   region: "Addis Ababa",
   index: 1,
   productPageNumber: 1,
-  lowPrice: "",
+  lowPrice: "66",
   highPrice: "",
   reported: false,
 };
+const mydata = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -32,21 +55,7 @@ const reducer = (state, action) => {
         ...state,
         search: action.search,
       };
-    case "lowPrice":
-      return {
-        ...state,
-        lowPrice: action.lowPrice,
-      };
-    case "highPrice":
-      return {
-        ...state,
-        highPrice: action.highPrice,
-      };
-    case "region":
-      return {
-        ...state,
-        region: action.region,
-      };
+
     case "products":
       return {
         ...state,
@@ -73,7 +82,7 @@ const reducer = (state, action) => {
 function ClasifyCard(props) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [page, setPage] = useState(10);
-
+  const [isSideClassifyOpen, setSideClassifyOpen] = useState(false);
   const handleChange = (event) => {
     setPage(event.target.value);
   };
@@ -87,36 +96,148 @@ function ClasifyCard(props) {
     console.log("search submitted");
     console.log(state.search);
   }
+  function searchPrice() {
+    console.log("prices", state.lowPrice);
+  }
   console.log("the state", state);
   console.log(id);
+  const SideClassify = (
+    <>
+      <Button
+        onClick={() => setSideClassifyOpen(true)}
+        sx={{
+          color: "red",
+          "&:hover": {
+            backgroundColor: "#B54E47 ",
+            color: "white",
+          },
+        }}
+      >
+        Categories
+        <MenuIcon />
+      </Button>
+      <Drawer
+        anchor="left"
+        open={isSideClassifyOpen}
+        onClose={() => setSideClassifyOpen(false)}
+      >
+        <Box p={2} width="200px" textAlign="center" role="presentation">
+          <Typography sx={{ mt: "40px", mb: "20px", color: "#B54E47" }}>
+            Categories
+          </Typography>
+          <Divider />
+          <Accordion>
+            <AccordionSummary
+              id="panel1-header"
+              aria-controls="panel1-content"
+              expandIcon={<ExpandMoreIcon />}
+            >
+              <Typography>Date </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {" "}
+              <DateCategory />
+            </AccordionDetails>
+          </Accordion>
+
+          <Accordion>
+            <AccordionSummary
+              id="panel1-header"
+              aria-controls="panel1-content"
+              expandIcon={<ExpandMoreIcon />}
+            >
+              <Typography>Auction region</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <RegionCategory />
+            </AccordionDetails>
+          </Accordion>
+
+          <Accordion>
+            <AccordionSummary
+              id="panel1-header"
+              aria-controls="panel1-content"
+              expandIcon={<ExpandMoreIcon />}
+            >
+              <Typography>Price range</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {" "}
+              <PriceRangeCategory />
+            </AccordionDetails>
+          </Accordion>
+          <Accordion>
+            <AccordionSummary
+              id="panel1-header"
+              aria-controls="panel1-content"
+              expandIcon={<ExpandMoreIcon />}
+            >
+              <Typography>Input Price range </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {" "}
+              <PriceInputCategory />
+            </AccordionDetails>
+          </Accordion>
+        </Box>
+      </Drawer>
+    </>
+  );
   return (
-    <div className="clasifyPageContainer">
-      <div className="search">
-        <input
-          className="searchInput"
+    <Box sx={{ marginTop: "25px" }} className="clasifyPageContainer">
+      <Box sx={{ textAlign: "center", alignItems: "center" }}>
+        <TextField
           type="text"
-          placeholder="Search for auction"
+          sx={{
+            width: {
+              lg: 300,
+              md: 300,
+              sm: 200,
+              xs: 200,
+            },
+            "& .MuiInputBase-root": {
+              height: 40,
+            },
+          }}
+          placeholder="Search for auctions"
           value={state.search}
           onChange={(e) => dispatch({ type: "search", search: e.target.value })}
         />
-        <button onClick={submitSearch} className="searchButton">
-          Search
-        </button>
-      </div>
-
-      <div className="classifyContainer">
-        <Box
-          sx={{
-            height: "130px",
-            marginTop: "0px",
-            margin: "",
-          }}
+        <Button
+          variant="outlined"
+          onClick={submitSearch}
+          className="searchButton"
+          sx={{ fontSize: "12px", height: "40px", width: "15px", color: "red" }}
         >
+          <SearchIcon sx={{ color: "red" }} />
+        </Button>
+      </Box>
+      <Box className="mainClassify">
+        <Category />
+      </Box>
+      <Box
+        sx={{
+          marginLeft: {
+            lg: "5%",
+            md: "4%",
+            sm: "3%",
+            xs: "1%",
+          },
+          marginRight: {
+            lg: "5%",
+            md: "4%",
+            sm: "3%",
+            xs: "1%",
+          },
+          marginTop: "30px",
+        }}
+      >
+        <Box>
           <Typography
             variant="body"
             component="h6"
             // style={{ fontSize: "50px" }}
-            className="categoryTitleTypography"
+
             sx={{
               fontSize: {
                 xs: "16px",
@@ -130,8 +251,20 @@ function ClasifyCard(props) {
             {id.toUpperCase()}
           </Typography>
           <Divider />
-
-          <Box sx={{ height: "70px", position: "relative" }}>
+          <Box
+            className="classifyMenu"
+            sx={{
+              display: {
+                lg: "none",
+                md: "none",
+                sm: "flex",
+                xs: "flex",
+              },
+            }}
+          >
+            {SideClassify}
+          </Box>
+          <Box sx={{ height: "70px" }}>
             <Typography sx={{ float: "left", paddingTop: "20px" }}>
               400 Auctions
             </Typography>
@@ -155,156 +288,230 @@ function ClasifyCard(props) {
               </FormControl>
             </Box>
           </Box>
+
+          <Divider />
+          <Box
+            sx={{
+              display: {
+                lg: "flex",
+                md: "flex",
+                sm: "flex",
+                xs: "block",
+              },
+              flexWrap: "wrap",
+            }}
+            className="categoryDisplay"
+          >
+            <Typography sx={{ display: "block", margin: "10px" }}>
+              Categories :
+            </Typography>
+            <Box
+              sx={{
+                marginRight: "10px",
+                height: "35px",
+                paddingLeft: "20px",
+                paddingRight: "5px",
+                border: "1px solid black",
+                borderRadius: "50px",
+                backgroundColor: "BLACK",
+                display: "flex",
+                alignItems: "center",
+                justify: "center",
+              }}
+            >
+              <Typography sx={{ color: "white" }}> Date:All dates</Typography>
+              <Button
+                sx={{
+                  fontSize: "20px",
+                  width: "2px",
+                  color: "white",
+                }}
+              >
+                <CloseIcon size="small" />
+              </Button>
+            </Box>
+            <Box
+              sx={{
+                marginRight: "10px",
+                height: "35px",
+                paddingLeft: "20px",
+                paddingRight: "5px",
+                border: "1px solid black",
+                borderRadius: "50px",
+                backgroundColor: "black",
+                display: "flex",
+                alignItems: "center",
+                justify: "center",
+              }}
+            >
+              <Typography sx={{ color: "white" }}> Region:All dates</Typography>
+              <Button
+                sx={{
+                  fontSize: "20px",
+                  width: "2px",
+                  color: "white",
+                }}
+              >
+                <CloseIcon size="small" />
+              </Button>
+            </Box>
+            <Box
+              sx={{
+                marginRight: "10px",
+                height: "35px",
+                paddingLeft: "20px",
+                paddingRight: "5px",
+                border: "1px solid black",
+                borderRadius: "50px",
+                backgroundColor: "black",
+                display: "flex",
+                alignItems: "center",
+                justify: "center",
+              }}
+            >
+              <Typography sx={{ color: "white" }}>
+                {" "}
+                Price Range:All dates
+              </Typography>
+              <Button
+                sx={{
+                  fontSize: "20px",
+                  width: "2px",
+                  color: "white",
+                }}
+              >
+                <CloseIcon size="small" />
+              </Button>
+            </Box>
+            <Box
+              sx={{
+                marginRight: "10px",
+                height: "35px",
+                paddingLeft: "20px",
+                paddingRight: "5px",
+                border: "1px solid black",
+                borderRadius: "50px",
+                backgroundColor: "black",
+                display: "flex",
+                alignItems: "center",
+                justify: "center",
+              }}
+            >
+              <Typography sx={{ color: "white" }}>
+                {" "}
+                Price input:All dates
+              </Typography>
+              <Button
+                sx={{
+                  fontSize: "20px",
+                  width: "2px",
+                  color: "white",
+                }}
+              >
+                <CloseIcon size="small" />
+              </Button>
+            </Box>
+          </Box>
           <Divider />
         </Box>
-        <div className="mainAuctions">
+      </Box>
+      <Box
+        className="catProduct"
+        sx={{
+          // backgroundColor: "black",
+          position: "relative",
+          display: "flex",
+          flexDirection: {
+            lg: "row",
+            md: "row",
+            sm: "row",
+            xs: "column",
+          },
+          marginLeft: {
+            lg: "5%",
+            md: "4%",
+            sm: "3%",
+            xs: "1%",
+          },
+          marginRight: {
+            lg: "5%",
+            md: "4%",
+            sm: "3%",
+            xs: "1%",
+          },
+          // marginTop: "50px",
+        }}
+      >
+        <Box
+          className="category"
+          sx={{
+            width: {
+              lg: "20%",
+              md: "20%",
+              sm: "20%",
+              xs: "100%",
+            },
+
+            display: {
+              xs: "none",
+              sm: "none",
+              md: "block",
+              lg: "block",
+            },
+            flexDirection: "column",
+          }}
+        >
+          <DateCategory data="transfering data" />
+          <Divider />
+          <h4>Auction region</h4>
+          <RegionCategory />
           <Divider />
 
-          <ProductsCard data={state} />
-          <Divider />
-          <Pagination
-            className="pagination"
-            sx={{
-              textAlign: "center",
-              position: "relative",
-              alignItem: "center",
-            }}
-            count={10}
-            color="primary"
-          />
-        </div>
-        <div className="classification">
-          <Divider className="divider" />
-          {/* <Divider orientation="vertical" flexItem/> */}
-          <form>
-            <Typography
-              variant="body"
-              component="h6"
-              // style={{ fontSize: "15px", textAlign: "center" }}
-              sx={{
-                fontSize: {
-                  xs: "14px",
-                  sm: "16px",
-                  md: "17px",
-                  lg: "18px",
-                },
-              }}
-            >
-              Categories
-            </Typography>
-            <Divider />
-            <Typography
-              variant="subtitle1"
-              component="h6"
-              style={{
-                fontSize: "14px",
-                textAlign: "center",
-                marginTop: "10px",
-              }}
-              className="regionTypography"
-            >
-              Region
-            </Typography>
+          <PriceRangeCategory />
+          <PriceInputCategory />
+        </Box>
 
-            <select
-              id="region"
-              value={state.region}
-              onChange={(e) =>
-                dispatch({ type: "region", region: e.target.value })
-              }
-              name="region"
-              className="regionCategory"
-              placeholder="Region"
-            >
-              <option className="options" value="">
-                <pre>-----Choose Region---</pre>
-              </option>
-              <option className="options" value="Addis Ababa">
-                Addis Ababa
-              </option>
-              <option className="options" value="Dire dawa">
-                Dire dawa
-              </option>
-              <option className="options" value="Oromia">
-                Oromia
-              </option>
-              <option className="options" value="Amhara">
-                Amhara
-              </option>
-              <option className="options" value="Tigray">
-                Tigray
-              </option>
-              <option className="options" value="Sidama">
-                Sidama
-              </option>
-              <option className="options" value="Afar">
-                Afar
-              </option>
-              <option className="options" value="Somali">
-                Somali
-              </option>
-              <option className="options" value="Gambela">
+        <Box
+          className="auctions"
+          sx={{
+            width: {
+              lg: "78%",
+              md: "80%",
+              sm: "95%",
+              xs: "95%",
+            },
+            // backgroundColor: "yellow",
+            height: "auto",
+
+            paddingLeft: "10px",
+          }}
+        >
+          <Divider />
+          {data.auction.map((x) => {
+            return (
+              <Box
+                sx={{
+                  borderRadius: "30px",
+                  margin: "7px",
+                  border: "1px solid #E8E5E5 ",
+                  "&:hover": {
+                    border: "1px solid red",
+                  },
+                }}
+              >
                 {" "}
-                Gambela{" "}
-              </option>
-              <option className="options" value="Harari">
-                Harari
-              </option>
-              <option className="options" value="Benishangul-Gumuz">
-                Benishangul-Gumuz
-              </option>
-              <option className="options" value="South West Ethiopia Peoples'">
-                South West Ethiopia Peoples'
-              </option>
-              <option value="Southern Nations, Nationalities, and Peoples'">
-                Southern Nations, Nationalities, and Peoples'
-              </option>
-              {/* <span>{formErrors.region}</span> */}
-            </select>
-            <Typography
-              variant="subtitle1"
-              component="h6"
-              style={{
-                fontSize: "14px",
-                textAlign: "center",
-                marginTop: "10px",
-              }}
-              className="pricerangeTypography"
-            >
-              Price range
-            </Typography>
-            <Box className="priceBox">
-              <input
-                className="priceInput"
-                name="upperInteval"
-                type="number"
-                min="12"
-                max="30"
-                placeholder="lower range"
-                value={state.lowPrice}
-                onChange={(e) =>
-                  dispatch({ type: "lowPrice", lowPrice: e.target.value })
-                }
-              ></input>
-              <input
-                className="priceInput"
-                name="higherInterval"
-                type="number"
-                min="12"
-                max="30"
-                placeholder="higher range"
-                value={state.highPrice}
-                onChange={(e) =>
-                  dispatch({ type: "highPrice", highPrice: e.target.value })
-                }
-              ></input>
-            </Box>
-            <Button>filter</Button>
-            <Divider className="divider" />
-          </form>
-        </div>
-      </div>
-    </div>
+                <ProductCard />
+              </Box>
+            );
+          })}
+          <Box className="pagination" justifyContent="center" textAlign="center">
+          <AuctionPagination />
+          </Box>
+
+          <Divider />
+        </Box>
+      </Box>
+    </Box>
   );
 }
 export default ClasifyCard;

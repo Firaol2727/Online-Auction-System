@@ -26,9 +26,7 @@ input[type="radio"] {
   color: rgb(23, 23, 173);
   font-weight: bold;
 }
-body {
-  background-color: #ebe8e8;
-}
+
 @media only screen and (max-width: 400px) {
   .personType {
     margin-left: 0px;
