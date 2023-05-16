@@ -13,18 +13,11 @@
     "@emotion/styled": "^11.10.6",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.11.16",
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-    "axios": "^1.3.5",
-=======
-    "axios": "^1.3.4",
-    "material-ui-popup-state": "^5.0.8",
->>>>>>> main
-=======
     "@mui/x-date-pickers": "^6.3.0",
+    "@mui/x-date-pickers-pro": "^6.4.0",
     "axios": "^1.3.5",
     "dayjs": "^1.11.7",
->>>>>>> Stashed changes
+    "material-ui-popup-state": "^5.0.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.10.0",

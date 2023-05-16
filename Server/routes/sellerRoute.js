@@ -26,23 +26,23 @@ const storage= multer.diskStorage({
     }
 })
 const multerFilter=(req,file,cb)=>{
+    console.log("The file is ",file)
     if(file.mimetype=="image/png"|| file.mimetype=="image/jpg"|| file.mimetype=="image/jpeg" ){
         cb(null,true);
     }else{
-         return cb(new Error("type error"),false);
+        return cb(new Error("type error"),false);
     }
-       
 }
 const upload=multer({
     storage:storage,
     fileFilter:multerFilter,
     
 }).fields([
-    {name:"image",maxCount:7}
+    {name:"imgCollection",maxCount:7}
 ]);
 router.use(jsonParser);
 router.use(cors({
-    origin: ['http://localhost:7494','http://127.0.0.1:3000'],
+    origin: ['http://localhost:7494','http://127.0.0.1:3000','http://127.0.0.1:5173'],
     credentials:true,
 }));
 const authorizeSeller=async(req,res,next)=>{
@@ -88,7 +88,8 @@ const authorizeSeller=async(req,res,next)=>{
         const accessToken=await jwt.sign(user,
             process.env.REFRESH_TOKEN_SECRET);
         console.log("accessToken",accessToken);
-        res.cookie("jwt",accessToken,{maxAge: 7200000,httpOnly:true});
+        res.cookie("u",accessToken,{httpOnly:true,sameSite:"none",secure:"false",maxAge:7200000});
+        // res.cookie("ab","refreshed token",{httpOnly:true,sameSite:"none",secure:"false"});
         next();
     }
     else {
@@ -103,8 +104,9 @@ const authorizeSeller=async(req,res,next)=>{
 }
 const checkAuthorizationSeller=async(req,res,next)=>{
     console.log("cookies",req.cookies)
-    if(req.cookies.jwt){
-        const token=req.cookies.jwt;
+    // console.log("cookies",req.headers)
+    if(req.cookies.u){
+        const token=req.cookies.u;
         if(token==null){
             res.status(403).send("not logged in")
         }
@@ -112,7 +114,8 @@ const checkAuthorizationSeller=async(req,res,next)=>{
             token,process.env.REFRESH_TOKEN_SECRET,
             (err,user)=>{
                 if(err){
-                    res.send(403).send("not logged in");
+                    console.log("Token error is ",err)
+                    res.status(403).send("not logged in");
                 }
                 req.user=user;
                 next();
@@ -121,7 +124,7 @@ const checkAuthorizationSeller=async(req,res,next)=>{
     }
     else if(req.headers.cookies){
         let contentincookie=req.headers.cookies;
-        const token=contentincookie.slice(2);
+        const token=contentincookie.slice(0);
         jwt.verify(
             token,process.env.ACCESS_TOKEN_SECRET,
             (err,user)=>{
@@ -266,91 +269,92 @@ router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
 }) 
 
 // create auction
-router.post('/createAuction',(req,res)=>{
-    let {name,region,city,baseprice,startdate,enddate,description}=req.body;
-    let items=jsonParser(req.body);
-    console.log(items)
-    console.log(req.body)
-    return Auction.create({
-        id:"",
-        name:name,
-        description:description,
-        region:region,
-        city:city,
-        baseprice: baseprice,
-        startdate:startdate,
-        enddate:enddate,
-        hammerprice:0,
-        see:"",
-        state:"",
-        SellerId:"2255c9691651bede"
-    }).then(async data=>{
-        res.status(200).send(' <div style="color:red; position:absolute;left:20%;top:20%;width:50%;height:50%"> <h1> SuccessFull Upload <h1>  <hr>  <a href="http://localhost:3000/selhome"> back<a/> </div> ')
-    }).catch(err=>{
-        console.log(err);  // 2023-03-24 07:42:30
-        res.sendStatus(500);
-    }) 
+router.post('/upload',
+(req,res)=>{
+    // console.log("REWq",req)
+    // let {name,region,city,baseprice,startdate,enddate,description}=req.body;
+    // return Auction.create({
+    //     id:"",
+    //     name:name,
+    //     description:description,
+    //     region:region,
+    //     city:city,
+    //     baseprice: baseprice,
+    //     startdate:startdate,
+    //     enddate:enddate,
+    //     hammerprice:0,
+    //     see:"",
+    //     state:"",
+    //     SellerId:"2255c9691651bede"
+    // }).then(async data=>{
+    //     res.status(200).send(' <div style="color:red; position:absolute;left:20%;top:20%;width:50%;height:50%"> <h1> SuccessFull Upload <h1>  <hr>  <a href="http://localhost:3000/selhome"> back<a/> </div> ')
+    // }).catch(err=>{
+    //     console.log(err);  // 2023-03-24 07:42:30
+    //     res.sendStatus(500);
+    // }) 
     upload(req,res,function (err) {
         // console.log(err);
-    if(err instanceof multer.MulterError){
-        console.log("error occured");
-        console.log(err);
-        res.send("error file type");
-    }
-    else if(err){
-        console.log("we are in this this shit");
-        res.send(err);
-    }
+    // if(err instanceof multer.MulterError){
+    //     console.log("error occured");
+    //     console.log(err);
+    //     res.send("error file type");
+    // }
+    // else if(err){
+    //     console.log("we are in this this shit");
+    //     res.send(err);
+    // }
         const savedfiles=req.files;
-        // console.log("body",req.body);
-        // console.log("saved",savedfiles)
+        console.log("body",req.body);
+        console.log("files",req.file);
+        console.log("files",req.files);
+        console.log("saved",savedfiles)
         let uid=req.user;
-        let {name,location,baseprice,startdate,enddate,description}=req.body;
-        baseprice=Number(baseprice);
-        marketprice=Number(marketprice);
+        // let {name,location,baseprice,startdate,enddate,description}=req.body;
+        // baseprice=Number(baseprice);
         let picturess=[];
-        let pid=0;
-        let letmeSee=savedfiles.image[0].filename;
+        let pid=0; 
+        // let letmeSee=savedfiles.image[0].filename;
         console.log(picturess)
         let letid;
-        return Auction.create({
-            name:name,
-            description:description,
-            location:location,
-            baseprice: baseprice,
-            startdate:startdate,
-            enddate:enddate,
-            hammerprice:0,
-            see:letmeSee,
-            state:"",
-            SellerId:"2255c9691651bede"
-        }).then(data=>{
-                let pid=data.pid;
-                letid=pid;
-                let picturess=[];
-                savedfiles.image.map((item)=>{
-                    picturess.push({
-                        "picpath":item.filename,
-                        "type":"image",
-                        "ProductPid":pid
-                    })
-                })
-                return  Pictures.bulkCreate(picturess)
-        }).then(async data=>{
-            await Product.update({
-                letmeSee:data[0].id
-            },{where:{
-                pid:letid
-            }})
-            res.status(200).send(' <div style="color:red; position:absolute;left:20%;top:20%;width:50%;height:50%"> <h1> SuccessFull Upload <h1>  <hr>  <a href="http://localhost:3000/selhome"> back<a/> </div> ')
-        }).catch(err=>{
-            console.log(err);
-            res.sendStatus(500);
-        }) 
+        res.sendStatus(200);
+        // return Auction.create({
+        //     name:name,
+        //     description:description,
+        //     location:location,
+        //     baseprice: baseprice,
+        //     startdate:startdate,
+        //     enddate:enddate,
+        //     hammerprice:0,
+        //     see:letmeSee,
+        //     state:"",
+        //     SellerId:"2255c9691651bede"
+        // }).then(data=>{
+        //         let pid=data.pid;
+        //         letid=pid;
+        //         let picturess=[];
+        //         savedfiles.image.map((item)=>{
+        //             picturess.push({
+        //                 "picpath":item.filename,
+        //                 "type":"image",
+        //                 "ProductPid":pid
+        //             })
+        //         })
+        //         return  Pictures.bulkCreate(picturess)
+        // }).then(async data=>{
+        //     await Product.update({
+        //         letmeSee:data[0].id
+        //     },{where:{
+        //         pid:letid
+        //     }})
+        //     res.status(200).send(' <div style="color:red; position:absolute;left:20%;top:20%;width:50%;height:50%"> <h1> SuccessFull Upload <h1>  <hr>  <a href="http://localhost:3000/selhome"> back<a/> </div> ')
+        // }).catch(err=>{
+        //     console.log(err);
+        //     res.sendStatus(500);
+        // }) 
 
     }
-    )
-})
+    )}
+)
 // delete auction
 router.post('/deleteauction',async(req,res)=>{
     let aid=req.body.aid;

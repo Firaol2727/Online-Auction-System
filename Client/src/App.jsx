@@ -17,7 +17,7 @@ import Clasify from "./Pages/Auctions/Clasify";
 
 import Loading from "./Pages/Loading/Loading";
 import NotFound from "./Pages/NotFound/NotFound";
-<<<<<<< Updated upstream
+// <<<<<<< Updated upstream
 ////buyer
 
 import Notification from "./Pages/Buyer/BuyerNotification/BuyerNotification";
@@ -32,14 +32,12 @@ import Payment from "./Pages/Buyer/Payment/Payment";
 
 import PlaceBid from "./Pages/Buyer/PlaceBid/PlaceBid";
 
-import CreateAuction from "./Pages/CreateAuction/CreateAuction";
-=======
-import Notification from "./Pages/Notification/Notification";
-import Payment from "./Pages/Payment/Payment";
-import Profile from "./Pages/Profile/Profile";
-import SingleAuction from "./Pages/SingleAuction/SingleAuction";
+// import Notification from "./Pages/Notification/Notification";
+// import Payment from "./Pages/Payment/Payment";
+// import Profile from "./Pages/Profile/Profile";
+// import SingleAuction from "./Pages/SingleAuction/SingleAuction";
 
->>>>>>> Stashed changes
+// >>>>>>> Stashed changes
 import UpdateAuction from "./Pages/UpdateAuction/UpdateAuction";
 import UpdateProfile from "./Pages/UpdateProfile/UpdateProfile";
 import DeleteAuction from "./Pages/DeleteAuction/DeleteAuction";
@@ -60,6 +58,7 @@ import SelProfie from "./Pages/sellerpages/selprofile";
 import SelChangePassword from "./Pages/sellerpages/selchangePassord";
 import EditAuction from "./Pages/sellerpages/EditAuction";
 import LoginTrial from "./Pages/sellerpages/loginTrial";
+// import FilesUploadComponent from "./Pages/sellerpages/createtry";
 function App() {
   const [count, setCount] = useState(0);
 
@@ -67,7 +66,6 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-<<<<<<< HEAD
           <Route path="/" element={<Home />} />
 
           {/* ####   common routes */}
@@ -79,7 +77,6 @@ function App() {
             element={<Clasify />}
           />
 
->>>>>>> main
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -99,6 +96,7 @@ function App() {
           <Route path="/sel/profile" element={< SelProfie />}/>
           <Route path="/sel/changepassword" element={< SelChangePassword />}/>
           <Route path="/sel/detail/:id" element={<EditAuction/>}/>
+          {/* <Route path="/uploadtry" element={<FilesUploadComponent/>}/> */}
 
           {/* ### buyer routes */}
       
@@ -109,7 +107,7 @@ function App() {
           <Route path="/payment" element={<Payment />} />
           <Route path="/placebid" element={<PlaceBid />} />
           {/* ### admin routes */}
-<<<<<<< HEAD
+{/* <<<<<<< HEAD */}
           <Route path="/reports" element={<Reports />} />
           <Route path="/manageauction" element={<ManageAuction />} /> 
           <Route path="/manageseller" element={<ManageSeller />} />
@@ -121,7 +119,7 @@ function App() {
           <Route path="/deleteauction" element={<DeleteAuction />} />
           <Route path="/deleteuser" element={<DeleteUser />} />
 
->>>>>>> main
+{/* >>>>>>> main */}
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

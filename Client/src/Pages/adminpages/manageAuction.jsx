@@ -9,7 +9,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import './css/report.css'
 const ManageAuction=()=>{
-  return(
+    return(
     <div>
         <NavbarAdmin sx={{position:"absolute"}}/>
         <Stack direction="row" sx={{position:"relative",marginTop:"30px"}} spacing={0.5}>
@@ -20,7 +20,7 @@ const ManageAuction=()=>{
                     marginTop:"50px",
                     
                 }} >
-            <h3>Enter Auction Id </h3>
+            <h3>Search for Auction </h3>
             <Stack direction="row"style={{marginLeft:"30px"}} >
                 <TextField id="filled-basic" label="id" variant="filled" sx={{width:"300px"}}/>
                 <Button id="find" variant="contained" sx={{width:"100px"}} onClick={
@@ -104,7 +104,7 @@ const ManageAuction=()=>{
                     <Button variant="contained"  sx={{
                         position:"relative",
                         marginLeft:"600px",
-                        width:"200px",
+                        width:"100px",
                         backgroundColor:"red",
                         color:"white"
                     }}> Delete</Button>

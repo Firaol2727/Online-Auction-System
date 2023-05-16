@@ -139,7 +139,7 @@ const Sidebar=()=>{
             <ListItemIcon>
               <EventBusyIcon />
             </ListItemIcon>
-            <ListItemText secondary= "Manage Auction"/>
+            <ListItemText secondary= "Edit and Delete "/>
           </ListItemButton>
         </ListItem>
           {/* <ListItemButton>

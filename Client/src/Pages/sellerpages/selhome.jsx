@@ -18,9 +18,14 @@ const selHome=()=>{
     const baseapi=axios.create(
     { baseURL:"http://localhost:5000/sel"
       });
+    const [my_auc,setMy_auc]=useState([]);
     useEffect(()=>{
-        baseapi.get("/myauction",{withCredentials:true}).then(data=>{
+        baseapi.get("/myauction",{withCredentials:true}).then(response=>{
             console.log("The data fetched is ",data);
+            if(response.data){
+                let datas=res.data;
+                setMy_auc(datas)
+            }
         }).catch(
             err=>{
                 console.log("The error found is",err);

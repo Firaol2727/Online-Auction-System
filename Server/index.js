@@ -6,10 +6,15 @@ const app = express();
 const bcrypt=require('bcrypt');
 var cookieParser=require('cookie-parser');
 const { json } = require('express');
-const http = require('http');
-const server = http.createServer(app);
-const { Server, Socket } = require("socket.io");
-const io = new Server(server);
+const adminRoutes=require('./routes/adminRoutes');
+const buyerRoute=require('./routes/buyerRoute');
+const sellerRoute=require('./routes/sellerRoute');
+const{Admin,Auction,Banker,ReportedAuction,Buyer,Category,ClosedBid,Notification,Payment,Pictures,Product,Seller,Notifyme}=sequelize.models;
+
+// const http = require('http');
+// const server = http.createServer(app);
+// const { Server, Socket } = require("socket.io");
+// const io = new Server(server);
 const { Op} = require('sequelize');
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
@@ -36,20 +41,11 @@ var mailOptions = {
 // trying the request 
 
 // app.use(cors({ origin: 'http://127.0.0.1:5173' }))
-const adminRoutes=require('./routes/adminRoutes');
-const buyerRoute=require('./routes/buyerRoute');
-const sellerRoute=require('./routes/sellerRoute');
-const{Admin,Auction,Banker,ReportedAuction,Buyer,Category,ClosedBid,Notification,Payment,Pictures,Product,Seller,Notifyme}=sequelize.models;
 
 app.use(express.json()); 
 app.use(express.urlencoded({
     extended:true
 }));
-app.options('*', cors());
-app.use(cookieParser());
-app.use('/custom',buyerRoute);
-app.use('/special',adminRoutes);
-app.use('/sel',sellerRoute);
 // app.use(function (req, res, next) {
 
 //     // Website you wish to allow to connect
@@ -69,10 +65,15 @@ app.use('/sel',sellerRoute);
 //     next();
 // });
 app.use(cors({
-    // credentials:true,
-    origin: ['http://localhost:7494','http://127.0.0.1:3000'],
+    origin: ['http://127.0.0.1:3000','http://127.0.0.1:5173'],
     credentials:true,
 }));
+app.options('*', cors());
+app.use(cookieParser());
+app.use('/custom',buyerRoute);
+app.use('/special',adminRoutes);
+app.use('/sel',sellerRoute);
+
 async function main() {
     // creating database structures
     await sequelize.sync({alter:true});
@@ -432,9 +433,12 @@ app.post('/chargeaccount',async(req,res)=>{
     }
 })
 
-server.listen(5000,()=>{
-    console.log("The server is running on 5000");
+app.listen(5000,()=>{
+    console.log("server running at port on 5000");
 })
+// server.listen(5000,()=>{
+//     console.log("The server is running on 5000");
+// })
 const auctionManage=async ()=>{
     const date=new Date();
     let auctions=await Auction.findAll(
@@ -555,41 +559,41 @@ const authSocketMiddleware = (socket, next) => {
     next();
 };
 
-io.on("connection",async(socket)=>{
-    console.log(socket.handshake
-        )
-    addOnlineUser();
-    console.log("The socket id is ",socket.id);
-    console.log("The number of users are ", io.engine.clientsCount);
-    let data=[];
-    // bidplaced notification
-    socket.on("bidupdate",async(userid,auctionid)=>{
-        let bidders=await Bid.findAll({
-            where:{AuctionId:auctionid}
-        });
-        onlineUsers.map(async(user)=>{
-            bidders.map((bid)=>{
-                if(user.userid==bid.BuyerId){
-                    socket.to(user.socketid).emit("bidupdate","new notification")
-                }
-            })
-        })
-        socket.broadcast.emit('message',data);
+// io.on("connection",async(socket)=>{
+//     console.log(socket.handshake
+//         )
+//     addOnlineUser();
+//     console.log("The socket id is ",socket.id);
+//     console.log("The number of users are ", io.engine.clientsCount);
+//     let data=[];
+//     // bidplaced notification
+//     socket.on("bidupdate",async(userid,auctionid)=>{
+//         let bidders=await Bid.findAll({
+//             where:{AuctionId:auctionid}
+//         });
+//         onlineUsers.map(async(user)=>{
+//             bidders.map((bid)=>{
+//                 if(user.userid==bid.BuyerId){
+//                     socket.to(user.socketid).emit("bidupdate","new notification")
+//                 }
+//             })
+//         })
+//         socket.broadcast.emit('message',data);
         
-    })
-    // socket.on("message",(data)=>{
-    //     console.log(data);
-    //     socket.broadcast.emit('message',data);
+//     })
+//     // socket.on("message",(data)=>{
+//     //     console.log(data);
+//     //     socket.broadcast.emit('message',data);
         
-    // })
-    // var i=0;
-    // setInterval(() => {
-    //     socket.emit('message', {
-    //         message: i++
-    //       });
-    // }, 3000);
-    socket.on('disconnect', () => {
-        console.log("Some one has disconnected")
-        removeonlineUser(socket.id);
-      });
-})
+//     // })
+//     // var i=0;
+//     // setInterval(() => {
+//     //     socket.emit('message', {
+//     //         message: i++
+//     //       });
+//     // }, 3000);
+//     socket.on('disconnect', () => {
+//         console.log("Some one has disconnected")
+//         removeonlineUser(socket.id);
+//       });
+// })
