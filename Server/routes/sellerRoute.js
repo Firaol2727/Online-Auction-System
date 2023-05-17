@@ -6,7 +6,7 @@ const router=require('express').Router();
 const fs=require('fs');
 var bodyParser = require('body-parser');
 const cors=require("cors");
-
+const {uid}=require('uid'); 
 const date = new Date();
 const{Admin,Auction,Banker,Bid,Buyer,Category,ClosedBid,Notification,Payment,Pictures,Product,Seller,Transaction}=sequelize.models;
 
@@ -105,24 +105,30 @@ const authorizeSeller=async(req,res,next)=>{
 const checkAuthorizationSeller=async(req,res,next)=>{
     console.log("cookies",req.cookies)
     // console.log("cookies",req.headers)
+    
     if(req.cookies.u){
+        console.log("in the first check")
         const token=req.cookies.u;
         if(token==null){
+
             res.status(403).send("not logged in")
         }
         jwt.verify(
             token,process.env.REFRESH_TOKEN_SECRET,
             (err,user)=>{
+                console.log("verifing")
                 if(err){
                     console.log("Token error is ",err)
                     res.status(403).send("not logged in");
+                }else{
+                    req.user=user;
+                    next();
                 }
-                req.user=user;
-                next();
             }
         )
     }
     else if(req.headers.cookies){
+        console.log("in the second check")
         let contentincookie=req.headers.cookies;
         const token=contentincookie.slice(0);
         jwt.verify(
@@ -131,6 +137,7 @@ const checkAuthorizationSeller=async(req,res,next)=>{
                 if(err){
                     res.sendStatus(403);
                 }
+                console.log("the request user is ",user)
                 req.user=user;
                 next();
             }
@@ -208,7 +215,6 @@ router.post('/changepp',checkAuthorizationSeller,async(req,res)=>{
 // change password
 router.post('/changepassword',checkAuthorizationSeller,async(req,res)=>{
     let {pp, np, cp}=req.body;
-    let uid=req.user;
     console.log(req.body)
     if(np==cp){
         return Seller.findOne({
@@ -269,91 +275,101 @@ router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
 }) 
 
 // create auction
-router.post('/upload',
+router.post('/upload',checkAuthorizationSeller,
 (req,res)=>{
-    // console.log("REWq",req)
-    // let {name,region,city,baseprice,startdate,enddate,description}=req.body;
-    // return Auction.create({
-    //     id:"",
-    //     name:name,
-    //     description:description,
-    //     region:region,
-    //     city:city,
-    //     baseprice: baseprice,
-    //     startdate:startdate,
-    //     enddate:enddate,
-    //     hammerprice:0,
-    //     see:"",
-    //     state:"",
-    //     SellerId:"2255c9691651bede"
-    // }).then(async data=>{
-    //     res.status(200).send(' <div style="color:red; position:absolute;left:20%;top:20%;width:50%;height:50%"> <h1> SuccessFull Upload <h1>  <hr>  <a href="http://localhost:3000/selhome"> back<a/> </div> ')
-    // }).catch(err=>{
-    //     console.log(err);  // 2023-03-24 07:42:30
-    //     res.sendStatus(500);
-    // }) 
     upload(req,res,function (err) {
-        // console.log(err);
-    // if(err instanceof multer.MulterError){
-    //     console.log("error occured");
-    //     console.log(err);
-    //     res.send("error file type");
-    // }
-    // else if(err){
-    //     console.log("we are in this this shit");
-    //     res.send(err);
-    // }
+    if(err instanceof multer.MulterError){
+        console.log("error occured");
+        console.log(err);
+        res.status(404).send("file uploading error");
+    }
+    else if(err){
+        console.log("we are in this this shit");
+        res.status(404).send("file uploading error");
+    }
         const savedfiles=req.files;
         console.log("body",req.body);
-        console.log("files",req.file);
-        console.log("files",req.files);
-        console.log("saved",savedfiles)
-        let uid=req.user;
-        // let {name,location,baseprice,startdate,enddate,description}=req.body;
-        // baseprice=Number(baseprice);
-        let picturess=[];
-        let pid=0; 
-        // let letmeSee=savedfiles.image[0].filename;
+        // console.log("saved",savedfiles)
+        let userid=req.user;
+        let picturess=[]; let {name,baseprice,startdate,enddate,type,category,region,city,description}=req.body;
+        baseprice=Number(baseprice);
+        let x=uid(16);
+        let aid=uid(16);
+        let letmeSee=savedfiles.imgCollection[0].filename;
         console.log(picturess)
         let letid;
-        res.sendStatus(200);
-        // return Auction.create({
-        //     name:name,
-        //     description:description,
-        //     location:location,
-        //     baseprice: baseprice,
-        //     startdate:startdate,
-        //     enddate:enddate,
-        //     hammerprice:0,
-        //     see:letmeSee,
-        //     state:"",
-        //     SellerId:"2255c9691651bede"
-        // }).then(data=>{
-        //         let pid=data.pid;
-        //         letid=pid;
-        //         let picturess=[];
-        //         savedfiles.image.map((item)=>{
-        //             picturess.push({
-        //                 "picpath":item.filename,
-        //                 "type":"image",
-        //                 "ProductPid":pid
-        //             })
-        //         })
-        //         return  Pictures.bulkCreate(picturess)
-        // }).then(async data=>{
-        //     await Product.update({
-        //         letmeSee:data[0].id
-        //     },{where:{
-        //         pid:letid
-        //     }})
-        //     res.status(200).send(' <div style="color:red; position:absolute;left:20%;top:20%;width:50%;height:50%"> <h1> SuccessFull Upload <h1>  <hr>  <a href="http://localhost:3000/selhome"> back<a/> </div> ')
-        // }).catch(err=>{
-        //     console.log(err);
-        //     res.sendStatus(500);
-        // }) 
-
+        return Category.findOne(
+            {
+                where:{name:category}
+            }
+        ).then(data=>{
+            if(data.id){
+                return Auction.create({
+                    id:"",
+                    name:name,
+                    baseprice:baseprice,
+                    startdate:startdate,
+                    enddate:enddate,
+                    type:type,
+                    CategoryCid:data.id,
+                    region:region,
+                    city:city,
+                    description: description,
+                    hammerprice:0,
+                    see:x,
+                    state:"waiting",
+                    SellerId:userid
+            })
+            }else{
+                res.status(404).send("Invalid category")
+            }
+        })
+        .then(async  data=>{
+                let pid=data.pid;
+                letid=pid;
+                let picturess=[];
+                for (let index = 0; index < savedfiles.imgCollection.length; index++) {
+                    if(index==0){
+                        picturess.push({
+                            'id':x,
+                            "picpath":savedfiles.imgCollection[0].filename,
+                            "type":"image",
+                            "ProductPid":pid
+                        })
+                    }else{
+                    picturess.push({
+                        'id':"",
+                        "picpath":savedfiles.imgCollection[index].filename,
+                        "type":"image",
+                        "ProductPid":pid
+                    })
+                    }
+                    
+                }
+                // savedfiles.imgCollection.map((item)=>{
+                //     picturess.push({
+                //         'id':"",
+                //         "picpath":item.filename,
+                //         "type":"image",
+                //         "ProductPid":pid
+                //     })
+                // })
+                await  Pictures.bulkCreate(picturess)
+        }).then(async data=>{
+            // await Auction.update({
+            //     see:data[0].id
+            // },{where:{
+            //     pid:letid
+            // }})
+            res.status(200).send(' <div style="color:red; position:absolute;left:20%;top:20%;width:50%;height:50%"> <h1> SuccessFull Upload <h1>  <hr>  <a href="http://localhost:3000/selhome"> back<a/> </div> ')
+        }).catch(err=>{
+            console.log(err);
+            res.sendStatus(500);
+        }) 
+        
     }
-    )}
+    )
+}
 )
 // delete auction
 router.post('/deleteauction',async(req,res)=>{

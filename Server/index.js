@@ -11,10 +11,10 @@ const buyerRoute=require('./routes/buyerRoute');
 const sellerRoute=require('./routes/sellerRoute');
 const{Admin,Auction,Banker,ReportedAuction,Buyer,Category,ClosedBid,Notification,Payment,Pictures,Product,Seller,Notifyme}=sequelize.models;
 
-// const http = require('http');
-// const server = http.createServer(app);
-// const { Server, Socket } = require("socket.io");
-// const io = new Server(server);
+const http = require('http');
+const server = http.createServer(app);
+const { Server, Socket } = require("socket.io");
+const io = new Server(server);
 const { Op} = require('sequelize');
 var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
@@ -74,14 +74,14 @@ app.use('/custom',buyerRoute);
 app.use('/special',adminRoutes);
 app.use('/sel',sellerRoute);
 
-async function main() {
+async function CreateDatabase() {
     // creating database structures
     await sequelize.sync({alter:true});
     console.log("finished")
 } 
 async function tableChange() {
     //  a function used to commit database changes just change the name of the model you want to update and call the function 
-    await Seller.sync({alter:true});
+    await Auction.sync({alter:true});
     console.log("finished")
 }
 // tableChange();
@@ -115,33 +115,47 @@ async function selRegistrationTrial() {
 }
 async function addCategories() {
     // Adding categories to the database 
-    await  Category.bulkCreate([
-        {
-            id:"",
-            name:"Electronics"
-        },
-        {
-            id:"",
-            name:"Furnitures"
-        },
-        {
-            id:"",
-            name:"Mobile"
-        },
-        {
-            id:"",
-            name:"Vehicle"
-        },
-        {
-            id:"",
-            name:"Art"
-        },
-        {
-            id:"",
-            name:"Other"
-        },
+    // await  Category.bulkCreate([
+    //     {
+    //         id:"0",
+    //         name:"furnitures"
+    //     },
+    //     {
+    //         id:"",
+    //         name:"homes"
+    //     },
+    //     {
+    //         id:"",
+    //         name:"jewelleries"
+    //     },
+    //     {
+    //         id:"",
+    //         name:"artwork"
+    //     },
+    //     {
+    //         id:"",
+    //         name:"electronics"
+    //     },
+    //     {
+    //         id:"",
+    //         name:"manufacturing"
+    //     },
+    //     {
+    //         id:"",
+    //         name:"vehicles"
+    //     },
+    //     {
+    //         id:"",
+    //         name:"other"
+    //     },
+            // {
+            //     id:"",
+            //     name:"building"
+            // }
     
-    ]);
+    // ]);
+    //adding categories
+
     console.log("Categories are added in to the database successfully");
 }
 // addCategories();
@@ -433,12 +447,12 @@ app.post('/chargeaccount',async(req,res)=>{
     }
 })
 
-app.listen(5000,()=>{
-    console.log("server running at port on 5000");
-})
-// server.listen(5000,()=>{
-//     console.log("The server is running on 5000");
+// app.listen(5000,()=>{
+//     console.log("server running at port on 5000");
 // })
+server.listen(5000,()=>{
+    console.log("The server is running on 5000");
+})
 const auctionManage=async ()=>{
     const date=new Date();
     let auctions=await Auction.findAll(
@@ -559,41 +573,41 @@ const authSocketMiddleware = (socket, next) => {
     next();
 };
 
-// io.on("connection",async(socket)=>{
-//     console.log(socket.handshake
-//         )
-//     addOnlineUser();
-//     console.log("The socket id is ",socket.id);
-//     console.log("The number of users are ", io.engine.clientsCount);
-//     let data=[];
-//     // bidplaced notification
-//     socket.on("bidupdate",async(userid,auctionid)=>{
-//         let bidders=await Bid.findAll({
-//             where:{AuctionId:auctionid}
-//         });
-//         onlineUsers.map(async(user)=>{
-//             bidders.map((bid)=>{
-//                 if(user.userid==bid.BuyerId){
-//                     socket.to(user.socketid).emit("bidupdate","new notification")
-//                 }
-//             })
-//         })
-//         socket.broadcast.emit('message',data);
+io.on("connection",async(socket)=>{
+    console.log(socket.handshake
+        )
+    addOnlineUser();
+    console.log("The socket id is ",socket.id);
+    console.log("The number of users are ", io.engine.clientsCount);
+    let data=[];
+    // bidplaced notification
+    socket.on("bidupdate",async(userid,auctionid)=>{
+        let bidders=await Bid.findAll({
+            where:{AuctionId:auctionid}
+        });
+        onlineUsers.map(async(user)=>{
+            bidders.map((bid)=>{
+                if(user.userid==bid.BuyerId){
+                    socket.to(user.socketid).emit("bidupdate","new notification")
+                }
+            })
+        })
+        socket.broadcast.emit('message',data);
         
-//     })
-//     // socket.on("message",(data)=>{
-//     //     console.log(data);
-//     //     socket.broadcast.emit('message',data);
+    })
+    // socket.on("message",(data)=>{
+    //     console.log(data);
+    //     socket.broadcast.emit('message',data);
         
-//     // })
-//     // var i=0;
-//     // setInterval(() => {
-//     //     socket.emit('message', {
-//     //         message: i++
-//     //       });
-//     // }, 3000);
-//     socket.on('disconnect', () => {
-//         console.log("Some one has disconnected")
-//         removeonlineUser(socket.id);
-//       });
-// })
+    // })
+    // var i=0;
+    // setInterval(() => {
+    //     socket.emit('message', {
+    //         message: i++
+    //       });
+    // }, 3000);
+    socket.on('disconnect', () => {
+        console.log("Some one has disconnected")
+        removeonlineUser(socket.id);
+      });
+})

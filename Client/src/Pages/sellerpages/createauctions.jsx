@@ -37,6 +37,7 @@ export default class CreateAuction extends Component {
             category:null,
             type:"private",
             inputfilelength:0,
+            categoryvalid:true,
             filevalid:true,
             basepricevalid:true,
             startdatevalid:true,
@@ -85,7 +86,7 @@ export default class CreateAuction extends Component {
         console.log(fileObj)
         console.log(fileArray)
         this.setState({inputfilelength:fileObj[0].length})
-        if(inputfilelength==0){
+        if(this.state.inputfilelength==0){
             this.setState({filevalid:false})
         }else{
             for (let i = 0; i < fileObj[0].length; i++) {
@@ -106,6 +107,7 @@ export default class CreateAuction extends Component {
             this.state.inputfilelength=fileObj[0].length;
             console.log("input number",this.state.inputfilelength)
             this.setState({preview:[...fileArray]})
+            
         }
         
     }
@@ -139,12 +141,18 @@ export default class CreateAuction extends Component {
         if(this.state.baseprice<3000){
             this.setState({basepricevalid:false})
         }
+        if(this.state.inputfilelength==0){
+            this.state.filevalid=false;
+        }
+        if(this.state.category==null){
+            this.state.categoryvalid=false
+        }
         console.log("starting date ",this.state.startdate)
         console.log("ending date",this.state.enddate)
         console.log("Is the auction date valid ?",this.state.startdatevalid)
-        if(this.state.basepricevalid && this.state.filevalid && this.state.startdatevalid){
+        if(this.state.basepricevalid && this.state.filevalid && this.state.startdatevalid && this.state.categoryvalid){
             formData.append("name",this.state.name);
-            formData.append("baseprice",this.state.description);
+            formData.append("baseprice",this.state.baseprice);
             formData.append("startdate",this.state.startdate);
             formData.append("enddate",this.state.enddate);
             formData.append("type",this.state.type);
@@ -181,7 +189,7 @@ export default class CreateAuction extends Component {
                     <div style={{padding:"20px"}} >
                        
                         <TextField id="standard-basic" onChange={(e)=>{this.setState({name:e.target.value}) }} label="Name" variant="standard" sx={{width:{sm:"450px",xs:"300px"},marginRight:"40px",marginBottom:"20px"}}/> <br />
-                      { !this.state.basepricevalid && <Typography color={"error"}>Invalid date</Typography>}
+                      { !this.state.basepricevalid && <Typography color={"error"}>Enter a base price atleast 3000ETB</Typography>}
                         <TextField id="standard-basic" onChange= {(e)=>{this.setState({baseprice:e.target.value,basepricevalid:true}) }} label="Base price" variant="standard"  sx={{width:"300px",marginRight:"40px",marginBottom:"20px"}}  />
                         {/* <Stack direction={"column"} sx={{width:"300px",marginRight:"40px",marginBottom:"20px"}}>
                             <p>Start Date</p>
@@ -230,16 +238,16 @@ export default class CreateAuction extends Component {
                                 }}
                                 label="Auctioneer"
                                 >
-                                <MenuItem value={0}>Jewellery</MenuItem>
-                                <MenuItem value={1}>Construction Material</MenuItem>
-                                <MenuItem value={2}>Vehicle and vehicle parts</MenuItem>
-                                <MenuItem value={3}>Home</MenuItem>
-                                <MenuItem value={4}>Building</MenuItem>
-                                <MenuItem value={5}>Machineries</MenuItem>
-                                <MenuItem value={6}>used materials</MenuItem>
-                                <MenuItem value={7}>Furnitures</MenuItem>
-                                <MenuItem value={8}>Other</MenuItem>
-                        
+                                <MenuItem value={"furnitures"}>furnitures</MenuItem>
+                                <MenuItem value={"homes"}>Homes and Real States</MenuItem>
+                                <MenuItem value={"jewelleries"}>Jewelleries</MenuItem>
+                                <MenuItem value={"artwork"}>Artwork</MenuItem>
+                                <MenuItem value={"electronics"}>Electronics </MenuItem>
+                                <MenuItem value={"manufacturing"}>Manufacturing Materials</MenuItem>
+                                <MenuItem value={"vehicles"}>Vehicles</MenuItem>
+                                <MenuItem value={"building"}>Building</MenuItem>
+                                <MenuItem value={"other"}>Others</MenuItem>
+            
                                 </Select>
                         </FormControl>
                         <br />
@@ -307,7 +315,6 @@ export default class CreateAuction extends Component {
                             <p>Description</p>
                             <Box sx={{position:"relative",display:"flex"}}>
                                 <textarea id="description" onChange={(e)=>{
-
                                 this.setState({description:e.target.value}) 
                             }}    
                                 style={{width:"92%",height:"200px",border:"1px grey solid"}}/>

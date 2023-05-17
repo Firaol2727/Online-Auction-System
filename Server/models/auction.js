@@ -48,7 +48,8 @@ module.exports = (sequelize, DataTypes) => {
       allowNull:false
     },
     baseprice: {
-      type:DataTypes.DOUBLE,allowNull:false},
+      type:DataTypes.DOUBLE,allowNull:false
+    },
     startdate:{
       type: DataTypes.DATE,
       allowNull:false
@@ -64,15 +65,19 @@ module.exports = (sequelize, DataTypes) => {
     state:{ 
       /**
        * The alterantive values are 
-       * started  notstarted closed suspended 
-       * 
+       * active  waiting closed suspended 
+       *  
        */
       type: DataTypes.STRING,
-      defaultValue:"not started"
+      defaultValue:"waiting"
     },
     see:{
       type:DataTypes.STRING,
       allowNull:true
+    },
+    type:{
+      type:DataTypes.STRING,
+      allowNull:false
     }
   }, {
     sequelize,
