@@ -1,8 +1,22 @@
-import React from "react";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,NavLink } from "react-router-dom";
+import { react, useState, useReducer, useEffect } from "react";
+import {
+  Typography,
+  Box,
+  TextField,
+  Divider,
+  Button,
+  IconButton,
+} from "@mui/material";
+
+
+import ChevronLeftOutlinedIcon from "@mui/icons-material/ChevronLeftOutlined";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 import "./SignupForm.css";
-import axios from "../../Service/api";
+import axios from "axios";
 function SignupFormBuyer() {
   const [formData, setFormData] = useState({
     firstName: "",
@@ -47,7 +61,7 @@ function SignupFormBuyer() {
       try {
         axios({
           method: "POST",
-          url: "/buyer",
+          url: "http://localhost:5000/mine",
           data: {
             ...formData,
           },
@@ -107,20 +121,15 @@ function SignupFormBuyer() {
     return errors;
   };
   return (
-    <div className="formdiv">
-      <form className="form" onSubmit={handleSubmit}>
-        <h1 className="header">Create an account</h1>
+    <Box sx={{}} className="BuyerSignupContainer" >
+      <form onSubmit={handleSubmit}>
+        <Typography sx>Create an account</Typography> 
         <hr />
-        <div className="totalForm">
-          <div className="commonForm">
-            <input
-              type="text"
-              placeholder="First Name"
-              onChange={handleChange}
-              name="firstName"
-              value={formData.firstName}
-              className="input"
-            />
+        <Box className="totalForm">
+          <Box className="commonForm">
+            
+            <TextField id="standard-basic"   onChange={handleChange}  value={formData.firstName} label="First Name" variant="standard" />
+
             <span>{formErrors.firstName}</span>
             <input
               type="text"
@@ -167,12 +176,12 @@ function SignupFormBuyer() {
               className="input"
             />
             <span>{formErrors.confirmPassword}</span>
-          </div>
-        </div>
+          </Box>
+        </Box>
 
         <button className="submitButton"> Create account</button>
       </form>
-    </div>
+    </Box>
   );
 }
 

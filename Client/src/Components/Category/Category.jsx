@@ -7,6 +7,7 @@ function Category() {
     <div className="category">
       <ul className="categoryUl">
         <hr />
+        
         <li className="categoryLi">
           <Link name="category" className="categoryLink" to="/">
             <Box
@@ -67,6 +68,24 @@ function Category() {
             to="/auctions/manufacturing materials"
           >
             <Typography>Manufacturing materials</Typography>
+          </Link>
+        </li>
+        <li className="categoryLi">
+          <Link
+            name="category"
+            className="categoryLink"
+            to="/auctions/vehicles"
+          >
+            <Typography>Vehicles</Typography>
+          </Link>
+        </li>
+        <li className="categoryLi">
+          <Link
+            name="category"
+            className="categoryLink"
+            to="/auctions/Buildings"
+          >
+            <Typography>Buildings</Typography>
           </Link>
         </li>
         <hr />
