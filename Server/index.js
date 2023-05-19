@@ -81,7 +81,7 @@ async function CreateDatabase() {
 } 
 async function tableChange() {
     //  a function used to commit database changes just change the name of the model you want to update and call the function 
-    await Auction.sync({alter:true});
+    await Pictures.sync({alter:true});
     console.log("finished")
 }
 // tableChange();
@@ -177,6 +177,7 @@ app.get('/images/:picid',(req,res)=>{
         return Pictures.findOne({
             where:{id:id}
         }).then(data=>{
+            console.log("The data found is ",data)
             if(data){
                 return data.picpath;
             }

@@ -29,7 +29,11 @@ module.exports = (sequelize, DataTypes) => {
         
       },
       type:DataTypes.STRING,
-      primaryKey:true}
+      primaryKey:true},
+    picpath:{
+      type:DataTypes.STRING,
+      allowNull:false,
+    }
   }, {
     sequelize,
     modelName: 'Pictures',

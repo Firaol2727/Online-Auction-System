@@ -273,7 +273,7 @@ router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
     })
 
 }) 
-
+ 
 // create auction
 router.post('/upload',checkAuthorizationSeller,
 (req,res)=>{
@@ -325,8 +325,8 @@ router.post('/upload',checkAuthorizationSeller,
             }
         })
         .then(async  data=>{
-                let pid=data.pid;
-                letid=pid;
+                let aid=data.id;
+                letid=aid;
                 let picturess=[];
                 for (let index = 0; index < savedfiles.imgCollection.length; index++) {
                     if(index==0){
@@ -334,14 +334,14 @@ router.post('/upload',checkAuthorizationSeller,
                             'id':x,
                             "picpath":savedfiles.imgCollection[0].filename,
                             "type":"image",
-                            "ProductPid":pid
+                            "AuctionId":aid
                         })
                     }else{
                     picturess.push({
                         'id':"",
                         "picpath":savedfiles.imgCollection[index].filename,
                         "type":"image",
-                        "ProductPid":pid
+                        "AuctionId":aid
                     })
                     }
                     
@@ -361,7 +361,7 @@ router.post('/upload',checkAuthorizationSeller,
             // },{where:{
             //     pid:letid
             // }})
-            res.status(200).send(' <div style="color:red; position:absolute;left:20%;top:20%;width:50%;height:50%"> <h1> SuccessFull Upload <h1>  <hr>  <a href="http://localhost:3000/selhome"> back<a/> </div> ')
+            res.sendStatus(200)
         }).catch(err=>{
             console.log(err);
             res.sendStatus(500);
@@ -416,13 +416,14 @@ router.post('/deleteauction',async(req,res)=>{
 // my auction
 router.get("/myauction",checkAuthorizationSeller,(req,res)=>{
     let uid=req.user;
+    console.log("The user is ",uid)
     return Auction.findAll({
-        where:{id:uid}
+        where:{SellerId:uid}
     }).then((data=>{
         res.send(data);
         }))
 })
-/
+
 router.get('/h',(req,res)=>{
     let now=formatDate(new Date());
     console.log("The current date is" ,now);
