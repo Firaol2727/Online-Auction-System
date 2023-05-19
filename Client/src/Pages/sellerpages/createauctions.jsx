@@ -17,13 +17,14 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
-
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 export default class CreateAuction extends Component {
     constructor(props) {
         super(props);
         this.onFileChange = this.onFileChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+
         this.state = {
             imgCollection: '',
             preview:[],
@@ -77,7 +78,7 @@ export default class CreateAuction extends Component {
     };
 
     onFileChange(e) {
-
+        let nav=useNavigate()
         this.setState({ imgCollection: e.target.files,filevalid:true })
         let fileObj = [];
         let fileArray = [];
@@ -163,7 +164,12 @@ export default class CreateAuction extends Component {
             axios.post("http://localhost:5000/sel/upload",formData,{
             withCredentials:true,
             }).then(res => {
+                if(res.status===200){
+                    nav('/myauction')
+                }
                 console.log(res.data)
+            }).catch(err=>{
+                console.log("the error is ",err)
             })
         }
         
