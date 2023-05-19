@@ -6,7 +6,7 @@ import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import Link from "@mui/material/Link";
 import data from "../../data.json";
-import ProductsCard from "./ProductsCard";
+
 import ProductCard from "./ProductCard";
 
 import Category from "../Category/Category";

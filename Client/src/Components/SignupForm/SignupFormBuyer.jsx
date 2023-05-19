@@ -1,4 +1,4 @@
-import { useNavigate,NavLink } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 import { react, useState, useReducer, useEffect } from "react";
 import {
   Typography,
@@ -8,7 +8,6 @@ import {
   Button,
   IconButton,
 } from "@mui/material";
-
 
 import ChevronLeftOutlinedIcon from "@mui/icons-material/ChevronLeftOutlined";
 import InputLabel from "@mui/material/InputLabel";
@@ -121,65 +120,85 @@ function SignupFormBuyer() {
     return errors;
   };
   return (
-    <Box sx={{}} className="BuyerSignupContainer" >
+    <Box sx={{margin:"30px"}} >
       <form onSubmit={handleSubmit}>
-        <Typography sx>Create an account</Typography> 
+        <Typography sx={{ color: "blue" }}>Create an account</Typography>
         <hr />
         <Box className="totalForm">
           <Box className="commonForm">
-            
-            <TextField id="standard-basic"   onChange={handleChange}  value={formData.firstName} label="First Name" variant="standard" />
+            <TextField
+              id="standard-basic"
+              onChange={handleChange}
+              value={formData.firstName}
+              label="First Name"
+              variant="standard"
+            />
 
             <span>{formErrors.firstName}</span>
-            <input
-              type="text"
-              placeholder="Last Name"
+            <TextField
               onChange={handleChange}
-              name="lastName"
               value={formData.lastName}
-              className="input"
+              label="Last Name"
+              variant="standard"
             />
             <span>{formErrors.lastName}</span>
-            <input
-              type="email"
-              placeholder="Email"
+            <TextField
               onChange={handleChange}
-              name="email"
               value={formData.email}
-              className="input"
+              label="Email"
+              variant="standard"
             />
             <span>{formErrors.email}</span>
-            <input
-              type="number"
-              placeholder="Phone number"
+            <TextField
               onChange={handleChange}
-              name="phone"
               value={formData.phone}
-              className="input"
+              label="Phone Number"
+              variant="standard"
             />
             <span>{formErrors.phone}</span>
-            <input
-              type="password"
-              placeholder="password"
+            <TextField
               onChange={handleChange}
-              name="password"
-              value={formData.password}
-              className="input"
+              value={formData.passwod}
+              label="Password"
+              variant="standard"
             />
             <span>{formErrors.password}</span>
-            <input
-              type="password"
-              placeholder="Confirm password"
+            <TextField
               onChange={handleChange}
-              name="confirmPassword"
               value={formData.confirmPassword}
-              className="input"
+              label="Confirm Password"
+              variant="standard"
             />
             <span>{formErrors.confirmPassword}</span>
           </Box>
         </Box>
 
-        <button className="submitButton"> Create account</button>
+        <Button
+          onClick={handleSubmit}
+          sx={{
+            height: "50px",
+            fontSize: "5px",
+            marginTop: "30px",
+            textTransform: "unset",
+            // alignItems: "center",
+            // justify: "center",
+            // textAlign: "Center",
+          }}
+        >
+          <Typography
+            sx={{
+              paddingLeft: "20px",
+              paddingRight: "20px",
+              paddingTop: "10px",
+              paddingBottom: "10px",
+              backgroundColor: "#FA2121 ",
+              color: "white",
+              alignItems: "center",
+            }}
+          >
+            Create Account
+          </Typography>
+        </Button>
       </form>
     </Box>
   );

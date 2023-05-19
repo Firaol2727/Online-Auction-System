@@ -1,9 +1,23 @@
 import React from "react";
-import { useState, useEffect } from "react";
+
 import { useNavigate } from "react-router-dom";
 import "./SignupForm.css";
 import axios from "../../Service/api";
+import { react, useState, useReducer, useEffect } from "react";
+import {
+  Typography,
+  Box,
+  TextField,
+  Divider,
+  Button,
+  IconButton,
+  FormControl,
+  Select,
+  MenuItem,
+} from "@mui/material";
 function SignupFormSeller() {
+  const [region, setRegion] = useState("Oromia");
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -29,6 +43,9 @@ function SignupFormSeller() {
       };
     });
   }
+  const handleChangeRegion = (event) => {
+    setRegion(event.target.value);
+  };
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -114,115 +131,128 @@ function SignupFormSeller() {
     return errors;
   };
   return (
-    <div className="formdiv">
-      <form className="form" onSubmit={handleSubmit}>
-        <h1 className="header">Create an account</h1>
-        <hr style={{ color: "black" }} />
-        <div className="totalForm">
-          <div className="commonForm">
-            <input
-              type="text"
-              placeholder="First Name"
-              onChange={handleChange}
-              name="firstName"
-              value={formData.firstName}
-              className="input"
-            />
-            <span>{formErrors.firstName}</span>
-            <input
-              type="text"
-              placeholder="Last Name"
-              onChange={handleChange}
-              name="lastName"
-              value={formData.lastName}
-              className="input"
-            />
-            <span>{formErrors.lastName}</span>
-            <input
-              type="email"
-              placeholder="Email"
-              onChange={handleChange}
-              name="email"
-              value={formData.email}
-              className="input"
-            />
-            <span>{formErrors.email}</span>
-            <input
-              type="number"
-              placeholder="Phone number"
-              onChange={handleChange}
-              name="phone"
-              value={formData.phone}
-              className="input"
-            />
-            <span>{formErrors.phone}</span>
-            <input
-              type="password"
-              placeholder="password"
-              onChange={handleChange}
-              name="password"
-              value={formData.password}
-              className="input"
-            />
-            <span>{formErrors.password}</span>
-            <input
-              type="password"
-              placeholder="Confirm password"
-              onChange={handleChange}
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              className="input"
-            />
-            <span>{formErrors.confirmPassword}</span>
-          </div>
+    <Box sx={{margin:"30px"}}>
+      <form  onSubmit={handleSubmit}>
+        <Typography sx={{color:"blue"}}>Create an account</Typography>
+        <hr />
 
-          <div className="additionalForm">
-            <select
-              id="region"
-              value={formData.region}
-              onChange={handleChange}
-              name="region"
-              className="input"
-              placeholder="Region"
-            >
-              <option value="">
-                <pre>-----------------Choose Region------------</pre>
-              </option>
-              <option value="Addis Ababa">Addis Ababa</option>
-              <option value="Dire dawa">Dire dawa</option>
-              <option value="Oromia">Oromia</option>
-              <option value="Amhara">Amhara</option>
-              <option value="Tigray">Tigray</option>
-              <option value="Sidama">Sidama</option>
-              <option value="Afar">Afar</option>
-              <option value="Somali">Somali</option>
-              <option value="Gambela"> Gambela </option>
-              <option value="Harari">Harari</option>
-              <option value="Benishangul-Gumuz">Benishangul-Gumuz</option>
-              <option value="South West Ethiopia Peoples'">
-                South West Ethiopia Peoples'
-              </option>
-              <option value="Southern Nations, Nationalities, and Peoples'">
-                Southern Nations, Nationalities, and Peoples'
-              </option>
-              <span>{formErrors.region}</span>
-            </select>
+        <Box sx={{display:"flex",flexDirection:"column",width:{
+          
+          lg:"30%",
+          md:"40%",
+          ms:"50%",
+          xs:"90%",
+        },textAlign:"center"}}>
+          <TextField
+            onChange={handleChange}
+            value={formData.firstName}
+            label="First Name"
+            variant="standard"
+          />
+          <span>{formErrors.firstName}</span>
+          <TextField
+            onChange={handleChange}
+            value={formData.lastName}
+            label="Last Name"
+            variant="standard"
+          />
+          <span>{formErrors.lastName}</span>
+          <TextField
+            onChange={handleChange}
+            value={formData.email}
+            label="Email"
+            variant="standard"
+          />
+          <span>{formErrors.email}</span>
+          <TextField
+            onChange={handleChange}
+            value={formData.phone}
+            label="Phone Number"
+            variant="standard"
+          />
+          <span>{formErrors.phone}</span>
+          <TextField
+            onChange={handleChange}
+            value={formData.password}
+            label="Password"
+            variant="standard"
+          />
+          <span>{formErrors.password}</span>
+          <TextField
+            onChange={handleChange}
+            value={formData.confirmPassword}
+            label="Last Name"
+            variant="standard"
+          />
+          <span>{formErrors.confirmPassword}</span>
 
-            <input
-              type="text"
-              placeholder="City"
-              onChange={handleChange}
-              name="city"
-              value={formData.city}
-              className="input"
-            />
-            <span>{formErrors.city}</span>
-          </div>
-        </div>
+          <Box sx={{ float: "right", display: "flex", flexWrap: "wrap" }}>
+            <Typography sx={{ float: "left", paddingTop: "17px" }}>
+              Select region:
+            </Typography>
+            <FormControl sx={{ m: 1, minWidth: 70 }}>
+              <Select
+                value={region}
+                onChange={handleChangeRegion}
+                // displayEmpty
+                inputProps={{ "aria-label": "Without label" }}
+                sx={{ height: "40px" }}
+              >
+                <MenuItem value={"Addis Ababa"}>Addis Ababa</MenuItem>
+                <MenuItem value={"Dire Dawa"}>Dire Dawa</MenuItem>
+                <MenuItem value={"Oromia"}>Oromia</MenuItem>
+                <MenuItem value={"Amhara"}>Amhara</MenuItem>
+                <MenuItem value={"Tigray"}>Tigray</MenuItem>
+                <MenuItem value={"Afar"}>Afar</MenuItem>
+                <MenuItem value={"Somali"}>Somali</MenuItem>
+                <MenuItem value={"Gambela"}>Gambela</MenuItem>
+                <MenuItem value={"Harari"}>Harari</MenuItem>
+                <MenuItem value={"Benishangul-Gumuz"}>
+                  Benishangul-Gumuz
+                </MenuItem>
+                <MenuItem value={"SWEP"}>SWEP</MenuItem>
+                <MenuItem value={"SNNP"}>SNNP</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
 
-        <button className="submitButton"> Create account</button>
+          <TextField
+            onChange={handleChange}
+            value={formData.city}
+            label="City"
+            variant="standard"
+          />
+          <span>{formErrors.city}</span>
+        </Box>
+
+        <Button
+          onClick={handleSubmit}
+          sx={{
+            height: "50px",
+            fontSize: "5px",
+            marginTop: "30px",
+            textTransform: "unset",
+            alignItems: "center",
+            justify: "center",
+            textAlign: "Center",
+          }}
+        >
+          <Typography
+            sx={{
+              paddingLeft: "20px",
+              paddingRight: "20px",
+              paddingTop: "10px",
+              paddingBottom: "10px",
+              backgroundColor: "#FA2121 ",
+              color: "white",
+              alignItems: "center",
+            }}
+          >
+            Create Account
+          </Typography>
+        </Button>
       </form>
-    </div>
+    </Box>
   );
 }
 

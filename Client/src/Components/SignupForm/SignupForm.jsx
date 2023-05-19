@@ -2,6 +2,19 @@ import { useState } from "react";
 import SignupFormBuyer from "./SignupFormBuyer";
 import SignupFormSeller from "./SignupFormSeller";
 import "./personType.css";
+import {
+  Typography,
+  Box,
+  TextField,
+  Divider,
+  Button,
+  IconButton,
+  FormControl,
+  Select,
+  MenuItem,
+  FormControlLabel,
+  Radio,
+} from "@mui/material";
 function SignupForm() {
   const [personType, setPersonType] = useState("seller");
 
@@ -9,37 +22,44 @@ function SignupForm() {
     setPersonType(event.target.value);
   }
   return (
-    <div className="personType">
-      <div className="personTypeInputs">
-        <input
-          className="radioInput"
-          type="radio"
-          id="seller"
-          name="personType"
+    <Box sx={{textAlign:"center",margin:"40px"}}>
+      <Box >
+        <FormControlLabel
           value="seller"
-          checked={personType === "seller"}
-          onChange={handlePersonType}
+          control={
+            <Radio
+              sx={{
+                "& .MuiSvgIcon-root": {
+                  fontSize: 23,
+                  color: "black",
+                },
+              }}
+              checked={personType === "seller"}
+              onChange={handlePersonType}
+            />
+          }
+          label={<Typography sx={{ color: "blue" }}>Seller account</Typography>}
         />
-        <label htmlFor="seller" className="personTypeLabel">
-          Seller account
-        </label>
-
-        <input
-          className="radioInput"
-          type="radio"
-          id="buyer"
-          name="personType"
+        <FormControlLabel
           value="buyer"
-          checked={personType === "buyer"}
-          onChange={handlePersonType}
+          control={
+            <Radio
+              sx={{
+                "& .MuiSvgIcon-root": {
+                  fontSize: 23,
+                  color: "black",
+                },
+              }}
+              checked={personType === "buyer"}
+              onChange={handlePersonType}
+            />
+          }
+          label={<Typography sx={{ color: "blue" }}>Buyer account</Typography>}
         />
-        <label htmlFor="seller" className="personTypeLabel">
-          Buyer account
-        </label>
-      </div>
+      </Box>
       {personType === "seller" && <SignupFormSeller />}
       {personType === "buyer" && <SignupFormBuyer />}
-    </div>
+    </Box>
   );
 }
 export default SignupForm;
