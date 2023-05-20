@@ -6,6 +6,7 @@ import { useRef,useEffect,useState, useDebugValue } from 'react';
 import { Box ,List,Stack} from '@mui/material';
 import { Component } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 const getmarings=()=>{
     let materialwidth=window.innerWidth;
     if (materialwidth>800){
@@ -57,6 +58,7 @@ const selHome=()=>{
                     <h2>Overview</h2>
                     {
                       !loading &&  my_auc.map(auction=>(
+                        <Link to={`http://localhost:5173/sel/detail/${auction.id}`}>
                             <div style={{height:"200px", backgroundColor:"white",marginBottom:"5px" }}>
                             <div className="picture" style={{position:"absolute",width:"180px", height:"180px", backgroundColor:"pink"
                             }}>
@@ -81,6 +83,7 @@ const selHome=()=>{
                                 </Stack>
                             </div>
                     </div>
+                    </Link>
                         ))
                     }
                     
