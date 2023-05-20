@@ -1,7 +1,7 @@
 import React from "react";
 
 import { useNavigate } from "react-router-dom";
-import "./SignupForm.css";
+
 import axios from "../../Service/api";
 import { react, useState, useReducer, useEffect } from "react";
 import {
@@ -131,18 +131,24 @@ function SignupFormSeller() {
     return errors;
   };
   return (
-    <Box sx={{margin:"30px"}}>
-      <form  onSubmit={handleSubmit}>
-        <Typography sx={{color:"blue"}}>Create an account</Typography>
+    <Box sx={{ margin: "30px" }}>
+      <form onSubmit={handleSubmit}>
+        <Typography sx={{ color: "blue" }}>Create an account</Typography>
         <hr />
 
-        <Box sx={{display:"flex",flexDirection:"column",width:{
-          
-          lg:"30%",
-          md:"40%",
-          ms:"50%",
-          xs:"90%",
-        },textAlign:"center"}}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            width: {
+              lg: "30%",
+              md: "40%",
+              ms: "50%",
+              xs: "90%",
+            },
+            textAlign: "center",
+          }}
+        >
           <TextField
             onChange={handleChange}
             value={formData.firstName}

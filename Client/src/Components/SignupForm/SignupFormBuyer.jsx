@@ -14,7 +14,7 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import "./SignupForm.css";
+
 import axios from "axios";
 function SignupFormBuyer() {
   const [formData, setFormData] = useState({
