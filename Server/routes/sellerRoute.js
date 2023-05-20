@@ -423,7 +423,19 @@ router.get("/myauction",checkAuthorizationSeller,(req,res)=>{
         res.send(data);
         }))
 })
-
+// my profile 
+router.get('/profile',checkAuthorizationSeller,(req,res)=>{
+    let uid=req.user;
+    return Seller.findOne({
+        where:{id:uid},
+        attributes: {exclude: ['password','createdAt','updatedAt'] },
+    }).then(data=>{
+        res.send(data)
+    }).catch(err=>{
+        console.log("the error in profile fetching is",err);
+        res.sendStatus(500);
+    })
+})
 router.get('/h',(req,res)=>{
     let now=formatDate(new Date());
     console.log("The current date is" ,now);

@@ -25,6 +25,7 @@ var transporter = nodemailer.createTransport({
   }
 });
 
+
 var mailOptions = {
   from: 'youremail@gmail.com',
   to: 'myfriend@yahoo.com',
@@ -171,6 +172,7 @@ async function addCategories() {
 let onlineUsers=[];
 let thereisStart=false;
 let waitingchangeauctions=[];
+// Getting image api 
 app.get('/images/:picid',(req,res)=>{
     let id=req.params.picid;
     console.log("fetch image - ",id)
@@ -194,7 +196,7 @@ app.get('/images/:picid',(req,res)=>{
    
 
 })
-
+// Displaying home page
 app.get('/',(req,res)=>{
     console.log("running")
     console.log("the query is",req.query);
@@ -253,7 +255,7 @@ app.get('/category/:cname',async(req,res)=>{
         console.log(err)
     })
 })
-
+/// searching a product
 app.get('/search',async(req,res)=>{
     let item=req.query.item;
     let page=req.query.page!=null?req.query.page:1;

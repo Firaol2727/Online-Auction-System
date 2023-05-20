@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull:false,
     },
     sector:{
-      // Government  company person
+      // Government  company person NGO
       type:DataTypes.STRING,
       allowNull:false
     },

@@ -68,8 +68,7 @@ function BuyerProfileBody() {
             {" "}
             Account info
           </Typography>
-          <Button
-            sx={{
+          <Button sx={{
               height: "50px",
               fontSize: "5px",
               textTransform: "unset",
@@ -115,8 +114,7 @@ function BuyerProfileBody() {
             },
           }}
         >
-          <TextField
-            sx={{
+          <TextField  sx={{
               margin: "10px",
               width: {
                 lg: 245,

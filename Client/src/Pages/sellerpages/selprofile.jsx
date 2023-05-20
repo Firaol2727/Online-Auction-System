@@ -2,14 +2,10 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import PersonIcon from '@mui/icons-material/Person';
 import EditSharpIcon from '@mui/icons-material/EditSharp';
 import SellerNavbar from "./selnav";
-import { Box,Typography,IconButton,Button, Stack, TextField,Link, ListItemIcon} from "@mui/material";
+import { Box,Typography,IconButton,Button, Stack, TextField,Link, ListItemIcon,Divider} from "@mui/material";
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-
-import EmailIcon from '@mui/icons-material/Email';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -19,13 +15,129 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useState,useEffect } from 'react';
-import PhoneIcon from '@mui/icons-material/Phone';
-import LocationCityIcon from '@mui/icons-material/LocationCity';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import axios from 'axios';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { NavLink } from "react-router-dom";
+
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import Avatar from '@mui/material/Avatar';
+
+/**
+ * 
+ *  
+ */
+import LinearProgress from '@mui/material/LinearProgress';
+import PropTypes from 'prop-types';
+import List from '@mui/material/List';
+
+import { useNavigate } from 'react-router-dom';
+
+const baseapi=axios.create({
+    baseURL:"http://localhost:5000/sel"
+})
+function SimpleDialog(props) {
+    const { onClose, open } = props;
+    const [changeloading,setchangeloading]=useState(false);
+   
+    const handleClose = () => {
+      onClose();
+    };
+  
+    // const handleListItemClick = (value) => {
+    //   onClose(value);
+    // };
+  
+    return (
+      <Dialog onClose={handleClose} open={open}>
+        <DialogTitle>Change Password</DialogTitle>
+        <List sx={{ pt: 0 }}>
+         
+        <TextField
+                        sx={{
+                        margin: "10px",
+                        value:"",
+                        width:"300px",
+                        
+                        }}
+                        id="outlined-basic"
+                        variant="standard"
+                        label="old password"
+        /> <br />
+        <TextField
+                        sx={{
+                        margin: "10px",
+                        
+                        width:"300px",
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        id="outlined-basic"
+                        variant="standard"
+                        value=""
+                        label="old password"
+        /> <br />
+        <TextField
+                        sx={{
+                        margin: "10px",
+                        
+                        width:"300px",
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        id="outlined-basic"
+                        variant="standard"
+                        label="old password"
+        /> <br /> 
+        {changeloading && <LinearProgress/>}
+        <br />
+        <center> <Button variant='contained' color='error' disabled={changeloading} onClick={()=>{setchangeloading(true)}}>
+            Confirm
+        </Button></center>
+         
+        </List>
+      </Dialog>
+    );
+  }
+  
+  SimpleDialog.propTypes = {
+    onClose: PropTypes.func.isRequired,
+    open: PropTypes.bool.isRequired,
+  };
+
 const SelProfie=()=>{
+    const [region, setRegion] = useState(null);
+    // const [profile,setProfile]=useState(null);
     const [open, setOpen] = useState(false);
+    let profile;
+    const [loading,setloading]=useState(true);
+    const nav=useNavigate();
+    useEffect(()=>{
+        setloading(true);
+        baseapi.get("/profile",{
+            withCredentials:true
+        })
+        .then(res=>{
+            if(res.status===200){
+                setloading(false);
+                 profile=res.data;
+                // setProfile(res.data);
+                console.log("The user profile is ",userdata)
+            }
+        }).catch(
+            err=>{
+                setloading(true);
+                if(err.status===403){
+                    nav('/login')
+                }
+            }
+        )
+    },[])
+    const [popen, setPopen] = useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const [value, setValue] = useState('understanding');
@@ -35,7 +147,12 @@ const SelProfie=()=>{
     const handleClickOpen = () => {
         setOpen(true);
     };
-
+    const handleClickPopen=()=>{
+        setPopen(true);
+    }
+    const handlePClose = () => {
+        setPopen(false);
+      };
     const handleClose = () => {
         setOpen(false);
     };
@@ -49,143 +166,543 @@ const SelProfie=()=>{
     return (
         <div>
             <SellerNavbar/>
-            <Box sx={{
+                {!loading && <Box sx={{
                     position:"absolute",
                     marginTop:"64px",
-                    height:boxSize,
                     backgroundColor:"white",
-                    left:{
-                        sm:"20%",
-                        xs:"0%"
-                    },
-                    right:{
-                        sm:"20%",
-                        xs:"0%"
-                    }
                 }} >
-                    <div style={{backgroundColor:"gray",width:"100%"}}>
-                    <Box 
-                        sx={{position:"absolute",backgroundColor:"#CB7F7F",height:"180px",width:"100%"}}
+                
+                    {displaymode=='normal' && <Box
+                        className="profile"
+                        my={5}
+                        sx={{
+                        alignItems: "center",
+                        marginLeft: {
+                            lg: "100px",
+                            md: "90px",
+                            sm: "30px",
+                            xs: "15px",
+                        },
+                        marginRight: {
+                            lg: "100px",
+                            md: "90px",
+                            sm: "30px",
+                            xs: "15px",
+                        },
+                        }}
                     >
-                        <div style={{position:"absolute",left:"5%",top:"55%",padding:"5px",  width:"125px",height:"125px",backgroundColor:"white",borderRadius:"62.5px"}}> 
-                        <div style={{height:"120px",backgroundColor:"#9F7979",borderRadius:"60px"}}>
-                            <center><PersonIcon sx={{ width:"100px",height:"100px",color:"white"}}/></center> 
-                            </div>
-                         
-                    </div>
+                    <Box sx={{ display: "flex" }}>
+                    <Typography my={2} sx={{ marginLeft: "10px" }}>
+                       
+                        Account info
+                    </Typography>
+                    <Button sx={{
+                        height: "50px",
+                        fontSize: "5px",
+                        textTransform: "unset",
+                        alignItems: "center",
+                        justify: "center",
+                        textAlign: "Center",
+                        marginLeft: {
+                            xs: "60px",
+                            sm: "200px",
+                            md: "300px",
+                            lg: "300px",
+                        },
+                        }}
+                    >
+                        <Typography
+                        sx={{
+                            paddingLeft: "20px",
+                            paddingRight: "20px",
+                            paddingTop: "5px",
+                            paddingBottom: "5px",
+                            backgroundColor: "#FA2121 ",
+                            color: "white",
+                            alignItems: "center",
+                        }}
+                        onClick={()=>{setDisplaymode("edit")}}
+                        >
+                        Edit Profile
+                        </Typography>
+                        
+                    </Button>
+                    </Box>
+                    <Divider />
+                    <Box
+                    className="name"
+                    my={4}
+                    sx={{
+                        diplay: {
+                        lg: "flex",
+                        md: "flex",
+                        sm: "block",
+                        xs: "block",
+                        },
+                    }}
+                    >
+                    <TextField  sx={{
+                        margin: "10px",
+                        width: {
+                            lg: 245,
+                            md: 260,
+                            sm: 200,
+                            xs: 200,
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        autoFocus
+                        id="outlined-basic"
+                        variant="outlined"
+                        // value={profile.fname}
+                        label="First name"
+                        InputProps={{
+                        readOnly: true,
+                        }}
+                    />
+                    <TextField sx={{
+                        margin: "10px",
+
+                        width: {
+                            lg: 245,
+                            md: 260,
+                            sm: 200,
+                            xs: 200,
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        id="outlined-basic"
+                        variant="outlined"
+                        value={"profile.lname"}
+                        label="Last Name"
+                    />
+                    </Box>
+                    <Box className="email">
+                    <TextField
+                        sx={{
+                        marginLeft: "10px",
+                        marginRight: "10px",
+
+                        width: {
+                            lg: 510,
+                            md: 540,
+                            sm: 420,
+                            xs: 250,
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        id="outlined-basic"
+                        variant={"profile.email"}
+                        value="yohannesdejene23@gmail.com"
+                        label="Email"
+                    />
+                    </Box>
+                    <Box className="phone">
+                    <TextField
+                        sx={{
+                        marginLeft: "10px",
+                        marginRight: "10px",
+
+                        marginTop: "20px",
+                        width: {
+                            lg: 510,
+                            md: 540,
+                            sm: 420,
+                            xs: 250,
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        id="outlined-basic"
+                        variant="outlined"
+                        value="+251946951726"
+                        label="Phone number"
+                    />
+                    </Box>
+                    <Box className="Telegram Username">
+                    <TextField
+                        sx={{
+                        marginLeft: "10px",
+                        marginRight: "10px",
+
+                        marginTop: "20px",
+                        width: {
+                            lg: 510,
+                            md: 540,
+                            sm: 420,
+                            xs: 250,
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        id="outlined-basic"
+                        variant="outlined"
+                        value="@yohannesdejene"
+                        label="Telusername"
+                    />
+                    </Box> <br />
+                    <Box className="type">
+                    <TextField
+                        sx={{
+                        marginLeft: "10px",
+                        marginRight: "10px",
+
+                        width: {
+                            lg: 510,
+                            md: 540,
+                            sm: 420,
+                            xs: 250,
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        id="outlined-basic"
+                        variant="outlined"
+                        value="private"
+                        label="Type"
+                    />
+                    </Box>
+                    <Box className="City">
+                    <TextField
+                        sx={{
+                        marginLeft: "10px",
+                        marginRight: "10px",
+
+                        marginTop: "20px",
+                        width: {
+                            lg: 510,
+                            md: 540,
+                            sm: 420,
+                            xs: 250,
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        id="outlined-basic"
+                        variant="outlined"
+                        value="Addis Ababa"
+                        label="City"
+                    />
+                    </Box>
+                    <Box className="Region">
+                    <TextField
+                        sx={{
+                        marginLeft: "10px",
+                        marginRight: "10px",
+
+                        marginTop: "20px",
+                        width: {
+                            lg: 510,
+                            md: 540,
+                            sm: 420,
+                            xs: 250,
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        id="outlined-basic"
+                        variant="outlined"
+                        value="Oromia"
+                        label="Region"
+                    />
                     </Box>
                     
-                    </div>
-                    <div style={{
-                        position:"absolute",top:"248px"
-                    }} >
-                        <Typography variant="h5" sx={{marginLeft:"20px"}} > <b>Firaol Getachew</b> </Typography>
-                    </div>
-                    <div style={{
-                        position:"absolute",top:"248px",left:"70%"
-                    }} >
-                        <Button variant='outlined' onClick={()=>{
-                            displaymode=='normal'? setDisplaymode('edit'):setDisplaymode('normal')
-                            btnletter=='Edit'?setBtnletter('Back'):setBtnletter('Edit')
-                            }} > 
-                            {displaymode=='normal'? <EditSharpIcon />:<ArrowBackIcon/> }
-                            {btnletter}
-                        </Button>
-                    </div>
-                    {displaymode=='normal'&& <Box sx={{
-                        position:"absolute",top:"300px",padding:{sm:"50px",xs:"10px"},marginTop:"40px",
-                    }} >
+                    <Box sx={{ marginTop: "20px", marginLeft: "0px" }}>
+                    <Button
+                        sx={{
+                        height: "50px",
+                        fontSize: "5px",
+
+                        textTransform: "unset",
+                        alignItems: "center",
+                        justify: "center",
+                        textAlign: "Center",
+                        }}
+                        disabled
+                    >
+                        <SettingsIcon sx={{color:"black"}}/>
+                            <b style={{fontSize:"20px",color:"black"}}>Account Settings</b> 
+                    </Button>
+                    </Box>
+
+                        <br />
                         
-                        <Stack direction={"row"}> 
-                            <EmailIcon sx={{color:"#3E403E"}} />
-                            <div style={{fontSize:"20px",color:"#3E403E" }}>Email</div> 
+                        <Stack direction={"row"} spacing={2} onClick={handleClickPopen}> 
+                            <EditSharpIcon sx={{color:"#3E403E"}} />
+                            <div style={{fontSize:"20px",color:"#3E403E" }}>Change password</div> 
                         </Stack>
-                        <Box sx={{marginLeft:{xs:"10px",sm:'65px'}}}><p style={{fontSize:"20px",color:"gray",marginTop:"2px"  }}> fraolgetachew2727@gmail.com</p></Box> 
-                       
-                        <Stack direction={"row"}> 
-                            <PhoneIcon sx={{color:"#3E403E"}} />
-                            <div style={{fontSize:"20px",color:"#3E403E"  }}>Phonenumber</div>
-                        </Stack>
-                        <Box sx={{marginLeft:{xs:"10px",sm:'65px'}}}><p style={{fontSize:"20px",color:"gray",marginTop:"2px"  }}>+251946951726</p></Box> 
-                  
-                        <Stack direction={"row"}> 
-                            <EmailIcon sx={{color:"#3E403E"}} />
-                            <div style={{fontSize:"20px",color:"#3E403E" }}>Deposit</div>
-                        </Stack>
-                        <Box sx={{marginLeft:{xs:"10px",sm:'65px'}}}><p style={{fontSize:"20px",color:"gray",marginTop:"2px"  }}>200 ETB</p></Box>
-                     
-                        <Stack direction={"row"}> 
-                            <LocationCityIcon sx={{color:"#3E403E"}} />
-                            <div style={{fontSize:"20px",color:"#3E403E" }}>City</div> 
-                        </Stack>
-                        <Box sx={{marginLeft:{xs:"10px",sm:'65px'}}}><p style={{fontSize:"20px",color:"gray",marginTop:"2px"  }}>Adama</p></Box>
-                 
-                        <Stack direction={"row"}> 
-                            <LocationOnIcon sx={{color:"#3E403E"}}/>
-                            <div style={{fontSize:"20px",color:"#3E403E" }}>Region</div>
-                        </Stack>
-                        <Box sx={{marginLeft:{xs:"10px",sm:'65px'}}}><p style={{fontSize:"20px",color:"gray",marginTop:"2px"  }}> Oromia,Ethiopia</p></Box>
-                        <br />
-                        <hr style={{width:"120%"}} />
-                        <br />
-                        <Stack direction={"row"}>
-                            <SettingsIcon sx={{color:"gray"}}/>
-                            <b style={{color:"gray",fontSize:"20px",marginLeft:"0px"}}>Account Settings</b> 
-                        </Stack>
-                        <br />
-                        <Link href="/sel/changepassword"  underline="none" sx={{color:"inherit"}}>
-                            <Stack direction={"row"} spacing={2}> 
-                                <EditSharpIcon sx={{color:"#3E403E"}} />
-                                <div style={{fontSize:"20px",color:"#3E403E" }}>Change password</div> 
-                            </Stack>
-                            </Link>
+                        
 
                             <Stack direction={"row"} spacing={2}  sx={{marginTop:"10px"}}  onClick={handleClickOpen}> 
                                 <DeleteOutlineIcon sx={{color:"#3E403E"}} />
                                 <div style={{fontSize:"20px",color:"#3E403E" }}>Delete Account ?</div> 
                             </Stack>
-                        
-                        {/* <Link to="/sel/changepassword" underline="none" color='inherit' >Change password ?</Link>  <br/>
-                        <Link to="/sel/changepassword">Change Phone Number ?</Link>  <br/>
-                        <Link to="/sel/deleteaccount">Delete Account ?</Link>
-                        <Link to="/"></Link> */}
-                    </Box>}
-                    {displaymode=='edit'&&  <Box sx={{
-                        position:"absolute",top:"300px",padding:{sm:"50px",xs:"10px"},marginTop:"20px"
-                    }} >
-                        <Stack direction={"row"}> 
-                            <div style={{fontSize:"20px" }}>FirstName</div> 
-                        </Stack>
-                        <Box sx={{marginLeft:{xs:"10px",sm:'65px',marginTop:"10px" }}}><input style={{fontSize:"20px",height:"32px",width:"300px"}} placeholder='Firaol'/></Box>
-                        <br />
-                        <Stack direction={"row"}> 
-                            <div style={{fontSize:"20px" }}>LastName</div> 
-                        </Stack>
-                        <Box sx={{marginLeft:{xs:"10px",sm:'65px',marginTop:"10px" }}}><input style={{fontSize:"20px",height:"32px",width:"300px"}} placeholder='Getachew'/></Box>
-                        <br />
-                        <Stack direction={"row"}> 
-                            <EmailIcon />
-                            <div style={{fontSize:"20px" }}>Email</div> 
-                        </Stack>
-                        <Box sx={{marginLeft:{xs:"10px",sm:'65px',marginTop:"10px" }}}><input style={{fontSize:"20px",height:"32px",width:"300px"}} placeholder='fraolgetachew2727@gmail.com'/></Box> 
-                        
-                        <br />
-                        <Stack direction={"row"}> 
-                            <LocationCityIcon />
-                            <div style={{fontSize:"20px",}}>City</div> 
-                        </Stack>
-                        <Box sx={{marginLeft:{xs:"10px",sm:'65px',marginTop:"10px" }}}><input style={{fontSize:"20px",height:"32px",width:"300px"}} placeholder='Adama'/></Box>
-                        <br />
-                        <Stack direction={"row"}> 
-                            <LocationOnIcon />
-                            <div style={{fontSize:"20px",}}>Region</div> 
-                        </Stack>
-                        <Box sx={{marginLeft:{xs:"10px",sm:'65px'},marginTop:"10px"}}><input style={{fontSize:"20px",height:"32px",width:"300px"}} placeholder='Oromia'/></Box>
-                        
-                        <center><Button variant='contained' sx={{marginTop:"20px" }} >Submit</Button></center> 
-                    </Box>
+
+                
+                    <Divider />
+                        </Box>
+
                     }
-                </Box>
+                  
+                    {displaymode=='edit'&&
+                        <Box
+                        className="profile"
+                        my={5}
+                        sx={{
+                        alignItems: "center",
+                        marginLeft: {
+                            lg: "100px",
+                            md: "90px",
+                            sm: "30px",
+                            xs: "15px",
+                        },
+                        marginRight: {
+                            lg: "100px",
+                            md: "90px",
+                            sm: "30px",
+                            xs: "15px",
+                        },
+                        }}
+                    >
+                    <Box sx={{ display: "flex" }}>
+                    <Typography my={2} sx={{ marginLeft: "10px" }}>
+                        {" "}
+                        Account info
+                    </Typography>
+                    <Button sx={{
+                        height: "50px",
+                        fontSize: "5px",
+                        textTransform: "unset",
+                        alignItems: "center",
+                        justify: "center",
+                        textAlign: "Center",
+                        marginLeft: {
+                            xs: "60px",
+                            sm: "200px",
+                            md: "300px",
+                            lg: "300px",
+                        },
+                        }}
+                    >
+                        <Typography
+                        sx={{
+                            paddingLeft: "20px",
+                            paddingRight: "20px",
+                            paddingTop: "5px",
+                            paddingBottom: "5px",
+                            backgroundColor: "#FA2121 ",
+                            color: "white",
+                            alignItems: "center",
+                        }}
+                        onClick={()=>{setDisplaymode("normal")}}
+                        >
+                        Back
+                        </Typography>
+                        
+                    </Button>
+                    </Box>
+                    <Divider />
+                    <Box
+                    className="name"
+                    my={4}
+                    sx={{
+                        diplay: {
+                        lg: "flex",
+                        md: "flex",
+                        sm: "block",
+                        xs: "block",
+                        },
+                    }}
+                    >
+                    <TextField  sx={{
+                        margin: "10px",
+                        width: {
+                            lg: 245,
+                            md: 260,
+                            sm: 200,
+                            xs: 200,
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        autoFocus
+                        id="outlined-basic"
+                        variant="outlined"
+                        value={region}
+                        label="First name"
+                        onChange={(event) => setRegion(event.target.value)}
+                        InputProps={{
+                        readOnly: true,
+                        }}
+                    />
+                    <TextField
+                        sx={{
+                        margin: "10px",
+
+                        width: {
+                            lg: 245,
+                            md: 260,
+                            sm: 200,
+                            xs: 200,
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        id="outlined-basic"
+                        variant="outlined"
+                        value="dejene"
+                        label="Last Name"
+                    />
+                    </Box>
+                    <Box className="email">
+                    <TextField
+                        sx={{
+                        marginLeft: "10px",
+                        marginRight: "10px",
+
+                        width: {
+                            lg: 510,
+                            md: 540,
+                            sm: 420,
+                            xs: 250,
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        id="outlined-basic"
+                        variant="outlined"
+                        value="yohannesdejene23@gmail.com"
+                        label="Email"
+                    />
+                    </Box> <br />
+                    <Box className="Telegram">
+                    <TextField
+                        sx={{
+                        marginLeft: "10px",
+                        marginRight: "10px",
+
+                        width: {
+                            lg: 510,
+                            md: 540,
+                            sm: 420,
+                            xs: 250,
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        id="outlined-basic"
+                        variant="outlined"
+                        value="@yohannes"
+                        label="Tel username"
+                    />
+                    </Box>
+                    <Box className="City">
+                    <TextField
+                        sx={{
+                        marginLeft: "10px",
+                        marginRight: "10px",
+
+                        marginTop: "20px",
+                        width: {
+                            lg: 510,
+                            md: 540,
+                            sm: 420,
+                            xs: 250,
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        id="outlined-basic"
+                        variant="outlined"
+                        value="Addis Ababa"
+                        label="City"
+                    />
+                    </Box>
+
+                    <Box sx={{ marginTop: "20px", marginLeft: "10px" }}>
+                    <FormControl>
+                        <InputLabel id="demo-simple-select-label">Region</InputLabel>
+                        <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={region}
+                        label="Region"
+                        onChange={handleChange}
+                        sx={{ width: "250px" }}
+                        MenuProps={{
+                            style: {
+                            maxHeight: 400,
+                            },
+                        }}
+                        >
+                        <MenuItem value="Addis Ababa">Addis Ababa</MenuItem>
+                        <MenuItem value="Dire Dawa">Dire Dawa</MenuItem>
+                        <MenuItem value="Amhara">Amhara</MenuItem>
+                        <MenuItem value="Oromia">Oromia</MenuItem>
+                        <MenuItem value="Tigray">Tigray</MenuItem>
+                        <MenuItem value="Somali">Somali</MenuItem>
+                        <MenuItem value="Benishangul-Gumuz">Benishangul-Gumuz</MenuItem>
+                        <MenuItem value="Gambela">Gambela</MenuItem>
+                        <MenuItem value="Harari">Harari</MenuItem>
+                        <MenuItem value="Sidama">Sidama</MenuItem>
+                        <MenuItem value="Afar">Afar</MenuItem>
+                        <MenuItem value="SWEPR">SWEPR</MenuItem>
+                        <MenuItem value="SNNEP">SNNPR</MenuItem>
+                        </Select>
+                    </FormControl>
+                    </Box> 
+                    <Box sx={{ marginTop: "20px", marginLeft: "0px" }}>
+                    <Button
+                        sx={{
+                        height: "50px",
+                        fontSize: "5px",
+
+                        textTransform: "unset",
+                        alignItems: "center",
+                        justify: "center",
+                        textAlign: "Center",
+                        }}
+                        disabled
+                    >
+                        <Typography
+                        sx={{
+                            paddingLeft: "20px",
+                            paddingRight: "20px",
+                            paddingTop: "10px",
+                            paddingBottom: "10px",
+                            backgroundColor: "#FA2121 ",
+                            color: "white",
+                            alignItems: "center",
+                        }}
+                        >
+                        Save changes
+                        </Typography>
+                    </Button>
+                    </Box>
+                    <Divider />
+                        </Box>
+                    }
+                </Box>}
+                <SimpleDialog
+                    open={popen}
+                    onClose={handlePClose}
+                />
             
                 <Dialog
         fullScreen={fullScreen}
@@ -232,4 +749,5 @@ const SelProfie=()=>{
         </div>
     )
 }
+
 export default SelProfie;

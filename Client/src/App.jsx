@@ -62,7 +62,6 @@ function App() {
 
           {/* ####   common routes */}
           <Route path="/auctions" element={<Auctions />} /> 
-=======
           <Route
             path="/manufactiring"
             data="manufacturing"

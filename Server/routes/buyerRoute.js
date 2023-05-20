@@ -19,7 +19,7 @@ function ClearVerificationCodes() {
         userverification=[];
     }, 3000000);
 }
-ClearVerificationCodes();
+// ClearVerificationCodes();
 // transporter.sendMail(mailOptions, function(error, info){
 //   if (error) {
 //     console.log(error);
@@ -334,8 +334,6 @@ router.post('/login',authorizeCustomer,(req,res)=>{
     res.sendStatus(200);
 })
 router.get('/profile',checkAuthorizationCustomer,(req,res)=>{
-    let userid=req.user;
-
     let uid=req.user;
     console.log("running get profile ")
     return Buyer.findOne(

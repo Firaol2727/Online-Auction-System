@@ -63,18 +63,18 @@ function SellerNavbar(props) {
     const id = openNotification ? 'simple-popper' : undefined;
 return (
     <Box sx={{ display: 'flex' }}>
-        {/* backgroundImage: "linear-gradient(#04519b, #044687 60%, #033769)" */}
-    <AppBar component="nav"  sx={{ backgroundColor: "#B54E47", height:"60px" }} >
+        {/* backgroundImage: "linear-gradient(#04519b,  "#B54E47"   #044687 60%, #033769)" */}
+    <AppBar component="nav"  sx={{ backgroundColor: "white", height:"60px" }} >
         <Toolbar >
         <img
             alt="Home Page"
             src="https://oaresources.azureedge.net/images/oa-gavel-sm.png"
-            style={{ width: "40px", margin: "6px 10px " }}
+            style={{ width: "40px", margin: "6px 10px ",backgroundColor:"brown" }}
         ></img>
         <Typography
             variant="h6"
             component="div"
-            sx={{ flexGrow: 1, display: {  xs: 'none', sm: 'block' }  }} // xs: 'none',
+            sx={{color:"black", flexGrow: 1, display: {  xs: 'none', sm: 'block' }  }} // xs: 'none',
         >
             NU CHERETA
         </Typography>
@@ -85,14 +85,14 @@ return (
             style={({ isActive, isPending }) => {
                 return {
                 // fontWeight: isPending ? "bold" : "",
-                color: isActive ?"#e0ffff" : "#fff" ,
+                color: isActive ?"red" : "#fff" ,
                
                 };
             }}>
                 <Button  color="inherit" >
-                    <Stack direction={"Column"} spacing={2} sx={{alignItems:"center"}}>
-                        <ReceiptIcon/>
-                        <p>My Auctions</p>
+                    <Stack direction={"Column"} spacing={2} sx={{color:"black",alignItems:"center"}}>
+                        <ReceiptIcon />
+                        <p >My Auctions</p>
                         </Stack>
                 </Button>
         </NavLink>
@@ -107,14 +107,14 @@ return (
                 };
             }}>
                 <Button  color="inherit">
-                    <Stack direction={"Column"} spacing={2} sx={{alignItems:"center"}}>
-                        <AddCircleIcon/>
+                    <Stack direction={"Column"}  spacing={2} sx={{color:"black",alignItems:"center"}}>
+                        <AddCircleIcon sx={{color:"black"}} />
                         <p>New</p>
                         </Stack>
             </Button></NavLink>
         
         <Button  color="inherit" onClick={handleClickNotification} >
-            <Stack direction={"Column"} spacing={2} sx={{alignItems:"center"}}>
+            <Stack direction={"Column"} spacing={2} sx={{color:"black", alignItems:"center"}}>
                 <NotificationsNoneIcon/>
                 <p> Notification</p>
                 </Stack>
@@ -125,7 +125,7 @@ return (
                 aria-haspopup="true"
                 aria-expanded={open ? 'true' : undefined}
                 color="inherit" onClick={handleClick}>
-            <Stack direction={"Column"} spacing={2} sx={{alignItems:"center"}} >
+            <Stack direction={"Column"} spacing={2} sx={{color:"black", alignItems:"center"}} >
             {/* <IconButton 
                 id="demo-positioned-button"
                 color="inherit"
@@ -162,7 +162,7 @@ return (
                     size="small"
                     aria-haspopup="true"
                     >
-                <ReceiptIcon />
+                <ReceiptIcon sx={{color:"black"}}/>
             </IconButton>
             </NavLink>
             <NavLink
@@ -170,8 +170,7 @@ return (
             style={({ isActive, isPending }) => {
                 return {
                 // fontWeight: isPending ? "bold" : "",
-                color: isActive ?"#e0ffff" : "#fff" ,
-               
+                color: isActive ?"red" : "#fff" ,
                 };
             }}><IconButton 
             color="inherit"
@@ -180,7 +179,7 @@ return (
             size="small"
             aria-haspopup="true"
             >
-                <AddCircleIcon />
+                <AddCircleIcon sx={{color:"black"}} />
             </IconButton></NavLink>
             <IconButton 
             color="inherit"
@@ -189,13 +188,13 @@ return (
             size="small"
             aria-haspopup="true"
             onClick={handleClickNotification} >
-                <Badge badgeContent={4} color="error"><NotificationsNoneIcon  sx={{color:"white"}}/></Badge>
+                <Badge badgeContent={4} color="error"><NotificationsNoneIcon  sx={{color:"black"}}/></Badge>
                 
             </IconButton>
             
             <IconButton 
                 id="demo-positioned-button"
-                color="inherit"
+                color="black"
                 aria-controls={open ? 'demo-positioned-menu' : undefined}
                 aria-haspopup="true"
                 aria-expanded={open ? 'true' : undefined}
@@ -203,7 +202,7 @@ return (
                 size="small"
                 sx={{ mr: 2, display: { sm: 'none' }}}
             >
-                <PersonIcon />
+                <PersonIcon sx={{color:"black"}} />
             </IconButton>
             </Stack>
         </Toolbar>
