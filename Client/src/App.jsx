@@ -1,10 +1,7 @@
 import { useState } from "react";
 import "./App.css";
-// import Form from "./Components/SignupForm/SignupForm";
-// import NavBar from "./Layouts/NavBar/NavBar";
-// import Footer from "./Layouts/Footer/Footer";
-// import LoginForm from "./Components/LoginForm/LoginForm";
-//////public
+
+import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
 import Home from "./Pages/Public/Home/Home";
 import ContactUs from "./Pages/Public/ContactUs//ContactUs";
 import About from "./Pages/Public/About/About";
@@ -20,17 +17,13 @@ import NotFound from "./Pages/NotFound/NotFound";
 // <<<<<<< Updated upstream
 ////buyer
 
-import Notification from "./Pages/Buyer/BuyerNotification/BuyerNotification";
-
-import BuyerAccount from "./Pages/Buyer/BuyerAccount/BuyerAccount";
-
-import BuyerEditProfile from "./Pages/Buyer/BuyerEditProfile/BuyerEditProfile";
-import BuyerProfile from "./Pages/Buyer/BuyerProfile/BuyerProfile";
-import SingleAuction from "./Pages/Buyer/SingleAuction/SingleAuction";
-
-import Payment from "./Pages/Buyer/Payment/Payment";
-
-import PlaceBid from "./Pages/Buyer/PlaceBid/PlaceBid";
+import BuyerLogout from "./Pages/Buyer/BuyerLogout";
+import BuyerEditProfile from "./Pages/Buyer/BuyerEditProfile";
+import BuyerProfile from "./Pages/Buyer/BuyerProfile";
+import SingleAuction from "./Pages/Buyer/SingleAuction";
+import Payment from "./Pages/Buyer/Payment";
+import PlaceBid from "./Pages/Buyer/PlaceBid";
+import BuyerAuctions from "./Pages/Buyer/BuyerAuctions";
 
 // import Notification from "./Pages/Notification/Notification";
 // import Payment from "./Pages/Payment/Payment";
@@ -43,7 +36,6 @@ import UpdateProfile from "./Pages/UpdateProfile/UpdateProfile";
 import DeleteAuction from "./Pages/DeleteAuction/DeleteAuction";
 import DeleteUser from "./Pages/DeleteUser/DeleteUser";
 
-import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
 /*   -  ADMIN ROUTE IMPORTS    */
 import AdminAuctions from "./Pages/adminpages/auctions";
 import Reports from "./Pages/adminpages/reports";
@@ -66,6 +58,10 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
+<<<<<<< HEAD
+          {/* ####   common routes */}
+          <Route path="/" element={<Auctions />} />
+=======
           <Route path="/" element={<Home />} />
 
           {/* ####   common routes */}
@@ -77,16 +73,25 @@ function App() {
             element={<Clasify />}
           />
 
+>>>>>>> origin/main
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/about" element={<About />} />
-          <Route path="/" element={<Auctions />} />
           <Route path="/auctions/:id" element={<Clasify />} />
 
-          {/* <Route path="/singleauction" element={<SingleAuction />} />
-          <Route path="/singleauction:id" element={<SingleAuction />} /> */}
+          {/* ### buyer routes */}
+
+          <Route path="/singleauction/:id" element={<SingleAuction />} />
+          <Route path="/profile" element={<BuyerProfile />} />
+          <Route path="/editprofile" element={<BuyerEditProfile />} />
+
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/buyerauctions" element={<BuyerAuctions />} />
+          <Route path="/placebid" element={<PlaceBid />} />
+          <Route path="/singleauction:id" element={<SingleAuction />} />
           <Route path="/updateProfile" element={<UpdateProfile />} />
+          <Route path="/logout" element={<BuyerLogout />} />
 
           {/* ### seller routes */}
           <Route path="/sel/login" element={<LoginTrial />} />
@@ -98,28 +103,23 @@ function App() {
           <Route path="/sel/detail/:id" element={<EditAuction/>}/>
           {/* <Route path="/uploadtry" element={<FilesUploadComponent/>}/> */}
 
-          {/* ### buyer routes */}
-      
-          <Route path="/singleauction/:id" element={<SingleAuction />} />
-          <Route path="/account" element={<BuyerAccount />} />
-          <Route path="/profile" element={<BuyerProfile />} />
-          <Route path="/notification" elment={<Notification />} />
-          <Route path="/payment" element={<Payment />} />
-          <Route path="/placebid" element={<PlaceBid />} />
           {/* ### admin routes */}
-{/* <<<<<<< HEAD */}
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/manageauction" element={<ManageAuction />} /> 
-          <Route path="/manageseller" element={<ManageSeller />} />
-          <Route path="/moreon/:id" element={<MoreDetail/>} />
-          <Route path="/auctioncontrol" element={<AdminAuctions/>} />
-          <Route path="/adprofile" element={<Adprofile/>}/>
-          {/* <Route path="/deleteuser" element={<DeleteUser />} /> */}
+<<<<<<< HEAD
 =======
-          <Route path="/deleteauction" element={<DeleteAuction />} />
+{/* <<<<<<< HEAD */}
+>>>>>>> origin/main
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/manageauction" element={<ManageAuction />} />
+          <Route path="/manageseller" element={<ManageSeller />} />
+          <Route path="/moreon/:id" element={<MoreDetail />} />
+          <Route path="/auctioncontrol" element={<AdminAuctions />} />
+          <Route path="/adprofile" element={<Adprofile />} />
           <Route path="/deleteuser" element={<DeleteUser />} />
+<<<<<<< HEAD
+=======
 
 {/* >>>>>>> main */}
+>>>>>>> origin/main
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
