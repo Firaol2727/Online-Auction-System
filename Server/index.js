@@ -6,13 +6,17 @@ const app = express();
 const bcrypt=require('bcrypt');
 var cookieParser=require('cookie-parser');
 const { json } = require('express');
+const adminRoutes=require('./routes/adminRoutes');
+const buyerRoute=require('./routes/buyerRoute');
+const sellerRoute=require('./routes/sellerRoute');
+const{Admin,Auction,Banker,ReportedAuction,Buyer,Category,ClosedBid,Notification,Payment,Pictures,Product,Seller,Notifyme}=sequelize.models;
+
 const http = require('http');
 const server = http.createServer(app);
 const { Server, Socket } = require("socket.io");
 const io = new Server(server);
 const { Op} = require('sequelize');
 var nodemailer = require('nodemailer');
-
 var transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -27,7 +31,6 @@ var mailOptions = {
   subject: 'Sending Email using Node.js',
   text: 'That was easy!'
 };
-
 // transporter.sendMail(mailOptions, function(error, info){
 //   if (error) {
 //     console.log(error);
@@ -36,33 +39,49 @@ var mailOptions = {
 //   }
 // });
 // trying the request 
-app.use(express.json());
+
+// app.use(cors({ origin: 'http://127.0.0.1:5173' }))
+
+app.use(express.json()); 
 app.use(express.urlencoded({
     extended:true
 }));
+// app.use(function (req, res, next) {
+
+//     // Website you wish to allow to connect
+//     res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1:3000');
+
+//     // Request methods you wish to allow
+//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+//     // Request headers you wish to allow
+//     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+//     // Set to true if you need the website to include cookies in the requests sent
+//     // to the API (e.g. in case you use sessions)
+//     res.setHeader('Access-Control-Allow-Credentials', true);
+
+//     // Pass to next layer of middleware
+//     next();
+// });
 app.use(cors({
-    origin: ['http://localhost:3000','http://localhost:7494'],
+    origin: ['http://127.0.0.1:3000','http://127.0.0.1:5173'],
     credentials:true,
 }));
-const adminRoutes=require('./routes/adminRoutes');
-const buyerRoute=require('./routes/buyerRoute');
-const sellerRoute=require('./routes/sellerRoute');
-const{Admin,Auction,Banker,ReportedAuction,Buyer,Category,ClosedBid,Notification,Payment,Pictures,Product,Seller,Notifyme}=sequelize.models;
 app.options('*', cors());
-app.use(express.json()); 
 app.use(cookieParser());
 app.use('/custom',buyerRoute);
 app.use('/special',adminRoutes);
 app.use('/sel',sellerRoute);
 
-async function main() {
+async function CreateDatabase() {
     // creating database structures
     await sequelize.sync({alter:true});
     console.log("finished")
 } 
 async function tableChange() {
     //  a function used to commit database changes just change the name of the model you want to update and call the function 
-    await Notification.sync({alter:true});
+    await Pictures.sync({alter:true});
     console.log("finished")
 }
 // tableChange();
@@ -82,36 +101,61 @@ async function addAdmin(){
         console.log(err);
     })
 }
-
+async function selRegistrationTrial() {
+    await  Seller.create({
+        id:"",
+        fname:"Liul", 
+        lname:"Girma",
+        password:"123",
+        phonenumber:"0902312218",
+        city:"Goba",
+        region:"Oromia",
+        type:"seller"
+    })
+}
 async function addCategories() {
     // Adding categories to the database 
-    await  Category.bulkCreate([
-        {
-            id:"",
-            name:"Electronics"
-        },
-        {
-            id:"",
-            name:"Furnitures"
-        },
-        {
-            id:"",
-            name:"Mobile"
-        },
-        {
-            id:"",
-            name:"Vehicle"
-        },
-        {
-            id:"",
-            name:"Art"
-        },
-        {
-            id:"",
-            name:"Other"
-        },
+    // await  Category.bulkCreate([
+    //     {
+    //         id:"0",
+    //         name:"furnitures"
+    //     },
+    //     {
+    //         id:"",
+    //         name:"homes"
+    //     },
+    //     {
+    //         id:"",
+    //         name:"jewelleries"
+    //     },
+    //     {
+    //         id:"",
+    //         name:"artwork"
+    //     },
+    //     {
+    //         id:"",
+    //         name:"electronics"
+    //     },
+    //     {
+    //         id:"",
+    //         name:"manufacturing"
+    //     },
+    //     {
+    //         id:"",
+    //         name:"vehicles"
+    //     },
+    //     {
+    //         id:"",
+    //         name:"other"
+    //     },
+            // {
+            //     id:"",
+            //     name:"building"
+            // }
     
-    ]);
+    // ]);
+    //adding categories
+
     console.log("Categories are added in to the database successfully");
 }
 // addCategories();
@@ -133,6 +177,7 @@ app.get('/images/:picid',(req,res)=>{
         return Pictures.findOne({
             where:{id:id}
         }).then(data=>{
+            console.log("The data found is ",data)
             if(data){
                 return data.picpath;
             }
@@ -263,7 +308,13 @@ app.get('/search',async(req,res)=>{
     // console.log(count);
     // console.log(rows);
 })
+app.post("/hele",(req,res)=>{
+    console.log(req.body)
+    console.log("Connected successfully");
+    res.cookie("u","token")
+    res.sendStatus(200)
 
+})
 // app.get('/subcategory/',async(req,res)=>{
 //     const cname=req.query.cname;
 //     const page=req.query.page!=null?req.query.page:1;
@@ -397,8 +448,11 @@ app.post('/chargeaccount',async(req,res)=>{
     }
 })
 
-server.listen(6000,()=>{
-    console.log("The server is running on 6000");
+// app.listen(5000,()=>{
+//     console.log("server running at port on 5000");
+// })
+server.listen(5000,()=>{
+    console.log("The server is running on 5000");
 })
 const auctionManage=async ()=>{
     const date=new Date();

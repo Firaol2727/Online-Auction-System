@@ -14,6 +14,7 @@ import Clasify from "./Pages/Auctions/Clasify";
 
 import Loading from "./Pages/Loading/Loading";
 import NotFound from "./Pages/NotFound/NotFound";
+// <<<<<<< Updated upstream
 ////buyer
 
 import BuyerLogout from "./Pages/Buyer/BuyerLogout";
@@ -24,7 +25,12 @@ import Payment from "./Pages/Buyer/Payment";
 import PlaceBid from "./Pages/Buyer/PlaceBid";
 import BuyerAuctions from "./Pages/Buyer/BuyerAuctions";
 
-import CreateAuction from "./Pages/CreateAuction/CreateAuction";
+// import Notification from "./Pages/Notification/Notification";
+// import Payment from "./Pages/Payment/Payment";
+// import Profile from "./Pages/Profile/Profile";
+// import SingleAuction from "./Pages/SingleAuction/SingleAuction";
+
+// >>>>>>> Stashed changes
 import UpdateAuction from "./Pages/UpdateAuction/UpdateAuction";
 import UpdateProfile from "./Pages/UpdateProfile/UpdateProfile";
 import DeleteAuction from "./Pages/DeleteAuction/DeleteAuction";
@@ -39,6 +45,12 @@ import Adprofile from "./Pages/adminpages/profile";
 import MoreDetail from "./Pages/adminpages/moreDetail";
 /*   -  SELLER ROUTE IMPORTS    */
 import SelHome from "./Pages/sellerpages/selhome";
+import CreateAuction from "./Pages/sellerpages/createauctions";
+import SelProfie from "./Pages/sellerpages/selprofile";
+import SelChangePassword from "./Pages/sellerpages/selchangePassord";
+import EditAuction from "./Pages/sellerpages/EditAuction";
+import LoginTrial from "./Pages/sellerpages/loginTrial";
+// import FilesUploadComponent from "./Pages/sellerpages/createtry";
 function App() {
   const [count, setCount] = useState(0);
 
@@ -46,8 +58,22 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
+<<<<<<< HEAD
           {/* ####   common routes */}
           <Route path="/" element={<Auctions />} />
+=======
+          <Route path="/" element={<Home />} />
+
+          {/* ####   common routes */}
+          <Route path="/auctions" element={<Auctions />} /> 
+=======
+          <Route
+            path="/manufactiring"
+            data="manufacturing"
+            element={<Clasify />}
+          />
+
+>>>>>>> origin/main
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -68,11 +94,20 @@ function App() {
           <Route path="/logout" element={<BuyerLogout />} />
 
           {/* ### seller routes */}
-          <Route path="/selhome" element={<SelHome />} />
-          <Route path="/createAuction" element={<CreateAuction />} />
-          <Route path="/updateAuction" element={<UpdateAuction />} />
+          <Route path="/sel/login" element={<LoginTrial />} />
+          <Route path="/sel/home" element={<SelHome />} />
+          <Route path="/sel/newauction" element={<CreateAuction />} />
+          <Route path="/sel/updateAuction" element={<UpdateAuction />} />
+          <Route path="/sel/profile" element={< SelProfie />}/>
+          <Route path="/sel/changepassword" element={< SelChangePassword />}/>
+          <Route path="/sel/detail/:id" element={<EditAuction/>}/>
+          {/* <Route path="/uploadtry" element={<FilesUploadComponent/>}/> */}
 
           {/* ### admin routes */}
+<<<<<<< HEAD
+=======
+{/* <<<<<<< HEAD */}
+>>>>>>> origin/main
           <Route path="/reports" element={<Reports />} />
           <Route path="/manageauction" element={<ManageAuction />} />
           <Route path="/manageseller" element={<ManageSeller />} />
@@ -80,6 +115,11 @@ function App() {
           <Route path="/auctioncontrol" element={<AdminAuctions />} />
           <Route path="/adprofile" element={<Adprofile />} />
           <Route path="/deleteuser" element={<DeleteUser />} />
+<<<<<<< HEAD
+=======
+
+{/* >>>>>>> main */}
+>>>>>>> origin/main
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
