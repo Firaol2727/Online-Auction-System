@@ -1,7 +1,7 @@
 import { useState } from "react";
 import SignupFormBuyer from "./SignupFormBuyer";
 import SignupFormSeller from "./SignupFormSeller";
-import "./personType.css";
+
 import {
   Typography,
   Box,

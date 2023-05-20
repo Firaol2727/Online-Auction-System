@@ -58,11 +58,7 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-<<<<<<< HEAD
-          {/* ####   common routes */}
           <Route path="/" element={<Auctions />} />
-=======
-          <Route path="/" element={<Home />} />
 
           {/* ####   common routes */}
           <Route path="/auctions" element={<Auctions />} /> 
@@ -73,7 +69,6 @@ function App() {
             element={<Clasify />}
           />
 
->>>>>>> origin/main
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -104,10 +99,7 @@ function App() {
           {/* <Route path="/uploadtry" element={<FilesUploadComponent/>}/> */}
 
           {/* ### admin routes */}
-<<<<<<< HEAD
-=======
 {/* <<<<<<< HEAD */}
->>>>>>> origin/main
           <Route path="/reports" element={<Reports />} />
           <Route path="/manageauction" element={<ManageAuction />} />
           <Route path="/manageseller" element={<ManageSeller />} />
@@ -115,11 +107,8 @@ function App() {
           <Route path="/auctioncontrol" element={<AdminAuctions />} />
           <Route path="/adprofile" element={<Adprofile />} />
           <Route path="/deleteuser" element={<DeleteUser />} />
-<<<<<<< HEAD
-=======
 
 {/* >>>>>>> main */}
->>>>>>> origin/main
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
