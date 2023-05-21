@@ -47,7 +47,6 @@ router.use(cors({
 }));
 const authorizeSeller=async(req,res,next)=>{
     console.log(req.body);
-    
     let {username,password}=req.body;
     console.log("username",username);
     console.log("password",password);
@@ -172,32 +171,22 @@ router.post('/register',async(req,res)=>{
 })
 // change profile
 router.post('/changepp',checkAuthorizationSeller,async(req,res)=>{
-    let {fname,lname,email,region,city}=req.body;
-    /**
-    fname,
-    lname,
-    phonenumber,
-    email,
-    city,
-    password,
-    account, 
-    region
-     * 
-     */
+    let {fname,lname,email,region,city,telUsername}=req.body;
+
     let uid=req.user;
-    let=a=req.body;
-    console.log("a",a);
-    // console.log("fname",fname);
-    // console.log("lname",lname);
+  
+    console.log("userid",uid);
     // res.sendStatus(200);
-    return Seller.update({
+    if(email!=null&&fname!=null&&lname!=null&&city!=null&&region!=null){
+return Seller.update({
         fname:fname,
         lname:lname,
         email:email,
+        telUsername:telUsername,
         region:region,
         city:city
     },{
-        where:{cid:uid}
+        where:{id:uid}
     })
     .then(data=>{
         if(data){
@@ -210,28 +199,30 @@ router.post('/changepp',checkAuthorizationSeller,async(req,res)=>{
         console.log(err);
         res.sendStatus(500);
     })
+    }
+    
   
 })
 // change password
 router.post('/changepassword',checkAuthorizationSeller,async(req,res)=>{
-    let {pp, np, cp}=req.body;
-    console.log(req.body)
-    if(np==cp){
+    let {pp, np,cp}=req.body;
+    console.log(req.body);
+    let uid=req.user;
         return Seller.findOne({
             attributes:[
                 "password"
             ],
-            where:{cid:uid}
+            where:{id:uid}
         })
         .then(async (data)=>{
             const check=await bcrypt.compare(pp,data.password);
             if(check){  
                 console.log("true")
                 const hash = await bcrypt.hashSync(np, bcrypt.genSaltSync(10));
-                return Customer.update({
+                return Seller.update({
                     password:hash
                 },{
-                    where:{cid:uid}
+                    where:{id:uid}
                 }).then((data)=>{
                     console.log("succesful update")
                     if(data){
@@ -240,7 +231,7 @@ router.post('/changepassword',checkAuthorizationSeller,async(req,res)=>{
                 })
             }else{
                 console.log("false")
-                res.sendStatus(404);
+                res.sendStatus(500);
             }
         })
         .catch((err)=>{
@@ -248,7 +239,6 @@ router.post('/changepassword',checkAuthorizationSeller,async(req,res)=>{
             res.status(404);
         })
     
-    }
 })
 // seller login
 router.post('/login',authorizeSeller,(req,res)=>{
@@ -440,6 +430,39 @@ router.get('/h',(req,res)=>{
     let now=formatDate(new Date());
     console.log("The current date is" ,now);
     res.sendStatus(200)
+})
+router.post('/delete',checkAuthorizationSeller,(req,res)=>{
+    let {password}=req.body;
+    let uid=req.user;
+    return Seller.findOne(
+        {
+            where: {
+                id:uid,
+        },
+        attributes:['id','password']
+        }
+    ).then(async(data)=>{
+        if (data) {
+            const hashed=data.password;
+            const compared=await bcrypt.compare(password,hashed);
+            if(compared){
+                console.log("correct password")
+                await Seller.destroy({
+                    where:{id:uid}
+                })
+                res.sendStatus(200)
+                
+            }else{
+                res.status(400).send("invalid password")
+            }
+        }
+        else{
+            return res.status(404).send("invalid user")
+        }
+    })
+})
+router.get("/checklogin",(req,res)=>{
+    res.status(200).send("Logged in");
 })
 function formatDate(date) {
     return [

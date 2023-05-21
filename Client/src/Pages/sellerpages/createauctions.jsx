@@ -52,6 +52,7 @@ export default class CreateAuction extends Component {
             categorytooltip:false,
 
         }
+        
     }
     regions=[
         'AddisAbaba',

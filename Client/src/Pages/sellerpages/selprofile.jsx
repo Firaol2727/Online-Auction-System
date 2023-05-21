@@ -2,7 +2,7 @@ import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import PersonIcon from '@mui/icons-material/Person';
 import EditSharpIcon from '@mui/icons-material/EditSharp';
 import SellerNavbar from "./selnav";
-import { Box,Typography,IconButton,Button, Stack, TextField,Link, ListItemIcon,Divider} from "@mui/material";
+import { Box,Typography,IconButton,Button, Stack, TextField,Link, ListItemIcon,Divider, CircularProgress} from "@mui/material";
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -23,7 +23,7 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import Avatar from '@mui/material/Avatar';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
 
 /**
  * 
@@ -40,11 +40,41 @@ const baseapi=axios.create({
 })
 function SimpleDialog(props) {
     const { onClose, open } = props;
+    const [oldpassword,setoldpassword]=useState("");
+    const [npassword,setnpassword]=useState("");
+    const [cpassword,setcpassword]=useState("");
+    const [error,seterror]=useState(false);
+    const [success,setsuccess]=useState(false);
     const [changeloading,setchangeloading]=useState(false);
    
     const handleClose = () => {
-      onClose();
+        onClose();
+        setsuccess(false);
+        setnpassword("")
+        setcpassword("")
+        setoldpassword("")
+        seterror(false)
     };
+    const handpasswordchange=(e)=>{
+        e.preventDefault()
+        setchangeloading(true);
+        baseapi.post('/changepassword',{
+            "pp":oldpassword,
+            "np":npassword,
+            'cp':cpassword,
+        },{withCredentials:true})
+        .then(res=>{
+            if(res.status===200){
+                setsuccess(true)
+                setchangeloading(false),
+                setTimeout(handleClose,[3000])
+            }
+        }).catch(err=>{
+                seterror(true);
+                setchangeloading(false)
+        })
+
+    }
   
     // const handleListItemClick = (value) => {
     //   onClose(value);
@@ -53,54 +83,68 @@ function SimpleDialog(props) {
     return (
       <Dialog onClose={handleClose} open={open}>
         <DialogTitle>Change Password</DialogTitle>
-        <List sx={{ pt: 0 }}>
-         
-        <TextField
-                        sx={{
-                        margin: "10px",
-                        value:"",
-                        width:"300px",
-                        
-                        }}
-                        id="outlined-basic"
-                        variant="standard"
-                        label="old password"
-        /> <br />
-        <TextField
-                        sx={{
-                        margin: "10px",
-                        
-                        width:"300px",
-                        "& .MuiInputBase-root": {
-                            height: 40,
-                        },
-                        }}
-                        id="outlined-basic"
-                        variant="standard"
-                        value=""
-                        label="old password"
-        /> <br />
-        <TextField
-                        sx={{
-                        margin: "10px",
-                        
-                        width:"300px",
-                        "& .MuiInputBase-root": {
-                            height: 40,
-                        },
-                        }}
-                        id="outlined-basic"
-                        variant="standard"
-                        label="old password"
-        /> <br /> 
-        {changeloading && <LinearProgress/>}
-        <br />
-        <center> <Button variant='contained' color='error' disabled={changeloading} onClick={()=>{setchangeloading(true)}}>
-            Confirm
-        </Button></center>
-         
-        </List>
-      </Dialog>
+        <form onSubmit={handpasswordchange}>
+            <List sx={{ pt: 0 }}>
+            {error && <center><Typography color="error">Error password</Typography></center>}
+            <TextField  sx={{
+                margin: "10px",
+                
+                width:"300px",
+                "& .MuiInputBase-root": {
+                    height: 40,
+                },
+                }}
+                type='password'
+                id="outlined-basic"
+                variant="standard"
+                value={oldpassword}
+                onChange={(e)=>{setoldpassword(e.target.value); seterror(false)}}
+                label="old password"
+            /> <br/>
+            <TextField  sx={{
+                margin: "10px",       
+                width:"300px",
+                "& .MuiInputBase-root": {
+                    height: 40,
+                },
+                }}
+                id="outlined-basic"
+                variant="standard"
+                value={npassword}
+                onChange={(e)=>{setnpassword(e.target.value)}}
+                label="New password"            
+            /> 
+             <br />
+            <TextField  sx={{
+                margin: "10px",
+                
+                width:"300px",
+                "& .MuiInputBase-root": {
+                    height: 40,
+                },
+                }}
+                id="outlined-basic"
+                variant="standard"
+                        value={cpassword}
+                        onChange={(e)=>{setcpassword(e.target.value)}}
+                        label="old password" /> <br />
+              {success && <center><Box >
+                <IconButton direction={"row"} sx={{color:"white"}}>
+                 <Typography sx={{color:"green"}}>Done</Typography>
+                 <DoneAllIcon sx={{color:"green"}}/>
+            </IconButton> </Box></center>
+             }
+            {changeloading && <LinearProgress/>}
+            
+            <br />
+            <center> <Button variant='contained' color='error' disabled={changeloading} type='submit'>
+                Confirm
+            </Button></center>
+
+            </List>
+            </form>
+        </Dialog>
+      
     );
   }
   
@@ -110,40 +154,57 @@ function SimpleDialog(props) {
   };
 
 const SelProfie=()=>{
-    const [region, setRegion] = useState(null);
-    // const [profile,setProfile]=useState(null);
+    const [profile,setProfile]=useState('');
     const [open, setOpen] = useState(false);
-    let profile;
     const [loading,setloading]=useState(true);
+    const [ploading,setploading]=useState(false);
+    const [value,setvalue]=useState();
+    const [email,setEmail]=useState('');
+    const [fname,setfname]=useState('');
+    const [lname,setlname]=useState('');
+    const [telUsername,settelUsername]=useState('');
+    const [region,setregion]=useState('');
+    const [city,setCity]=useState('');
+    const [btnletter,setBtnletter]=useState("Edit");
+    const [pchanged,setpchanged]=useState(false);
+    const [displaymode,setDisplaymode]=useState("normal"); // the display mode can be in normal , in edit or in passwordEdit form 
+
     const nav=useNavigate();
     useEffect(()=>{
-        setloading(true);
         baseapi.get("/profile",{
             withCredentials:true
         })
         .then(res=>{
             if(res.status===200){
                 setloading(false);
-                 profile=res.data;
-                // setProfile(res.data);
-                console.log("The user profile is ",userdata)
+                let userdata=res.data;
+                setfname(userdata.fname);
+                setlname(userdata.lname);
+                setEmail(userdata.email);
+                setCity(userdata.city);
+                setregion(userdata.region);
+                settelUsername(userdata.telUsername);
+                setProfile(res.data);
+                console.log("The user userdata is ",userdata)
+                console.log("The user profile is ",profile)
+            }
+            if(res.status===403){
+                nav('/login')
             }
         }).catch(
             err=>{
-                setloading(true);
-                if(err.status===403){
-                    nav('/login')
-                }
+                setloading(false);
+                console.log("the error is ",err);
+                console.log(
+                    "status",err.status
+                )
+                nav('/login')
             }
         )
-    },[])
+    },[pchanged])
     const [popen, setPopen] = useState(false);
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    const [value, setValue] = useState('understanding');
-    const handleChange = (event) => {
-      setValue(event.target.value);
-    };
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -156,13 +217,35 @@ const SelProfie=()=>{
     const handleClose = () => {
         setOpen(false);
     };
-    const [email,setEmail]=useState('');
-    const [phone,setPhone]=useState('');
-    const [deposit,setDeposit]=useState('');
-    const [city,setCity]=useState('');
-    const [btnletter,setBtnletter]=useState("Edit");
-    const [displaymode,setDisplaymode]=useState("normal"); // the display mode can be in normal , in edit or in passwordEdit form 
-    let boxSize=displaymode=='normal'?"120%":"130%";
+    const handleChange=()=>{
+
+    }
+    const handProfileChange=()=>{
+        setploading(true);
+        baseapi.post("/changepp",{
+            "fname":fname,
+            "lname":lname,
+            "email":email,
+            "telUsername":telUsername,
+            "city":city,
+            "region":region,
+
+        },{withCredentials:true})
+        .then(response=>{
+            if(response.status===200){
+                setploading(false);
+                setpchanged(!pchanged);
+                setDisplaymode("normal")
+            }
+        }).catch(err=>{
+            if(err){
+                console.log("error",err);
+                setploading(false);
+            }
+        })
+        
+    }
+  
     return (
         <div>
             <SellerNavbar/>
@@ -171,7 +254,10 @@ const SelProfie=()=>{
                     marginTop:"64px",
                     backgroundColor:"white",
                 }} >
-                
+                {/* {displaymode=='normal' && <div style={{marginTop:"200px"}}>
+                        The username is {profile.fname}
+                </div>} */}
+
                     {displaymode=='normal' && <Box
                         className="profile"
                         my={5}
@@ -193,7 +279,7 @@ const SelProfie=()=>{
                     >
                     <Box sx={{ display: "flex" }}>
                     <Typography my={2} sx={{ marginLeft: "10px" }}>
-                       
+                    
                         Account info
                     </Typography>
                     <Button sx={{
@@ -256,7 +342,7 @@ const SelProfie=()=>{
                         autoFocus
                         id="outlined-basic"
                         variant="outlined"
-                        // value={profile.fname}
+                        value={profile.fname}
                         label="First name"
                         InputProps={{
                         readOnly: true,
@@ -277,7 +363,7 @@ const SelProfie=()=>{
                         }}
                         id="outlined-basic"
                         variant="outlined"
-                        value={"profile.lname"}
+                        value={profile.lname}
                         label="Last Name"
                     />
                     </Box>
@@ -298,8 +384,8 @@ const SelProfie=()=>{
                         },
                         }}
                         id="outlined-basic"
-                        variant={"profile.email"}
-                        value="yohannesdejene23@gmail.com"
+                        variant={"outlined"}
+                        value={profile.email}
                         label="Email"
                     />
                     </Box>
@@ -322,7 +408,7 @@ const SelProfie=()=>{
                         }}
                         id="outlined-basic"
                         variant="outlined"
-                        value="+251946951726"
+                        value={profile.phonenumber}
                         label="Phone number"
                     />
                     </Box>
@@ -345,7 +431,7 @@ const SelProfie=()=>{
                         }}
                         id="outlined-basic"
                         variant="outlined"
-                        value="@yohannesdejene"
+                        value={profile.telUsername}
                         label="Telusername"
                     />
                     </Box> <br />
@@ -367,7 +453,7 @@ const SelProfie=()=>{
                         }}
                         id="outlined-basic"
                         variant="outlined"
-                        value="private"
+                        value={profile.sector}
                         label="Type"
                     />
                     </Box>
@@ -390,7 +476,7 @@ const SelProfie=()=>{
                         }}
                         id="outlined-basic"
                         variant="outlined"
-                        value="Addis Ababa"
+                        value={profile.city}
                         label="City"
                     />
                     </Box>
@@ -413,7 +499,7 @@ const SelProfie=()=>{
                         }}
                         id="outlined-basic"
                         variant="outlined"
-                        value="Oromia"
+                        value={profile.region}
                         label="Region"
                     />
                     </Box>
@@ -436,23 +522,19 @@ const SelProfie=()=>{
                     </Button>
                     </Box>
 
-                        <br />
-                        
-                        <Stack direction={"row"} spacing={2} onClick={handleClickPopen}> 
-                            <EditSharpIcon sx={{color:"#3E403E"}} />
-                            <div style={{fontSize:"20px",color:"#3E403E" }}>Change password</div> 
-                        </Stack>
-                        
+                    <br />
+                    
+                    <Stack direction={"row"} spacing={2} onClick={handleClickPopen}> 
+                        <EditSharpIcon sx={{color:"#3E403E"}} />
+                        <div style={{fontSize:"20px",color:"#3E403E" }}>Change password</div> 
+                    </Stack>
 
-                            <Stack direction={"row"} spacing={2}  sx={{marginTop:"10px"}}  onClick={handleClickOpen}> 
-                                <DeleteOutlineIcon sx={{color:"#3E403E"}} />
-                                <div style={{fontSize:"20px",color:"#3E403E" }}>Delete Account ?</div> 
-                            </Stack>
-
-                
+                    <Stack direction={"row"} spacing={2}  sx={{marginTop:"10px"}}  onClick={handleClickOpen}> 
+                        <DeleteOutlineIcon sx={{color:"#3E403E"}} />
+                        <div style={{fontSize:"20px",color:"#3E403E" }}>Delete Account ?</div> 
+                    </Stack>
                     <Divider />
                         </Box>
-
                     }
                   
                     {displaymode=='edit'&&
@@ -540,9 +622,9 @@ const SelProfie=()=>{
                         autoFocus
                         id="outlined-basic"
                         variant="outlined"
-                        value={region}
+                        value={fname}
                         label="First name"
-                        onChange={(event) => setRegion(event.target.value)}
+                        onChange={(event) => setfname(event.target.value)}
                         InputProps={{
                         readOnly: true,
                         }}
@@ -563,8 +645,9 @@ const SelProfie=()=>{
                         }}
                         id="outlined-basic"
                         variant="outlined"
-                        value="dejene"
+                        value={lname}
                         label="Last Name"
+                        onChange={(event) => setlname(event.target.value)}
                     />
                     </Box>
                     <Box className="email">
@@ -585,7 +668,8 @@ const SelProfie=()=>{
                         }}
                         id="outlined-basic"
                         variant="outlined"
-                        value="yohannesdejene23@gmail.com"
+                        value={email}
+                        onChange={(event)=>{setEmail(event.target.value)}}
                         label="Email"
                     />
                     </Box> <br />
@@ -607,8 +691,9 @@ const SelProfie=()=>{
                         }}
                         id="outlined-basic"
                         variant="outlined"
-                        value="@yohannes"
+                        value={telUsername}
                         label="Tel username"
+                        onChange={(event) => settelUsername(event.target.value)}
                     />
                     </Box>
                     <Box className="City">
@@ -630,8 +715,9 @@ const SelProfie=()=>{
                         }}
                         id="outlined-basic"
                         variant="outlined"
-                        value="Addis Ababa"
+                        value={city}
                         label="City"
+                        onChange={(event) => setCity(event.target.value)}
                     />
                     </Box>
 
@@ -643,7 +729,7 @@ const SelProfie=()=>{
                         id="demo-simple-select"
                         value={region}
                         label="Region"
-                        onChange={handleChange}
+                        onChange={(event)=>{setregion(event.target.value)}}
                         sx={{ width: "250px" }}
                         MenuProps={{
                             style: {
@@ -651,8 +737,8 @@ const SelProfie=()=>{
                             },
                         }}
                         >
-                        <MenuItem value="Addis Ababa">Addis Ababa</MenuItem>
-                        <MenuItem value="Dire Dawa">Dire Dawa</MenuItem>
+                        <MenuItem value="AddisAbaba">Addis Ababa</MenuItem>
+                        <MenuItem value="DireDawa">Dire Dawa</MenuItem>
                         <MenuItem value="Amhara">Amhara</MenuItem>
                         <MenuItem value="Oromia">Oromia</MenuItem>
                         <MenuItem value="Tigray">Tigray</MenuItem>
@@ -668,32 +754,35 @@ const SelProfie=()=>{
                     </FormControl>
                     </Box> 
                     <Box sx={{ marginTop: "20px", marginLeft: "0px" }}>
-                    <Button
-                        sx={{
-                        height: "50px",
-                        fontSize: "5px",
-
-                        textTransform: "unset",
-                        alignItems: "center",
-                        justify: "center",
-                        textAlign: "Center",
-                        }}
-                        disabled
-                    >
-                        <Typography
-                        sx={{
-                            paddingLeft: "20px",
-                            paddingRight: "20px",
-                            paddingTop: "10px",
-                            paddingBottom: "10px",
+                        <Button
+                            sx={{
+                            height: "50px",
+                            fontSize: "5px",
                             backgroundColor: "#FA2121 ",
-                            color: "white",
+                            textTransform: "unset",
                             alignItems: "center",
-                        }}
+                            justify: "center",
+                            textAlign: "Center",
+                            }}
+                            disabled={ploading}
+                            onClick={handProfileChange}
                         >
-                        Save changes
-                        </Typography>
-                    </Button>
+                            {/* {ploading && <CircularProgress sx={{color:"white"}}  />} */}
+                             <Typography
+                            sx={{
+                                paddingLeft: "20px",
+                                paddingRight: "20px",
+                                paddingTop: "10px",
+                                paddingBottom: "10px",
+                                backgroundColor: "#FA2121 ",
+                                color: "white",
+                                alignItems: "center",
+                            }}
+                            >
+                                  
+                            {ploading?"Saving...":"Save changes"}
+                            </Typography>
+                        </Button>
                     </Box>
                     <Divider />
                         </Box>
