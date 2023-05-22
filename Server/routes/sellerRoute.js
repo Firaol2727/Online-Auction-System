@@ -247,6 +247,7 @@ router.post('/login',authorizeSeller,(req,res)=>{
 
 //seller notification
 router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
+    console.log("fetching notification")
     let uid=req.user;
     return Notification.findAll({
         where:{selid:uid}
@@ -260,6 +261,8 @@ router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
                 selid:uid
             }
         })
+    }).catch(err=>{
+        res.sendStatus(500)
     })
 
 }) 
@@ -433,6 +436,7 @@ router.get('/h',(req,res)=>{
 })
 router.post('/delete',checkAuthorizationSeller,(req,res)=>{
     let {password}=req.body;
+    console.log("The request body is",req.body)
     let uid=req.user;
     return Seller.findOne(
         {
@@ -447,9 +451,9 @@ router.post('/delete',checkAuthorizationSeller,(req,res)=>{
             const compared=await bcrypt.compare(password,hashed);
             if(compared){
                 console.log("correct password")
-                await Seller.destroy({
-                    where:{id:uid}
-                })
+                // await Seller.destroy({
+                //     where:{id:uid}
+                // })
                 res.sendStatus(200)
                 
             }else{

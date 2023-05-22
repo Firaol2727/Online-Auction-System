@@ -17,33 +17,53 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import PersonIcon from '@mui/icons-material/Person';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Badge from '@mui/material/Badge';
 import Popper from '@mui/material/Popper';
 import NotificationPop from "./Notificationpop";
 const drawerWidth = 240;
 const navItems = ['MyProduct','AddProduct', 'Myprofile'];
 import axios from "axios";
+
+
 function SellerNavbar(props) {
     const { window } = props;
     const baseapi=axios.create({
-        baseURL:"http://localhost:3000/sel"
+        baseURL:"http://localhost:5000/sel"
     })
+    const nav=useNavigate();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const [Notifications,setNotifications]=useState([]);
-    const [hasnotification,sethasnotifications]=useState(1); 
+    const [hasnotification,sethasnotifications]=useState(0); 
+    const [hasnext,sethasnext]=useState(false);
     //  0 for loading 1 for hasnotification and 2 for no notification
-    // function fetchNotifications(params) {
-    //     baseapi.get("/notification")
-    //     .then(response=>{
-    //         if(response.status==200)
-    //             setNotifications(response.data);
-    //     })
-    //     .catch(err=>{
-    //         console.log(err);
-    //     })
-    // }
+    function fetchNotifications(params) {
+        sethasnotifications(0)
+        baseapi.get("/notification",{withCredentials:true})
+        .then(response=>{
+            if(response.status===200){
+                let data=response.data;
+                console.log("response data",data)
+                if(data){
+                    setNotifications([...response.data]);
+                sethasnotifications(1);
+                }else{
+                    sethasnotifications(2)
+                }
+                
+            }
+            else if(response.status===403){
+                nav("/login")
+            }else{
+                sethasnotifications(2)
+            }
+        })
+        .catch(err=>{
+            console.log(err);
+            sethasnotifications(2)
+        })
+    }
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -54,13 +74,16 @@ function SellerNavbar(props) {
     };
     const container = window !== undefined ? () => window().document.body : undefined;
     const [anchorElNotification, setAnchorElNotification] = useState(null);
-
-    const handleClickNotification= (event) => {
-        setAnchorElNotification(anchorElNotification ? null : event.currentTarget);
-    };
-
     const openNotification = Boolean(anchorElNotification);
     const id = openNotification ? 'simple-popper' : undefined;
+    const handleClickNotification= (event) => {
+        setAnchorElNotification(anchorElNotification ? null : event.currentTarget);
+        if(!openNotification){
+            fetchNotifications();
+        }
+    };
+
+
 return (
     <Box sx={{ display: 'flex' }}>
         {/* backgroundImage: "linear-gradient(#04519b,  "#B54E47"   #044687 60%, #033769)" */}
@@ -256,14 +279,14 @@ return (
         </MenuItem>
         {/* <MenuItem onClick={handleClose}>My account</MenuItem> */}
     </Menu>
-    <Popper id={id} open={openNotification} anchorEl={anchorElNotification}>
+    <Popper id={id} open={openNotification} anchorEl={anchorElNotification} sx={{zIndex:"2"}}>
         {
-            hasnotification==0 && <Box sx={{
-                border: 1, p: 1,width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginTop:"20px"} }}>
+            hasnotification ==0 && <Box sx={{
+                border: 1, p: 1,width:{sm:"400px",xs:"300px",backgroundColor:"whiteS",height:"100px",marginTop:"20px"} }}>
                 <center><CircularProgress/></center>
             </Box>
         }
-        {hasnotification==1&& <Box sx={{ border: 1, p: 1, bgcolor: 'background.paper',height:"700px",overflow:"scroll",paddingTop:"22px" }}>
+        { hasnotification == 1 && <Box sx={{ border: 1, p: 1, bgcolor: 'background.paper',height:"600px",overflowY:"scroll",overflowX:"hidden", paddingTop:"22px" }}>
             <Box sx={{
                 width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
             }}
@@ -301,6 +324,13 @@ return (
             }}
             ></Box>
         </Box>}
+        {
+            hasnotification ==2 && <Box sx={{
+                border: 1, p: 1,width:{sm:"400px",xs:"300px",backgroundColor:"white",height:"100px",marginTop:"20px"} }}>
+                <center> <Typography sx={{color:"royalblue"}}> No Notification</Typography></center>
+            </Box>
+        }
+        
     </Popper>
     </Box>
     );

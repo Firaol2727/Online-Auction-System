@@ -10,7 +10,6 @@ const adminRoutes=require('./routes/adminRoutes');
 const buyerRoute=require('./routes/buyerRoute');
 const sellerRoute=require('./routes/sellerRoute');
 const{Admin,Auction,Banker,ReportedAuction,Buyer,Category,ClosedBid,Notification,Payment,Pictures,Product,Seller,Notifyme}=sequelize.models;
-
 const http = require('http');
 const server = http.createServer(app);
 const { Server, Socket } = require("socket.io");
@@ -24,8 +23,6 @@ var transporter = nodemailer.createTransport({
     pass: 'yourpassword'
   }
 });
-
-
 var mailOptions = {
   from: 'youremail@gmail.com',
   to: 'myfriend@yahoo.com',
@@ -66,7 +63,7 @@ app.use(express.urlencoded({
 //     next();
 // });
 app.use(cors({
-    origin: ['http://127.0.0.1:3000','http://127.0.0.1:5173'],
+    origin: ['http://127.0.0.1:3000','http://127.0.0.1:5173','http://localhost:5173'],
     credentials:true,
 }));
 app.options('*', cors());

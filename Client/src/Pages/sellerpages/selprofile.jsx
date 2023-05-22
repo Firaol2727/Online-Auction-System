@@ -144,28 +144,106 @@ function SimpleDialog(props) {
             </List>
             </form>
         </Dialog>
-      
     );
-  }
-  
-  SimpleDialog.propTypes = {
-    onClose: PropTypes.func.isRequired,
-    open: PropTypes.bool.isRequired,
-  };
+}
 
+SimpleDialog.propTypes = {
+onClose: PropTypes.func.isRequired,
+open: PropTypes.bool.isRequired,
+};
+
+function DeleteAccount(props){
+    const [userpassword,setuserpassword]=useState('');
+    const [value,setvalue]=useState('');
+    const [er,seter]=useState(false);
+    const nav=useNavigate();
+    const [lding,setlding]=useState(false);
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const { onClose, open } = props;
+    const handleClose = () => {
+        onClose();
+        setvalue('')
+    };
+    const handleDelete = () => {
+        setlding(true);
+        baseapi.post("/delete",{
+            "password":userpassword
+        },{withCredentials:true}).then(res=>{
+            if(res.status===200){
+                setlding(false);
+                seter(true);
+                nav('/login')
+            }
+            else {
+                setlding(false)
+                seter(true);
+            }
+        }).catch(err=>{
+            console.log("Error",err)
+            setlding(false);
+            seter(true)
+        })
+        
+    };
+    return(<>
+<Dialog
+        fullScreen={fullScreen}
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="responsive-dialog-title"
+    >
+        <DialogTitle id="responsive-dialog-title">
+            {"Are you sure you want to delete your account"}
+        </DialogTitle>
+        <DialogContent>
+            {er && <b style={{color:"red"}}>Error password</b> }
+            <DialogContentText>
+            password - 
+            <input type='password' onChange={(e)=>{setuserpassword(e.target.value)}} id="passwordconfirm"/><br />
+            Deleting your account will make you <br />
+            <b>*</b>  Not  able to access your previous auctions <br />
+            <b>*</b>Not able to  get  final auction reports <br />
+            <b>Why do you want to delete your Account ?</b>
+            <FormControl>
+                {/* <FormLabel id="demo-controlled-radio-buttons-group">Gender?</FormLabel> */}
+                    <RadioGroup
+                        aria-labelledby="demo-controlled-radio-buttons-group"
+                        name="controlled-radio-buttons-group"
+                        value={value}
+                        onChange={(e)=>{setvalue(e.target.value)}}
+                    >
+                        <FormControlLabel value="understanding" control={<Radio />} label="I don't understand how to use the website" />
+                        <FormControlLabel value="not_used" control={<Radio />} label="I don't need this account anymore" />
+                        <FormControlLabel value="other" control={<Radio />} label="Other" />
+                    </RadioGroup>
+                </FormControl>
+                {lding && <LinearProgress />}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={handleClose} variant='outlined'>
+            Cancel
+          </Button>
+          <Button onClick={handleDelete} autoFocus variant='outlined' sx={{color:"red"}} >
+            Delete
+          </Button>
+        </DialogActions>
+                </Dialog>
+    </>
+    );
+}
 const SelProfie=()=>{
     const [profile,setProfile]=useState('');
     const [open, setOpen] = useState(false);
     const [loading,setloading]=useState(true);
     const [ploading,setploading]=useState(false);
-    const [value,setvalue]=useState();
     const [email,setEmail]=useState('');
     const [fname,setfname]=useState('');
     const [lname,setlname]=useState('');
     const [telUsername,settelUsername]=useState('');
     const [region,setregion]=useState('');
     const [city,setCity]=useState('');
-    const [btnletter,setBtnletter]=useState("Edit");
     const [pchanged,setpchanged]=useState(false);
     const [displaymode,setDisplaymode]=useState("normal"); // the display mode can be in normal , in edit or in passwordEdit form 
 
@@ -204,7 +282,7 @@ const SelProfie=()=>{
     },[pchanged])
     const [popen, setPopen] = useState(false);
     const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+ 
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -213,13 +291,10 @@ const SelProfie=()=>{
     }
     const handlePClose = () => {
         setPopen(false);
-      };
+    };
     const handleClose = () => {
         setOpen(false);
     };
-    const handleChange=()=>{
-
-    }
     const handProfileChange=()=>{
         setploading(true);
         baseapi.post("/changepp",{
@@ -245,7 +320,7 @@ const SelProfie=()=>{
         })
         
     }
-  
+
     return (
         <div>
             <SellerNavbar/>
@@ -792,8 +867,10 @@ const SelProfie=()=>{
                     open={popen}
                     onClose={handlePClose}
                 />
-            
-                <Dialog
+                <DeleteAccount 
+                open={open}
+                onClose={handleClose} />
+                {/* <Dialog
         fullScreen={fullScreen}
         open={open}
         onClose={handleClose}
@@ -811,7 +888,7 @@ const SelProfie=()=>{
             <b>*</b>Not able to  get  final auction reports <br />
             <b>Why do you want to delete your Account ?</b>
             <FormControl>
-                {/* <FormLabel id="demo-controlled-radio-buttons-group">Gender?</FormLabel> */}
+          
                     <RadioGroup
                         aria-labelledby="demo-controlled-radio-buttons-group"
                         name="controlled-radio-buttons-group"
@@ -833,8 +910,8 @@ const SelProfie=()=>{
             Delete
           </Button>
         </DialogActions>
-                </Dialog>
-         
+                </Dialog> */}
+        
         </div>
     )
 }
