@@ -2,12 +2,9 @@ import { useState } from "react";
 import "./App.css";
 
 import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
-import Home from "./Pages/Public/Home/Home";
-import ContactUs from "./Pages/Public/ContactUs//ContactUs";
-import About from "./Pages/Public/About/About";
 
-import Login from "./Pages/Login/Login";
-import Register from "./Pages/Register/Register";
+import ContactUs from "./Pages/Public/ContactUs";
+import About from "./Pages/Public/About";
 
 import Auctions from "./Pages/Auctions/Auctions";
 import Clasify from "./Pages/Auctions/Clasify";
@@ -31,10 +28,6 @@ import BuyerAuctions from "./Pages/Buyer/BuyerAuctions";
 // import SingleAuction from "./Pages/SingleAuction/SingleAuction";
 
 // >>>>>>> Stashed changes
-import UpdateAuction from "./Pages/UpdateAuction/UpdateAuction";
-import UpdateProfile from "./Pages/UpdateProfile/UpdateProfile";
-import DeleteAuction from "./Pages/DeleteAuction/DeleteAuction";
-import DeleteUser from "./Pages/DeleteUser/DeleteUser";
 
 /*   -  ADMIN ROUTE IMPORTS    */
 import AdminAuctions from "./Pages/adminpages/auctions";
@@ -53,62 +46,51 @@ import LoginTrial from "./Pages/sellerpages/loginTrial";
 // import FilesUploadComponent from "./Pages/sellerpages/createtry";
 function App() {
   const [count, setCount] = useState(0);
-
+   
   return (
     <div className="App">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Auctions />} />
-
           {/* ####   common routes */}
-          <Route path="/auctions" element={<Auctions />} /> 
-=======
+          <Route path="/auctions" element={<Auctions />} />
+
           <Route
             path="/manufactiring"
             data="manufacturing"
             element={<Clasify />}
           />
-
           <Route path="/contactus" element={<ContactUs />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
           <Route path="/about" element={<About />} />
           <Route path="/auctions/:id" element={<Clasify />} />
-
           {/* ### buyer routes */}
-
           <Route path="/singleauction/:id" element={<SingleAuction />} />
           <Route path="/profile" element={<BuyerProfile />} />
           <Route path="/editprofile" element={<BuyerEditProfile />} />
-
           <Route path="/payment" element={<Payment />} />
           <Route path="/buyerauctions" element={<BuyerAuctions />} />
           <Route path="/placebid" element={<PlaceBid />} />
           <Route path="/singleauction:id" element={<SingleAuction />} />
-          <Route path="/updateProfile" element={<UpdateProfile />} />
           <Route path="/logout" element={<BuyerLogout />} />
-
           {/* ### seller routes */}
           <Route path="/sel/login" element={<LoginTrial />} />
           <Route path="/sel/home" element={<SelHome />} />
           <Route path="/sel/newauction" element={<CreateAuction />} />
-          <Route path="/sel/updateAuction" element={<UpdateAuction />} />
-          <Route path="/sel/profile" element={< SelProfie />}/>
-          <Route path="/sel/changepassword" element={< SelChangePassword />}/>
-          <Route path="/sel/detail/:id" element={<EditAuction/>}/>
+          {/* <Route path="/sel/updateAuction" element={<UpdateAuction />} /> */}
+          <Route path="/sel/profile" element={<SelProfie />} />
+          <Route path="/sel/changepassword" element={<SelChangePassword />} />
+          <Route path="/sel/detail/:id" element={<EditAuction />} />
           {/* <Route path="/uploadtry" element={<FilesUploadComponent/>}/> */}
-
           {/* ### admin routes */}
-{/* <<<<<<< HEAD */}
+          {/* <<<<<<< HEAD */}
           <Route path="/reports" element={<Reports />} />
           <Route path="/manageauction" element={<ManageAuction />} />
           <Route path="/manageseller" element={<ManageSeller />} />
           <Route path="/moreon/:id" element={<MoreDetail />} />
           <Route path="/auctioncontrol" element={<AdminAuctions />} />
           <Route path="/adprofile" element={<Adprofile />} />
-          <Route path="/deleteuser" element={<DeleteUser />} />
-
-{/* >>>>>>> main */}
+          {/* <Route path="/deleteuser" element={<DeleteUser />} /> */}
+          {/* >>>>>>> main */}
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

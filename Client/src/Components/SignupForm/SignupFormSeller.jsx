@@ -15,43 +15,73 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+const initialState = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  password: "",
+  confirmPassword: "",
+  region: "Oromia",
+  city: "Addis Ababa",
+};
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "firstName":
+      return {
+        ...state,
+        firstName: action.firstName,
+      };
+    case "lastName":
+      return {
+        ...state,
+        lastName: action.lastName,
+      };
+    case "email":
+      return {
+        ...state,
+        email: action.email,
+      };
+    case "phoneNumber":
+      return {
+        ...state,
+        phoneNumber: action.phoneNumber,
+      };
+    case "password":
+      return {
+        ...state,
+        password: action.password,
+      };
+    case "confirmPassword":
+      return {
+        ...state,
+        confirmPassword: action.confirmPassword,
+      };
+    case "region":
+      return {
+        ...state,
+        region: action.region,
+      };
+    case "city":
+      return {
+        ...state,
+        city: action.city,
+      };
+
+    default:
+      return state;
+  }
+};
 function SignupFormSeller() {
-  const [region, setRegion] = useState("Oromia");
-
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    password: "",
-    confirmPassword: "",
-    region: "",
-    city: "",
-  });
-
+  const [state, dispatch] = useReducer(reducer, initialState);
   const [formErrors, setFormErrors] = useState({});
   const [isSubmit, setIsSubmit] = useState(false);
-
-  //   console.log(formData.favColor);
-  const navigate = useNavigate();
-  function handleChange(event) {
-    const { name, value, type, checked } = event.target;
-    setFormData((prevFormData) => {
-      return {
-        ...prevFormData,
-        [name]: value,
-      };
-    });
-  }
-  const handleChangeRegion = (event) => {
-    setRegion(event.target.value);
-  };
+ 
 
   function handleSubmit(event) {
     event.preventDefault();
-    // console.log(formData);
-
-    setFormErrors(validate(formData));
+console.log("sent")
+    setFormErrors(validate(state));
     setIsSubmit(true);
   }
 
@@ -65,7 +95,7 @@ function SignupFormSeller() {
           method: "POST",
           url: "/seller",
           data: {
-            ...formData,
+            ...state,
           },
         })
           .then((response) => {
@@ -83,31 +113,8 @@ function SignupFormSeller() {
 
   const validate = (values) => {
     const errors = {};
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-    if (!values.firstName) {
-      setIsSubmit(false);
-      errors.firstName = "firstaname is required!";
-    }
-    if (!values.lastName) {
-      setIsSubmit(false);
-      errors.lastName = "lastname is required!";
-    }
-    if (!values.email) {
-      setIsSubmit(false);
-      errors.email = "Email is required!";
-    } else if (!regex.test(values.email)) {
-      setIsSubmit(false);
-      errors.email = "This is not a valid email format!";
-    }
-    if (!values.phone) {
-      setIsSubmit(false);
-      errors.phone = "phone is required!";
-    }
 
-    if (!values.password) {
-      setIsSubmit(false);
-      errors.password = "Password is required";
-    } else if (values.password.length < 4) {
+    if (values.password.length < 4) {
       setIsSubmit(false);
       errors.password = "Password must be more than 4 characters";
     } else if (values.password.length > 10) {
@@ -120,77 +127,109 @@ function SignupFormSeller() {
       errors.confirmPassword = "Password mismatch";
     }
 
-    if (!values.region) {
-      setIsSubmit(false);
-      errors.region = "region is required!";
-    }
-    if (!values.city) {
-      setIsSubmit(false);
-      errors.city = "city is required!";
-    }
     return errors;
   };
   return (
-    <Box sx={{ margin: "30px" }}>
+    <Box
+      sx={{
+        marginLeft: {
+          lg: "30px",
+          md: "30px",
+          sm: "20px",
+          xs: "0px",
+        },
+        marginRight: "30px",
+        marginTop: "10px",
+        marginBottom: "10px",
+        width: {
+          lg: "500px",
+          md: "450px",
+          sm: "300px",
+          xs: "250px",
+        },
+      }}
+    >
       <form onSubmit={handleSubmit}>
-        <Typography sx={{ color: "blue" }}>Create an account</Typography>
+        <Typography sx={{ color: "black" }}>Create Seller account</Typography>
         <hr />
 
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
-            width: {
-              lg: "30%",
-              md: "40%",
-              ms: "50%",
-              xs: "90%",
-            },
-            textAlign: "center",
           }}
         >
           <TextField
-            onChange={handleChange}
-            value={formData.firstName}
+            onChange={(e) =>
+              dispatch({ type: "firstName", firstName: e.target.value })
+            }
+            value={state.firstName}
             label="First Name"
             variant="standard"
+            sx={{ margin: "5px" }}
+            required
           />
-          <span>{formErrors.firstName}</span>
+
           <TextField
-            onChange={handleChange}
-            value={formData.lastName}
+            onChange={(e) =>
+              dispatch({ type: "lastName", lastName: e.target.value })
+            }
+            value={state.lastName}
             label="Last Name"
             variant="standard"
+            sx={{ margin: "5px" }}
+            required
           />
-          <span>{formErrors.lastName}</span>
+
           <TextField
-            onChange={handleChange}
-            value={formData.email}
+            onChange={(e) => dispatch({ type: "email", email: e.target.value })}
+            value={state.email}
             label="Email"
             variant="standard"
+            sx={{ margin: "5px" }}
+            required
+            type="email"
           />
-          <span>{formErrors.email}</span>
+
           <TextField
-            onChange={handleChange}
-            value={formData.phone}
+            onChange={(e) =>
+              dispatch({ type: "phoneNumber", phoneNumber: e.target.value })
+            }
+            value={state.phoneNumber}
             label="Phone Number"
             variant="standard"
+            sx={{ margin: "5px" }}
+            required
+            type="number"
           />
-          <span>{formErrors.phone}</span>
+
           <TextField
-            onChange={handleChange}
-            value={formData.password}
+            onChange={(e) =>
+              dispatch({ type: "password", password: e.target.value })
+            }
+            value={state.password}
             label="Password"
             variant="standard"
+            sx={{ margin: "5px" }}
+            required
+            type="password"
           />
-          <span>{formErrors.password}</span>
+          <span style={{ color: "red" }}>{formErrors.password}</span>
           <TextField
-            onChange={handleChange}
-            value={formData.confirmPassword}
-            label="Last Name"
+            onChange={(e) =>
+              dispatch({
+                type: "confirmPassword",
+                confirmPassword: e.target.value,
+              })
+            }
+            value={state.confirmPassword}
+            label="Confirm Password"
             variant="standard"
+            sx={{ margin: "5px" }}
+            required
+            type="password"
           />
-          <span>{formErrors.confirmPassword}</span>
+          <span style={{ color: "red" }}>{formErrors.confirmPassword}</span>
 
           <Box sx={{ float: "right", display: "flex", flexWrap: "wrap" }}>
             <Typography sx={{ float: "left", paddingTop: "17px" }}>
@@ -198,8 +237,13 @@ function SignupFormSeller() {
             </Typography>
             <FormControl sx={{ m: 1, minWidth: 70 }}>
               <Select
-                value={region}
-                onChange={handleChangeRegion}
+                // value={region}
+                required
+                value={state.region}
+                // onChange={handleChangeRegion}
+                onChange={(e) =>
+                  dispatch({ type: "region", region: e.target.value })
+                }
                 // displayEmpty
                 inputProps={{ "aria-label": "Without label" }}
                 sx={{ height: "40px" }}
@@ -223,40 +267,40 @@ function SignupFormSeller() {
           </Box>
 
           <TextField
-            onChange={handleChange}
-            value={formData.city}
+            onChange={(e) => dispatch({ type: "city", city: e.target.value })}
+            value={state.city}
             label="City"
             variant="standard"
+            sx={{ margin: "5px" }}
+            required
           />
-          <span>{formErrors.city}</span>
+          <span style={{ color: "red" }}>{formErrors.city}</span>
         </Box>
+        <Box>
+          <Typography>
 
-        <Button
-          onClick={handleSubmit}
+          </Typography>
+        </Box>
+        <Box
           sx={{
-            height: "50px",
-            fontSize: "5px",
-            marginTop: "30px",
-            textTransform: "unset",
             alignItems: "center",
             justify: "center",
             textAlign: "Center",
+            backgroundColor: "red",
+            marginTop: "30px",
           }}
         >
-          <Typography
+          <Button
             sx={{
-              paddingLeft: "20px",
-              paddingRight: "20px",
-              paddingTop: "10px",
-              paddingBottom: "10px",
-              backgroundColor: "#FA2121 ",
+              fontSize: "20px",
+              textTransform: "unset",
               color: "white",
-              alignItems: "center",
             }}
           >
             Create Account
-          </Typography>
-        </Button>
+          </Button>
+        </Box>
+
       </form>
     </Box>
   );

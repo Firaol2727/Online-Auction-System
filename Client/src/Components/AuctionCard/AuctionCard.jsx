@@ -1,5 +1,4 @@
 import { useState, useEffect, useReducer } from "react";
-import "./AuctionCard.css";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
@@ -197,7 +196,7 @@ function AuctionCard() {
 
               <Button
                 sx={{
-                  width: "15%",
+                  width: "20%",
                   height: "50px",
                   fontSize: "5px",
 
@@ -278,7 +277,7 @@ function AuctionCard() {
           <Grid container spacing={2}>
             {mydata.map((x) => {
               return (
-                <Grid item xs={12} sm={12} md={6} lg={6} bgColor="primary">
+                <Grid item xs={12} sm={12} md={6} lg={6}>
                   <Box
                     sx={{
                       borderRadius: "30px",

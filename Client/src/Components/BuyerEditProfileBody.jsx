@@ -110,7 +110,7 @@ function BuyerEditProfileBody() {
   console.log("toggleState", toggleState);
   const [formErrors, setFormErrors] = useState({});
   const [isSubmit, setIsSubmit] = useState(false);
-//   console.log("state", state);
+  //   console.log("state", state);
 
   const handleSaveEditProfile = (event) => {
     event.preventDefault();
@@ -540,35 +540,31 @@ function BuyerEditProfileBody() {
             </Select>
           </FormControl>
         </Box>
-        <Box sx={{ marginTop: "20px", marginLeft: "0px" }}>
+
+        <Box
+          sx={{
+            alignItems: "center",
+            justify: "center",
+            textAlign: "Center",
+            backgroundColor: "red",
+            marginTop: "30px",
+            width: "200px",
+            marginLeft: "10px",
+          }}
+        >
           <Button
+            onClick={handleSaveEditProfile}
             sx={{
-              height: "50px",
-              fontSize: "5px",
+              fontSize: "20px",
 
               textTransform: "unset",
-              alignItems: "center",
-              justify: "center",
-              textAlign: "Center",
+              color: "white",
             }}
-            onClick={handleSaveEditProfile}
           >
-            <Typography
-              sx={{
-                paddingLeft: "20px",
-                paddingRight: "20px",
-                paddingTop: "10px",
-                paddingBottom: "10px",
-                backgroundColor: "#FA2121 ",
-                color: "white",
-                alignItems: "center",
-              }}
-            >
-              Save changes
-            </Typography>
+            Save changes
           </Button>
-          <Typography></Typography>
         </Box>
+
         <Divider />
       </Box>
     </Box>

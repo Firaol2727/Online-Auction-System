@@ -22,8 +22,8 @@ function SignupForm() {
     setPersonType(event.target.value);
   }
   return (
-    <Box sx={{textAlign:"center",margin:"40px"}}>
-      <Box >
+    <Box sx={{ textAlign: "Center" }}>
+      <Box>
         <FormControlLabel
           value="seller"
           control={
@@ -31,14 +31,16 @@ function SignupForm() {
               sx={{
                 "& .MuiSvgIcon-root": {
                   fontSize: 23,
-                  color: "black",
+                  color: "blue",
                 },
               }}
               checked={personType === "seller"}
               onChange={handlePersonType}
             />
           }
-          label={<Typography sx={{ color: "blue" }}>Seller account</Typography>}
+          label={
+            <Typography sx={{ color: "black" }}>Seller account</Typography>
+          }
         />
         <FormControlLabel
           value="buyer"
@@ -47,18 +49,20 @@ function SignupForm() {
               sx={{
                 "& .MuiSvgIcon-root": {
                   fontSize: 23,
-                  color: "black",
+                  color: "blue",
                 },
               }}
               checked={personType === "buyer"}
               onChange={handlePersonType}
             />
           }
-          label={<Typography sx={{ color: "blue" }}>Buyer account</Typography>}
+          label={<Typography sx={{ color: "black" }}>Buyer account</Typography>}
         />
       </Box>
-      {personType === "seller" && <SignupFormSeller />}
-      {personType === "buyer" && <SignupFormBuyer />}
+      <Box>
+        {personType === "seller" && <SignupFormSeller />}
+        {personType === "buyer" && <SignupFormBuyer />}
+      </Box>
     </Box>
   );
 }
