@@ -43,10 +43,11 @@ import SelProfie from "./Pages/sellerpages/selprofile";
 import SelChangePassword from "./Pages/sellerpages/selchangePassord";
 import EditAuction from "./Pages/sellerpages/EditAuction";
 import LoginTrial from "./Pages/sellerpages/loginTrial";
+import AdLogin from "./Pages/adminpages/adLogin";
 // import FilesUploadComponent from "./Pages/sellerpages/createtry";
 function App() {
   const [count, setCount] = useState(0);
-   
+
   return (
     <div className="App">
       <BrowserRouter>
@@ -54,7 +55,6 @@ function App() {
           <Route path="/" element={<Auctions />} />
           {/* ####   common routes */}
           <Route path="/auctions" element={<Auctions />} />
-
           <Route
             path="/manufactiring"
             data="manufacturing"
@@ -89,7 +89,9 @@ function App() {
           <Route path="/moreon/:id" element={<MoreDetail />} />
           <Route path="/auctioncontrol" element={<AdminAuctions />} />
           <Route path="/adprofile" element={<Adprofile />} />
-          {/* <Route path="/deleteuser" element={<DeleteUser />} /> */}
+          <Route path="/deleteuser" element={<DeleteUser />} />
+          <Route path="/adlogin" element={<AdLogin />} />
+
           {/* >>>>>>> main */}
           <Route path="/*" element={<NotFound />} />
         </Routes>

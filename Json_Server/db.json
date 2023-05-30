@@ -1,0 +1,204 @@
+{
+  "seller": [
+    {
+      "id": 1,
+      "fisrtName": "Yohannes",
+      "lastname": "Dejene",
+      "email": "yohannesdejene23@gmail.com",
+      "phone": "+25196951726",
+      "password": "123",
+      "region": "Oromia",
+      "city": "Addis Ababa"
+    },
+    {
+      "id": 2,
+      "fisrtName": "Firaol",
+      "lastname": "kebeed",
+      "email": "firaolkebede@gmail.com",
+      "phone": "+251983734123",
+      "password": "321",
+      "region": "Oromia",
+      "city": "Addis Ababa"
+    },
+    {
+      "firstName": "Hiwot",
+      "lastName": "Dejene",
+      "email": "hiwotdejene@gmail.com",
+      "phone": "967485465",
+      "password": "hiwot",
+      "confirmPassword": "hiwot",
+      "personType": "seller",
+      "region": "Amhara",
+      "city": "Injibara",
+      "id": 3
+    },
+    {
+      "firstName": "Dejene",
+      "lastName": "Habtewold",
+      "email": "dejenehabtewold@gmail.com",
+      "phone": "921096222",
+      "password": "dejene",
+      "confirmPassword": "dejene",
+      "region": "Sidama",
+      "city": "hawasa",
+      "id": 4
+    },
+    {
+      "firstName": "Yohannes",
+      "lastName": "Dejene",
+      "email": "yohannesdejene23@gmail.com",
+      "phone": "946951726",
+      "password": "12345",
+      "confirmPassword": "12345",
+      "region": "South West Ethiopia Peoples'",
+      "city": "ADDIS Ababa",
+      "id": 5
+    },
+    {
+      "firstName": "Yohannes",
+      "lastName": "Dejene",
+      "email": "yohannesdejene23@gmail.com",
+      "phone": "946951726",
+      "password": "1234",
+      "confirmPassword": "1234",
+      "region": "Sidama",
+      "city": "ADDIS Ababa",
+      "id": 6
+    }
+  ],
+  "buyer": [
+    {
+      "id": 3,
+      "fisrtName": "Firaol",
+      "lastname": "getachew",
+      "email": "firaolgetachew@gmail.com",
+      "phone": "+251966003807",
+      "password": "456"
+    },
+    {
+      "id": 3,
+      "fisrtName": "Liul",
+      "lastname": "Girma",
+      "email": "LiulGirma@gmail.com",
+      "phone": "+25902312218",
+      "password": "654"
+    },
+    {
+      "firstName": "Yohannes",
+      "lastName": "Dejene",
+      "email": "yohannesdejene23@gmail.com",
+      "phone": "946951726",
+      "password": "1234",
+      "confirmPassword": "1234",
+      "id": 4
+    }
+  ],
+
+  "auction": [
+    {
+      "id": 1,
+      "name": "Nike shoe",
+      "description": "this is the description of the product",
+      "location": "Addis Ababa",
+      "baseprice": 500,
+      "startdate": "29/21/2023",
+      "endeData": "29/34/2023",
+      "hammarPrice": 550,
+      "state": "active",
+      "winnerId": 4,
+      "see": "this is see",
+      "category": 1,
+      "images": "/images/1.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Nike shoe",
+      "description": "this is the description of the product",
+      "location": "Addis Ababa",
+      "baseprice": 500,
+      "startdate": "29/21/2023",
+      "endeData": "29/34/2023",
+      "hammarPrice": 550,
+      "state": "active",
+      "winnerId": 4,
+      "see": "this is see",
+      "category": 2,
+      "images": "/images/2.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Nike shoe",
+      "description": "this is the description of the product",
+      "location": "Addis Ababa",
+      "baseprice": 500,
+      "startdate": "29/21/2023",
+      "endeData": "29/34/2023",
+      "hammarPrice": 550,
+      "state": "active",
+      "winnerId": 4,
+      "see": "this is see",
+      "category": 2,
+      "images": "/images/3.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Nike shoe",
+      "description": "this is the description of the product",
+      "location": "Addis Ababa",
+      "baseprice": 500,
+      "startdate": "29/21/2023",
+      "endeData": "29/34/2023",
+      "hammarPrice": 550,
+      "state": "active",
+      "winnerId": 4,
+      "see": "this is see",
+      "category": 2,
+      "images": "/images/4.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Nike shoe",
+      "description": "this is the description of the product",
+      "location": "Addis Ababa",
+      "baseprice": 500,
+      "startdate": "29/21/2023",
+      "endeData": "29/34/2023",
+      "hammarPrice": 550,
+      "state": "active",
+      "winnerId": 4,
+      "see": "this is see",
+      "category": 2,
+      "images": "/images/5.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Nike shoe",
+      "description": "this is the description of the product",
+      "location": "Addis Ababa",
+      "baseprice": 500,
+      "startdate": "29/21/2023",
+      "endeData": "29/34/2023",
+      "hammarPrice": 550,
+      "state": "active",
+      "winnerId": 4,
+      "see": "this is see",
+      "category": 2,
+      "images": "/images/6.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Nike shoe",
+      "description": "this is the description of the product",
+      "location": "Addis Ababa",
+      "baseprice": 500,
+      "startdate": "29/21/2023",
+      "endeData": "29/34/2023",
+      "hammarPrice": 550,
+      "state": "active",
+      "winnerId": 4,
+      "see": "this is see",
+      "category": 2,
+      "images": "/images/7.jpg"
+    }
+  ]
+}

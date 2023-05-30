@@ -1,41 +1,94 @@
-import { useState,useEffect } from "react";
-import SellerNavbar from "./selnav";
-import Box from '@mui/material/Box';
-import { Button, TextField } from "@mui/material";
-const SelChangePassword=()=>{
-    return (
-        <div>
-            <SellerNavbar/>
-            <Box sx={{
-                position:"absolute",
-                marginTop:"64px",
-                height:"100%",
-                backgroundColor:"#E0DBDB",
-                left:{
-                    sm:"20%",
-                    xs:"0%"
-                },
-                right:{
-                    sm:"20%",
-                    xs:"0%"
-                }
-            }}>
-                <center>
-                    <Box style={{marginTop:"20%",marginRight:"10%",marginLeft:"10%"}}>
-                        <h2> Change Password</h2>
-                        <p>Error message here</p>
-                    <TextField label="Old password"  variant="filled" sx={{width:"300px",backgroundColor:"white"}}/><br /> <br />
-                    <TextField label="new password"  variant="filled" sx={{width:"300px",backgroundColor:"white"}}/> <br /> <br />
-                    <TextField label="new password"  variant="filled" sx={{width:"300px",backgroundColor:"white"}}/> <br />
-                    <br />
-                    <Button variant="contained">Submit</Button>
-                    </Box>
-                    
-                </center>
-                
+import * as React from 'react';
+import PropTypes from 'prop-types';
+import Button from '@mui/material/Button';
+import Avatar from '@mui/material/Avatar';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Dialog from '@mui/material/Dialog';
+import PersonIcon from '@mui/icons-material/Person';
+import AddIcon from '@mui/icons-material/Add';
+import Typography from '@mui/material/Typography';
+import { blue } from '@mui/material/colors';
+import { TextField } from '@mui/material';
+const emails = ['username@gmail.com', 'user02@gmail.com'];
+function SimpleDialog(props) {
+  const { onClose, selectedValue, open } = props;
 
-            </Box>
-        </div>
-    )
+  const handleClose = () => {
+    onClose(selectedValue);
+  };
+
+  const handleListItemClick = (value) => {
+    onClose(value);
+  };
+
+  return (
+    <Dialog onClose={handleClose} open={open}>
+      <DialogTitle>Set backup account</DialogTitle>
+      <List sx={{ pt: 0 }}>
+        {emails.map((email) => (
+          <ListItem disableGutters>
+            <ListItemButton onClick={() => handleListItemClick(email)} key={email}>
+              <ListItemAvatar>
+                <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
+                  <PersonIcon />
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText primary={email} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+
+        <ListItem disableGutters>
+          <ListItemButton
+            autoFocus
+            onClick={() => handleListItemClick('addAccount')}
+          >
+            <ListItemAvatar>
+              <Avatar>
+                <AddIcon />
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText primary="Add account" />
+          </ListItemButton>
+        </ListItem>
+      </List>
+    </Dialog>
+  );
 }
-export default SelChangePassword;
+
+SimpleDialog.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired,
+  selectedValue: PropTypes.string.isRequired,
+};
+
+ export default function Changepassword(props) {
+  const { onClose, selectedValue, open } = props;
+
+  const handleClose = () => {
+    onClose(selectedValue);
+  };
+
+  const handleSubmit = (value) => {
+    onClose(value);
+  };
+
+  return (
+    <Dialog onClose={handleClose} open={open}>
+      <DialogTitle>Set backup account</DialogTitle>
+        <center>
+            <TextField label="oldpassword"></TextField> <br />
+            <TextField label="newpassword"></TextField> <br />
+            <TextField label="confirmpassword"></TextField> <br />
+            <br />
+            <Button variant='contained'>change</Button>
+        </center>
+    </Dialog>
+  );
+}
+

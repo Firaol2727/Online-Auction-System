@@ -52,6 +52,7 @@ export default class CreateAuction extends Component {
             categorytooltip:false,
 
         }
+        
     }
     regions=[
         'AddisAbaba',
@@ -76,9 +77,9 @@ export default class CreateAuction extends Component {
     handleChange = (event) => {
         this.setState({type: event.target.value });
     };
-
+    //  nav=useNavigate()
     onFileChange(e) {
-        let nav=useNavigate()
+       
         this.setState({ imgCollection: e.target.files,filevalid:true })
         let fileObj = [];
         let fileArray = [];
@@ -197,7 +198,8 @@ export default class CreateAuction extends Component {
                         <TextField id="standard-basic" onChange={(e)=>{this.setState({name:e.target.value}) }} label="Name" variant="standard" sx={{width:{sm:"450px",xs:"300px"},marginRight:"40px",marginBottom:"20px"}}/> <br />
                       { !this.state.basepricevalid && <Typography color={"error"}>Enter a base price atleast 3000ETB</Typography>}
                         <TextField id="standard-basic" onChange= {(e)=>{this.setState({baseprice:e.target.value,basepricevalid:true}) }} label="Base price" variant="standard"  sx={{width:"300px",marginRight:"40px",marginBottom:"20px"}}  />
-                        {/* <Stack direction={"column"} sx={{width:"300px",marginRight:"40px",marginBottom:"20px"}}>
+                        {/* 
+                        <Stack direction={"column"} sx={{width:"300px",marginRight:"40px",marginBottom:"20px"}}>
                             <p>Start Date</p>
                             <LocalizationProvider dateAdapter={AdapterDayjs}  >
                             <DatePicker value={this.state.startdate} onChange={(newValue) => this.setState({startdate:newValue})} />
@@ -210,7 +212,7 @@ export default class CreateAuction extends Component {
                             <DatePicker value={this.state.enddate} onChange={(newValue) => this.setState({enddate:newValue})}/>
                             </LocalizationProvider>
                         </Stack> */}
-                         {!this.state.startdatevalid &&<Typography color={"error"}>Invalid date</Typography>}
+                        {!this.state.startdatevalid &&<Typography color={"error"}>Invalid date</Typography>}
                         <LocalizationProvider dateAdapter={AdapterDayjs}  >
                             <DemoContainer components={['DateRangePicker']}>
                                 <DateRangePicker sx={{width:{sm:"350px",xs:"300px"}}} onChange={(newValue) => this.setState({range:newValue,startdatevalid:true})}

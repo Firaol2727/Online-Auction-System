@@ -19,7 +19,7 @@ function ClearVerificationCodes() {
     userverification = [];
   }, 3000000);
 }
-ClearVerificationCodes();
+// ClearVerificationCodes();
 // transporter.sendMail(mailOptions, function(error, info){
 //   if (error) {
 //     console.log(error);
@@ -125,17 +125,16 @@ const checkAuthorizationCustomer = async (req, res, next) => {
 };
 router.use(jsonParser);
 router.post("/register", async (req, res) => {
-  let { firstName, lastName, phoneNumber, email, password,  } =
-    req.body;
+  let { firstName, lastName, phoneNumber, email, password } = req.body;
   console.log(req.body);
   // res.status(200).send("ok")
-//   res.send("data from the back end");
+  //   res.send("data from the back end");
 
   let type = "buyer";
 
   const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
   return Buyer.create({
-    id:"",
+    id: "",
     fname: firstName,
     lname: lastName,
     password: hash,

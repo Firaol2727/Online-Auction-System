@@ -1,14 +1,15 @@
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import PlaceIcon from "@mui/icons-material/Place";
-import { Button, Typography, IconButton } from "@mui/material";
 import RssFeedIcon from "@mui/icons-material/RssFeed";
+import { Button, Typography, IconButton } from "@mui/material";
+
 
 function ProductCard() {
   return (
     <Box
       className="auction"
-      sx={{
+      sx={{ 
         display: "flex",
         height: "90px",
         paddingTop: "30px",

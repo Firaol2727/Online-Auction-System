@@ -65,7 +65,8 @@ module.exports = (sequelize, DataTypes) => {
     state:{ 
       /**
        * The alterantive values are 
-       * active  waiting closed suspended 
+       * active  waiting closed suspended   
+       * stetes -  waiting, open,closed,suspended
        *  
        */
       type: DataTypes.STRING,

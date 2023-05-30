@@ -38,7 +38,6 @@ var transporter = nodemailer.createTransport({
     pass: "yourpassword",
   },
 });
-
 var mailOptions = {
   from: "youremail@gmail.com",
   to: "myfriend@yahoo.com",
@@ -82,7 +81,11 @@ app.use(
 // });
 app.use(
   cors({
-    origin: ["http://127.0.0.1:3000", "http://127.0.0.1:5173"],
+    origin: [
+      "http://127.0.0.1:3000",
+      "http://127.0.0.1:5173",
+      "http://localhost:5173",
+    ],
     credentials: true,
   })
 );
@@ -195,6 +198,7 @@ async function addCategories() {
 let onlineUsers = [];
 let thereisStart = false;
 let waitingchangeauctions = [];
+// Getting image api
 app.get("/images/:picid", (req, res) => {
   let id = req.params.picid;
   console.log("fetch image - ", id);
@@ -218,7 +222,7 @@ app.get("/images/:picid", (req, res) => {
       console.log(err);
     });
 });
-
+// Displaying home page
 app.get("/", (req, res) => {
   console.log("running");
   console.log("the query is", req.query);
@@ -234,20 +238,91 @@ app.get("/", (req, res) => {
     attributes: { exclude: ["createdAt", "updatedAt"] },
     offset: jumpingSet,
     limit: no_response,
-  }).then((data) => {
-    let nopage = parseInt(data.count / no_response) + 1;
-    // console.log(data.rows);
-    let response = {
-      count: nopage,
-      data: data.rows,
-    };
-    if (response) {
-      console.log(response);
-      res.send(response);
-    } else {
-      res.sendStatus(404);
-    }
-  });
+  })
+    .then((data) => {
+      let nopage = parseInt(data.count / no_response) + 1;
+      // console.log(data.rows);
+      let response = {
+        count: nopage,
+        data: data.rows,
+      };
+      if (response) {
+        console.log(response);
+        res.send(response);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
+app.get("/category/:cname", async (req, res) => {
+  console.log(req.params);
+  const name = req.params.cname;
+  Category.findOne({
+    attributes: { exclude: ["createdAt", "updatedAt"] },
+    include: {
+      model: Auction,
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    },
+    where: { name: name },
+  })
+    .then(async (data) => {
+      if (data) {
+        res.json(data);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+/// searching a product
+app.get("/search", async (req, res) => {
+  let item = req.query.item;
+  let page = req.query.page != null ? req.query.page : 1;
+  let no_response = 6;
+  let limit = 1;
+  // blue tshirt
+  let jumpingSet = (page - 1) * no_response;
+  if (item) {
+    console.log(page, item);
+    return Auction.findAndCountAll({
+      order: [["createdAt", "DESC"]],
+      attributes: { exclude: ["createdAt", "updatedAt", "CategoryCid"] },
+      offset: jumpingSet,
+      limit: no_response,
+      where: {
+        [Op.or]: [
+          // {name:
+          //     {[Op.match]: item}
+          // },
+          // {name:
+          //     {[Op.startsWith]: item}
+          // },
+          { name: { [Op.substring]: item } },
+          { description: { [Op.substring]: item } },
+        ],
+      },
+    })
+      .then((data) => {
+        // console.log(data);
+        if (data) {
+          let nopage = parseInt(data.count / no_response);
+          data.count = nopage;
+          res.send(data);
+        } else res.sendStatus(404);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.sendStatus(404);
+      });
+  } else {
+    res.sendStatus(404);
+  }
 });
 
 app.get("/category/:cname", async (req, res) => {
