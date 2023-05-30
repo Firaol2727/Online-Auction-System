@@ -266,7 +266,7 @@ router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
     })
 
 }) 
- 
+
 // create auction
 router.post('/upload',checkAuthorizationSeller,
 (req,res)=>{
@@ -462,6 +462,36 @@ router.post('/delete',checkAuthorizationSeller,(req,res)=>{
         }
         else{
             return res.status(404).send("invalid user")
+        }
+    })
+})
+router.get('/moreon/:id',checkAuthorizationSeller,(req,res)=>{
+    let aid=req.params.id;
+    let response={pictures:"", detail:"",bidders:""};
+    return Auction.findOne({
+        where:{id:aid},
+    }).then(async data=>{
+        console.log("data",data);
+        if(data){
+            response.detail=data;
+            let persons;
+            let pics;
+            try {
+                persons=await Bid.findAll({where:{AuctionId:aid}});
+                pics=await Pictures.findAll({where:{AuctionId:aid}})
+            } catch (error) {
+                console.log("error",error)
+            }
+            
+            response.bidders=persons;
+            response.pictures=pics
+            res.send(response);
+        }
+    })
+    .catch(err=>{
+        if(err){
+            console.log("Error",err)
+            res.status(500).send("some thing went wrong !")
         }
     })
 })

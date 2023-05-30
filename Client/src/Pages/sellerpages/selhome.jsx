@@ -11,6 +11,7 @@ import RssFeedIcon from "@mui/icons-material/RssFeed";
 import DoNotDisturbAltOutlinedIcon from '@mui/icons-material/DoNotDisturbAltOutlined';
 import DoneIcon from '@mui/icons-material/Done';
 import TimelapseIcon from '@mui/icons-material/Timelapse';
+import { useNavigate } from 'react-router-dom';
 // import { Link } from 'react-router-dom';
 const getmarings=()=>{
     let materialwidth=window.innerWidth;
@@ -32,18 +33,25 @@ const selHome=()=>{
       });
     const [my_auc,setMy_auc]=useState([]);
     const [loading,setloading]=useState(false);
-
+    const nav=useNavigate();
     useEffect(()=>{
         setloading(false);
         baseapi.get("/myauction",{withCredentials:true}).then(response=>{
             console.log("The data fetched is ",response);
+
             if(response.data){
                 let datas=response.data;
                 setMy_auc(datas)
                 setloading(false)
             }
+            if(response.status===403){
+                nav('/login')
+            }
         }).catch(
             err=>{
+                if(err.response.status===403){
+                    nav('/login')
+                }
                 setloading(false)
                 console.log("The error found is",err);
             }

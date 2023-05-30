@@ -51,7 +51,6 @@ function SellerNavbar(props) {
                 }else{
                     sethasnotifications(2)
                 }
-                
             }
             else if(response.status===403){
                 nav("/login")
@@ -325,11 +324,16 @@ return (
             ></Box>
         </Box>}
         {
-            hasnotification ==2 && <Box sx={{
-                border: 1, p: 1,width:{sm:"400px",xs:"300px",backgroundColor:"white",height:"100px",marginTop:"20px"} }}>
-                <center> <Typography sx={{color:"royalblue"}}> No Notification</Typography></center>
-            </Box>
+            hasnotification ==2 && <div>
+            {Notifications.map(notification=>(
+                notification.type===1 && <Box sx={{
+                    border: 1, p: 1,width:{sm:"400px",xs:"300px",backgroundColor:"white",height:"100px",marginTop:"20px"} }}>
+                    <center> <Typography sx={{color:"royalblue"}}> No Notification</Typography></center>
+                </Box>
+            )) 
+            }</div>
         }
+        
         
     </Popper>
     </Box>

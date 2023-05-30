@@ -3,6 +3,7 @@ import { Popper,Box,Stack,List } from '@mui/material';
 
 const NotificationPop=(props)=>{
     console.log(props);
+    
     return (
         <Popper id={id} open={openNotification} anchorEl={anchorElNotification}>
         <Box sx={{ border: 1, p: 1, bgcolor: 'background.paper',height:"700px",overflow:"scroll",paddingTop:"22px" }}>

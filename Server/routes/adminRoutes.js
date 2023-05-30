@@ -11,14 +11,15 @@ var jsonParser=bodyParser.json();
 router.use(jsonParser);
 const{Admin,Auction,Banker,ReportedAuction,Buyer,Category,ClosedBid,Notification,Payment,Pictures,Product,Seller,Transaction}=sequelize.models;
 const authorize=async(req,res,next)=>{
-    let {phonenumber,password}=req.body;
-    console.log(phonenumber,password);
+    let {username,password}=req.body;
+    console.log("The request body is ",req.body)
+    console.log(username,password);
     return Admin.findOne(
         {
             where: {
-            phonenumber:phonenumber,
+            phone:username,
         },
-        attributes:['Aid','password']
+        attributes:['id','password']
         }
     ).then(async(data)=>{
         // console.log("the data is ",data.Aid,data.password);
@@ -30,7 +31,7 @@ const authorize=async(req,res,next)=>{
             const hashed=data.password;
             const compared=await bcrypt.compare(password,hashed);
             if(compared){
-                find.uid=data.Aid;
+                find.uid=data.id;
                 find.allow=true;
             }
         }
@@ -75,7 +76,7 @@ const checkAuthorization =async(req,res,next)=>{
         )
     }
 }
-
+ 
 router.post('/login',authorize,(req,res)=>{
     res.sendStatus(200);
 })

@@ -266,11 +266,14 @@ const SelProfie=()=>{
                 console.log("The user userdata is ",userdata)
                 console.log("The user profile is ",profile)
             }
-            if(res.status===403){
+            else if(res.status===403){
                 nav('/login')
             }
         }).catch(
             err=>{
+                if(err.response.status===403){
+                    nav('/login')
+                }
                 setloading(false);
                 console.log("the error is ",err);
                 console.log(
