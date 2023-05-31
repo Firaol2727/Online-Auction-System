@@ -183,6 +183,7 @@ const EditAuction=()=>{
                                         // </Box>
                                         <img
                                         className="auctionImage"
+                                        key={pic.id}
                                         alt="auctionImage"
                                         src={`http://localhost:5000/images/${pic.id}`}
                                         onClick={()=>{onchangepic(pic.id)}}

@@ -291,6 +291,7 @@ router.post("/changepp", checkAuthorizationSeller, async (req, res) => {
       res.sendStatus(500);
     });
 });
+//get profile 
 router.get('/profile', checkAuthorizationSeller, (req,res)=>{
   let uid=req.user;
   console.log("running get profile ");
@@ -303,6 +304,34 @@ router.get('/profile', checkAuthorizationSeller, (req,res)=>{
     })
     .catch((err) => {
       res.sendStatus(500);
+    });
+})
+// get detail 
+router.get('/moreon/:id', checkAuthorizationSeller,async (req,res)=>{
+  let uid=req.user;
+  let aid=req.params.id;
+  let response={
+    detail:"",
+    pictures:""};
+  console.log("running get profile ");
+  return Auction.findOne({
+    include: [
+      {
+        model: Pictures,
+      },
+    ],
+    where: { id: aid },
+  })
+    .then(async(data) => {
+      if(data){
+        response.detail=data;
+      }
+      let pic=await Pictures.findAll({where:{AuctionId:data.id}})
+      response.pictures=pic;
+      res.send(response);
+    })
+    .catch((err) => {
+      res.sendStatus(404);
     });
 })
 // change password
