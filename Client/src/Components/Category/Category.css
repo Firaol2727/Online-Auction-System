@@ -1,0 +1,27 @@
+.category {
+  align-items: center;
+  margin-top: 10px;
+}
+.categoryUl {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  align-items: center;
+}
+.categoryLi {
+  list-style-type: none;
+  margin-left: 20px;
+  display: inline;
+}
+.categoryLink {
+  color: black;
+  text-decoration: none;
+  display: inline-block;
+}
+.categoryLink:hover {
+  color: red;
+}
+ul a.active {
+  color: red;
+}
