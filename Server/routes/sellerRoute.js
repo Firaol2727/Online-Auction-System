@@ -306,7 +306,7 @@ router.get('/profile', checkAuthorizationSeller, (req,res)=>{
       res.sendStatus(500);
     });
 })
-// get detail 
+// get detail  of the auction seller perspective
 router.get('/moreon/:id', checkAuthorizationSeller,async (req,res)=>{
   let uid=req.user;
   let aid=req.params.id;
