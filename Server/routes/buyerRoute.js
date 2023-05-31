@@ -351,8 +351,6 @@ router.post("/login", authorizeCustomer, (req, res) => {
   res.sendStatus(200);
 });
 router.get("/profile", checkAuthorizationCustomer, (req, res) => {
-  let userid = req.user;
-
   let uid = req.user;
   console.log("running get profile ");
   return Buyer.findOne({

@@ -59,7 +59,6 @@ const upload = multer({
   fileFilter: multerFilter,
 }).fields([{ name: "imgCollection", maxCount: 7 }]);
 router.use(jsonParser);
-<<<<<<< HEAD
 router.use(
   cors({
     origin: [
@@ -127,23 +126,6 @@ const authorizeSeller = async (req, res, next) => {
         } else {
           console.log("Invalid  password");
           return find;
-=======
-router.use(cors({
-    origin: ['http://localhost:7494','http://127.0.0.1:3000','http://127.0.0.1:5173'],
-    credentials:true,
-}));
-const authorizeSeller=async(req,res,next)=>{
-    console.log(req.body);
-    let {username,password}=req.body;
-    console.log("username",username);
-    console.log("password",password);
-    return Seller.findOne(
-        {
-            where: {
-                phonenumber:username,
-        },
-        attributes:['id','password']
->>>>>>> fc2e95e318297fc8cc914b2e9dd32df6eef6ce0a
         }
       } else {
         return find;
@@ -285,7 +267,6 @@ router.post("/register", async (req, res) => {
     });
 });
 // change profile
-<<<<<<< HEAD
 router.post("/changepp", checkAuthorizationSeller, async (req, res) => {
   let { fname, lname, email, region, city } = req.body;
   /**
@@ -303,7 +284,6 @@ router.post("/changepp", checkAuthorizationSeller, async (req, res) => {
   let = a = req.body;
   console.log("a", a);
   // console.log("fname",fname);
-  // console.log("lname",lname);
   // res.sendStatus(200);
   return Seller.update(
     {
@@ -367,128 +347,6 @@ router.post("/changepassword", checkAuthorizationSeller, async (req, res) => {
       });
   }
 });
-=======
-router.post('/changepp',checkAuthorizationSeller,async(req,res)=>{
-    let {fname,lname,email,region,city,telUsername}=req.body;
-
-    let uid=req.user;
-  
-    console.log("userid",uid);
-    // res.sendStatus(200);
-    if(email!=null&&fname!=null&&lname!=null&&city!=null&&region!=null){
-return Seller.update({
-        fname:fname,
-        lname:lname,
-        email:email,
-        telUsername:telUsername,
-        region:region,
-        city:city
-    },{
-        where:{id:uid}
-    })
-    .then(data=>{
-        if(data){
-            res.sendStatus(200);
-        }else{
-            res.sendStatus(404);
-        }
-    })
-    .catch((err)=>{
-        console.log(err);
-        res.sendStatus(500);
-    })
-    }
-    
-  
-})
-// change password
-router.post('/changepassword',checkAuthorizationSeller,async(req,res)=>{
-    let {pp, np,cp}=req.body;
-    console.log(req.body);
-    let uid=req.user;
-        return Seller.findOne({
-            attributes:[
-                "password"
-            ],
-            where:{id:uid}
-        })
-        .then(async (data)=>{
-            const check=await bcrypt.compare(pp,data.password);
-            if(check){  
-                console.log("true")
-                const hash = await bcrypt.hashSync(np, bcrypt.genSaltSync(10));
-                return Seller.update({
-                    password:hash
-                },{
-                    where:{id:uid}
-                }).then((data)=>{
-                    console.log("succesful update")
-                    if(data){
-                        res.status(200).send("ok");
-                    }
-                })
-            }else{
-                console.log("false")
-                res.sendStatus(500);
-            }
-        })
-        .catch((err)=>{
-            console.log(err);
-            res.status(404);
-        })
-    
-})
->>>>>>> fc2e95e318297fc8cc914b2e9dd32df6eef6ce0a
-// seller login
-router.post("/login", authorizeSeller, (req, res) => {
-  res.sendStatus(200);
-});
-
-//seller notification
-<<<<<<< HEAD
-router.get("/notification", checkAuthorizationSeller, async (req, res) => {
-  let uid = req.user;
-  return Notification.findAll({
-    where: { selid: uid },
-  }).then(async (data) => {
-    res.send(data);
-    await Notification.update(
-      {
-        read: true,
-      },
-      {
-        where: {
-          read: false,
-          selid: uid,
-        },
-      }
-    );
-  });
-});
-
-=======
-router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
-    console.log("fetching notification")
-    let uid=req.user;
-    return Notification.findAll({
-        where:{selid:uid}
-    }).then( async data=>{
-        res.send(data);
-        await Notification.update({
-            read:true
-        },{
-            where:{
-                read:false,
-                selid:uid
-            }
-        })
-    }).catch(err=>{
-        res.sendStatus(500)
-    })
-
-}) 
-
->>>>>>> fc2e95e318297fc8cc914b2e9dd32df6eef6ce0a
 // create auction
 router.post("/upload", checkAuthorizationSeller, (req, res) => {
   upload(req, res, function (err) {
@@ -609,7 +467,6 @@ router.post("/deleteauction", async (req, res) => {
           },
         });
         await Notification.create({
-<<<<<<< HEAD
           id: "",
           AuctionId: aid,
           BuyerId: bidder.BuyerId,
@@ -631,129 +488,6 @@ router.post("/deleteauction", async (req, res) => {
   } catch (error) {
     console.log("The error was ", err);
     res.sendStatus(500);
-=======
-                id:"",
-                AuctionId:aid,
-                BuyerId:bidder.BuyerId,
-                message:`The auction you were  participating on has been deleted by the 
-                auctioner, your account has been recharged by ${bidder.bidprice}`
-        })
-        })
-        await Auction.destroy({
-            where:{
-                id:aid
-            }
-        })
-        
-        res.sendStatus(200);
-    }else{
-        await Auction.destroy({where:{id:aid}});
-        res.sendStatus(200);
-    }
-} catch (error) {
-      console.log("The error was ",err);
-      res.sendStatus(500);  
-}
-})
-// my auction
-router.get("/myauction",checkAuthorizationSeller,(req,res)=>{
-    let uid=req.user;
-    console.log("The user is ",uid)
-    return Auction.findAll({
-        where:{SellerId:uid}
-    }).then((data=>{
-        res.send(data);
-        }))
-})
-// my profile 
-router.get('/profile',checkAuthorizationSeller,(req,res)=>{
-    let uid=req.user;
-    return Seller.findOne({
-        where:{id:uid},
-        attributes: {exclude: ['password','createdAt','updatedAt'] },
-    }).then(data=>{
-        res.send(data)
-    }).catch(err=>{
-        console.log("the error in profile fetching is",err);
-        res.sendStatus(500);
-    })
-})
-router.get('/h',(req,res)=>{
-    let now=formatDate(new Date());
-    console.log("The current date is" ,now);
-    res.sendStatus(200)
-})
-router.post('/delete',checkAuthorizationSeller,(req,res)=>{
-    let {password}=req.body;
-    console.log("The request body is",req.body)
-    let uid=req.user;
-    return Seller.findOne(
-        {
-            where: {
-                id:uid,
-        },
-        attributes:['id','password']
-        }
-    ).then(async(data)=>{
-        if (data) {
-            const hashed=data.password;
-            const compared=await bcrypt.compare(password,hashed);
-            if(compared){
-                console.log("correct password")
-                // await Seller.destroy({
-                //     where:{id:uid}
-                // })
-                res.sendStatus(200)
-                
-            }else{
-                res.status(400).send("invalid password")
-            }
-        }
-        else{
-            return res.status(404).send("invalid user")
-        }
-    })
-})
-router.get('/moreon/:id',checkAuthorizationSeller,(req,res)=>{
-    let aid=req.params.id;
-    let response={pictures:"", detail:"",bidders:""};
-    return Auction.findOne({
-        where:{id:aid},
-    }).then(async data=>{
-        console.log("data",data);
-        if(data){
-            response.detail=data;
-            let persons;
-            let pics;
-            try {
-                persons=await Bid.findAll({where:{AuctionId:aid}});
-                pics=await Pictures.findAll({where:{AuctionId:aid}})
-            } catch (error) {
-                console.log("error",error)
-            }
-            
-            response.bidders=persons;
-            response.pictures=pics
-            res.send(response);
-        }
-    })
-    .catch(err=>{
-        if(err){
-            console.log("Error",err)
-            res.status(500).send("some thing went wrong !")
-        }
-    })
-})
-router.get("/checklogin",(req,res)=>{
-    res.status(200).send("Logged in");
-})
-function formatDate(date) {
-    return [
-      date.getFullYear(),
-      padTo2Digits(date.getMonth() + 1),
-      padTo2Digits(date.getDate()),
-    ].join('-');
->>>>>>> fc2e95e318297fc8cc914b2e9dd32df6eef6ce0a
   }
 });
 // my auction

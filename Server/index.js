@@ -206,7 +206,7 @@ app.get("/images/:picid", (req, res) => {
     where: { id: id },
   })
     .then((data) => {
-      console.log("The data found is ", data);
+      // console.log("The data found is ", data);
       if (data) {
         return data.picpath;
       }
