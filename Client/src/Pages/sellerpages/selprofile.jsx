@@ -512,28 +512,6 @@ const SelProfie=()=>{
                         value={profile.telUsername}
                         label="Telusername"
                     />
-                    </Box> <br />
-                    <Box className="type">
-                    <TextField
-                        sx={{
-                        marginLeft: "10px",
-                        marginRight: "10px",
-
-                        width: {
-                            lg: 510,
-                            md: 540,
-                            sm: 420,
-                            xs: 250,
-                        },
-                        "& .MuiInputBase-root": {
-                            height: 40,
-                        },
-                        }}
-                        id="outlined-basic"
-                        variant="outlined"
-                        value={profile.sector}
-                        label="Type"
-                    />
                     </Box>
                     <Box className="City">
                     <TextField
