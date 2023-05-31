@@ -6,6 +6,8 @@ const app = express();
 const bcrypt = require("bcrypt");
 var cookieParser = require("cookie-parser");
 const { json } = require("express");
+
+const auth = require("./routes/auth");
 const adminRoutes = require("./routes/adminRoutes");
 const buyerRoute = require("./routes/buyerRoute");
 const sellerRoute = require("./routes/sellerRoute");
