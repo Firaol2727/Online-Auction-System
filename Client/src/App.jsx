@@ -89,7 +89,7 @@ function App() {
           <Route path="/moreon/:id" element={<MoreDetail />} />
           <Route path="/auctioncontrol" element={<AdminAuctions />} />
           <Route path="/adprofile" element={<Adprofile />} />
-          <Route path="/deleteuser" element={<DeleteUser />} />
+          {/* <Route path="/deleteuser" element={<DeleteUser />} /> */}
           <Route path="/adlogin" element={<AdLogin />} />
 
           {/* >>>>>>> main */}

@@ -92,118 +92,95 @@ router.post("/mylogin", async (req, res) => {
     }
   }
 });
-const authorizeSeller = async (req, res, next) => {
-  console.log(req.body);
-  let { username, password } = req.body;
-  const seller = await Seller.findOne({ where: { phonenumber: username } });
 
-  const buyer = await Buyer.findOne({ where: { phonenumber: username } });
-
-  console.log("username", username);
-  console.log("password", password);
-  if (seller) {
-    console.log("in seller");
-    return Seller.findOne({
-      where: {
-        phonenumber: username,
-      },
-      attributes: ["id", "password"],
+router.use(cors({
+    origin: ['http://localhost:7494','http://127.0.0.1:3000','http://127.0.0.1:5173'],
+    credentials:true,
+}));
+const authorizeSeller=async(req,res,next)=>{
+    console.log(req.body);
+    let {username,password}=req.body;
+    console.log("username",username);
+    console.log("password",password);
+    return Seller.findOne(
+        {
+            where: {
+                phonenumber:username,
+        },
+        attributes:['id','password']
+        })
+    .then(async (find) => {
+      console.log("the find is ", find);
+      if (find.allow) {
+        const user = find.uid;
+        const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+        console.log("accessToken", accessToken);
+        res.cookie("u", accessToken, {
+          httpOnly: true,
+          sameSite: "none",
+          secure: "false",
+          maxAge: 7200000,
+        });
+        // res.cookie("ab","refreshed token",{httpOnly:true,sameSite:"none",secure:"false"});
+        next();
+      } else {
+        console.log(find);
+        res.status(400).send("error username or password");
+      }
     })
-      .then(async (data) => {
-        console.log("the data is ", data);
-        const find = {
-          allow: false,
-          uid: null,
-        };
-        if (data) {
-          const hashed = data.password;
-          const compared = await bcrypt.compare(password, hashed);
-          if (compared) {
-            console.log("correct password");
-            find.uid = data.id;
-            find.allow = true;
-            return find;
-          } else {
-            console.log("Invalid  password");
-            return find;
-          }
-        } else {
-          return find;
-        }
-      })
-      .then(async (find) => {
-        console.log("the find is ", find);
-        if (find.allow) {
-          const user = find.uid;
-          const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-          console.log("accessToken", accessToken);
-          res.cookie("u", accessToken, {
-            httpOnly: true,
-            sameSite: "none",
-            secure: "false",
-            maxAge: 7200000,
-          });
-          // res.cookie("ab","refreshed token",{httpOnly:true,sameSite:"none",secure:"false"});
-          next();
-        } else {
-          console.log(find);
-          res.status(400).send("error username or password");
-        }
-      })
-      .catch((err) => {
-        console.log("The error occures is  " + err);
-        res.sendStatus(500);
-      });
-  } else if (buyer) {
-    console.log("in buyer");
-    return Buyer.findOne({
-      where: {
-        phonenumber: username,
-      },
-      attributes: ["id", "password"],
-    })
-      .then(async (data) => {
-        // console.log("the data is ",data.Aid,data.password);
-        const find = {
-          allow: false,
-          uid: null,
-        };
-        if (data) {
-          const hashed = data.password;
-          const compared = await bcrypt.compare(password, hashed);
-          if (compared) {
-            find.uid = data.id;
-            find.allow = true;
-            return find;
-          } else {
-            return find;
-          }
-        } else {
-          return find;
-        }
-      })
-      .then(async (find) => {
-        console.log("the find is ", find);
-        if (find.allow) {
-          const user = find.uid;
-          const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-          // console.log("accessToken",accessToken);
-          res.cookie("u", accessToken, { httpOnly: true });
-          next();
-        } else {
-          console.log(find);
-          res.status(400).send("error username or password");
-        }
-      })
-      .catch((err) => {
-        console.log("The error occures is  " + err);
-        res.sendStatus(500);
-      });
-  } else {
-    console.log("error not both seller and buyer");
-    res.status(404).send("error inot both seller and buiyer");
-    // next();
-  }
+    .catch((err) => {
+      console.log("The error occures is  " + err);
+      res.sendStatus(500);
+    });
+  // } else if (buyer) {
+  // return Buyer.findOne({
+  //   where: {
+  //     phonenumber: phonenumber,
+  //   },
+  //   attributes: ["id", "password"],
+  // })
+  //   .then(async (data) => {
+  //     // console.log("the data is ",data.Aid,data.password);
+  //     const find = {
+  //       allow: false,
+  //       uid: null,
+  //     };
+  //     if (data) {
+  //       const hashed = data.password;
+  //       const compared = await bcrypt.compare(password, hashed);
+  //       if (compared) {
+  //         find.uid = data.id;
+  //         find.allow = true;
+  //         return find;
+  //       } else {
+  //         return find;
+  //       }
+  //     } else {
+  //       return find;
+  //     }
+  //   })
+  //   .then(async (find) => {
+  //     console.log("the find is ", find);
+  //     if (find.allow) {
+  //       const user = find.uid;
+  //       const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+  //       // console.log("accessToken",accessToken);
+  //       res.cookie("u", accessToken, { httpOnly: true });
+  //       next();
+  //     } else {
+  //       console.log(find);
+  //       res.status(400).send("error username or password");
+  //     }
+  //   })
+  //   .catch((err) => {
+  //     console.log("The error occures is  " + err);
+  //     res.sendStatus(500);
+  //   });
+  // } else {
+  //   console.log("error in user name");
+  //   req.status(404).send("error in usename or passsword");
+  //   next();
+  // }
 };
 const checkAuthorizationSeller = async (req, res, next) => {
   console.log("cookies", req.cookies);
@@ -285,7 +262,6 @@ router.post("/changepp", checkAuthorizationSeller, async (req, res) => {
   let = a = req.body;
   console.log("a", a);
   // console.log("fname",fname);
-  // console.log("lname",lname);
   // res.sendStatus(200);
   return Seller.update(
     {
@@ -311,6 +287,49 @@ router.post("/changepp", checkAuthorizationSeller, async (req, res) => {
       res.sendStatus(500);
     });
 });
+//get profile 
+router.get('/profile', checkAuthorizationSeller, (req,res)=>{
+  let uid=req.user;
+  console.log("running get profile ");
+  return Seller.findOne({
+    attributes: { exclude: ["password", "createdAt", "updatedAt"] },
+    where: { id: uid },
+  })
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.sendStatus(500);
+    });
+})
+// get detail  of the auction seller perspective
+router.get('/moreon/:id', checkAuthorizationSeller,async (req,res)=>{
+  let uid=req.user;
+  let aid=req.params.id;
+  let response={
+    detail:"",
+    pictures:""};
+  console.log("running get profile ");
+  return Auction.findOne({
+    include: [
+      {
+        model: Pictures,
+      },
+    ],
+    where: { id: aid },
+  })
+    .then(async(data) => {
+      if(data){
+        response.detail=data;
+      }
+      let pic=await Pictures.findAll({where:{AuctionId:data.id}})
+      response.pictures=pic;
+      res.send(response);
+    })
+    .catch((err) => {
+      res.sendStatus(404);
+    });
+})
 // change password
 router.post("/changepassword", checkAuthorizationSeller, async (req, res) => {
   let { pp, np, cp } = req.body;
@@ -349,31 +368,102 @@ router.post("/changepassword", checkAuthorizationSeller, async (req, res) => {
       });
   }
 });
+router.post('/changepp',checkAuthorizationSeller,async(req,res)=>{
+    let {fname,lname,email,region,city,telUsername}=req.body;
+
+    let uid=req.user;
+  
+    console.log("userid",uid);
+    // res.sendStatus(200);
+    if(email!=null&&fname!=null&&lname!=null&&city!=null&&region!=null){
+return Seller.update({
+        fname:fname,
+        lname:lname,
+        email:email,
+        telUsername:telUsername,
+        region:region,
+        city:city
+    },{
+        where:{id:uid}
+    })
+    .then(data=>{
+        if(data){
+            res.sendStatus(200);
+        }else{
+            res.sendStatus(404);
+        }
+    })
+    .catch((err)=>{
+        console.log(err);
+        res.sendStatus(500);
+    })
+    }
+    
+  
+})
+// change password
+router.post('/changepassword',checkAuthorizationSeller,async(req,res)=>{
+    let {pp, np,cp}=req.body;
+    console.log(req.body);
+    let uid=req.user;
+        return Seller.findOne({
+            attributes:[
+                "password"
+            ],
+            where:{id:uid}
+        })
+        .then(async (data)=>{
+            const check=await bcrypt.compare(pp,data.password);
+            if(check){  
+                console.log("true")
+                const hash = await bcrypt.hashSync(np, bcrypt.genSaltSync(10));
+                return Seller.update({
+                    password:hash
+                },{
+                    where:{id:uid}
+                }).then((data)=>{
+                    console.log("succesful update")
+                    if(data){
+                        res.status(200).send("ok");
+                    }
+                })
+            }else{
+                console.log("false")
+                res.sendStatus(500);
+            }
+        })
+        .catch((err)=>{
+            console.log(err);
+            res.status(404);
+        })
+    
+})
 // seller login
 router.post("/login", authorizeSeller, (req, res) => {
   res.sendStatus(200);
 });
 
 //seller notification
-router.get("/notification", checkAuthorizationSeller, async (req, res) => {
-  let uid = req.user;
-  return Notification.findAll({
-    where: { selid: uid },
-  }).then(async (data) => {
-    res.send(data);
-    await Notification.update(
-      {
-        read: true,
-      },
-      {
-        where: {
-          read: false,
-          selid: uid,
-        },
-      }
-    );
-  });
-});
+router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
+    console.log("fetching notification")
+    let uid=req.user;
+    return Notification.findAll({
+        where:{selid:uid}
+    }).then( async data=>{
+        res.send(data);
+        await Notification.update({
+            read:true
+        },{
+            where:{
+                read:false,
+                selid:uid
+            }
+        })
+    }).catch(err=>{
+        res.sendStatus(500)
+    })
+
+}) 
 
 // create auction
 router.post("/upload", checkAuthorizationSeller, (req, res) => {
