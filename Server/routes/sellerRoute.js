@@ -167,15 +167,9 @@ const checkAuthorizationSeller = async (req, res, next) => {
   }
 };
 
-router.get("another",(req,res)=>{res.send("hello")})
-=======
-router.get("/testpull", (req, res) => {
-  res.send("success");
-});
   // Seller registration
 router.post("/register", async (req, res) => {
-  let { firstName, lastName, email, password, phoneNumber, region, city } =
-    req.body;
+  let { firstName, lastName, email, password, phoneNumber, region, city } = req.body;
 
   const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
   return Seller.create({
@@ -586,5 +580,6 @@ function formatDate(date) {
 }
 function padTo2Digits(num) {
   return num.toString().padStart(2, "0");
+}
 }
 module.exports = router;
