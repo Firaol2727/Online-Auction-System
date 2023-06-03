@@ -70,10 +70,6 @@ router.use(
   })
 );
 
-router.use(cors({
-    origin: ['http://localhost:7494','http://127.0.0.1:3000','http://127.0.0.1:5173'],
-    credentials:true,
-}));
 const authorizeSeller=async(req,res,next)=>{
     console.log(req.body);
     let {username,password}=req.body;
