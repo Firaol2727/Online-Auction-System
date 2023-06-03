@@ -70,11 +70,6 @@ router.use(
   })
 );
 
-const authorizeSeller = async (req, res, next) => {
-  console.log(req.body);
-  let { username, password } = req.body;
-  console.log("username", username);
-  console.log("password", password);
 router.use(cors({
     origin: ['http://localhost:7494','http://127.0.0.1:3000','http://127.0.0.1:5173'],
     credentials:true,
@@ -84,7 +79,6 @@ const authorizeSeller=async(req,res,next)=>{
     let {username,password}=req.body;
     console.log("username",username);
     console.log("password",password);
-
   return Seller.findOne({
     where: {
       phonenumber: phonenumber,
@@ -128,6 +122,7 @@ const authorizeSeller=async(req,res,next)=>{
       console.log("The error occures is  " + err);
       res.sendStatus(500);
     });
+
 };
 const checkAuthorizationSeller = async (req, res, next) => {
   console.log("cookies", req.cookies);
@@ -165,9 +160,7 @@ const checkAuthorizationSeller = async (req, res, next) => {
     res.sendStatus(403);
   }
 };
-router.get("/testpull", (req, res) => {
-  res.send("success");
-});
+router.get("another",(req,res)=>{res.send("hello")})
 // Seller registration
 router.post("/register", async (req, res) => {
   let { firstName, lastName, email, password, phoneNumber, region, city } =
