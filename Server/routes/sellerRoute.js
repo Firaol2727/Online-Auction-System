@@ -69,29 +69,6 @@ router.use(
     credentials: true,
   })
 );
-router.post("/mylogin", async (req, res) => {
-  let { username, password } = req.body;
-  const find = {
-    allow: false,
-    uid: null,
-  };
-
-  const buyer = await Buyer.findOne({ where: { phonenumber: username } });
-  const seller = await Seller.findOne({ where: { phonenumber: username } });
-  if (buyer) {
-    const hashed = buyer.password;
-    const compared = await bcrypt.compare(password, hashed);
-    if (compared) {
-      console.log("correct password");
-      find.uid = buyer.id;
-      find.allow = true;
-      return find;
-    } else {
-      console.log("Invalid  password");
-      return find;
-    }
-  }
-});
 
 router.use(cors({
     origin: ['http://localhost:7494','http://127.0.0.1:3000','http://127.0.0.1:5173'],
