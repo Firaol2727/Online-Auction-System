@@ -161,7 +161,7 @@ const checkAuthorizationSeller = async (req, res, next) => {
     res.sendStatus(403);
   }
 };
-// Seller registration
+
   // Seller registration
 router.post("/register", async (req, res) => {
   let { firstName, lastName, email, password, phoneNumber, region, city } = req.body;
