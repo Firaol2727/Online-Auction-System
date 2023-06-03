@@ -102,26 +102,39 @@ const authorizeSeller=async(req,res,next)=>{
     let {username,password}=req.body;
     console.log("username",username);
     console.log("password",password);
-    return Seller.findOne(
-        {
-            where: {
-                phonenumber:username,
-        },
-        attributes:['id','password']
-        })
+  return Seller.findOne({
+    where: {
+      phonenumber: phonenumber,
+    },
+    attributes: ["id", "password"],
+  })
+    .then(async (data) => {
+      // console.log("the data is ",data.Aid,data.password);
+      const find = {
+        allow: false,
+        uid: null,
+      };
+      if (data) {
+        const hashed = data.password;
+        const compared = await bcrypt.compare(password, hashed);
+        if (compared) {
+          find.uid = data.id;
+          find.allow = true;
+          return find;
+        } else {
+          return find;
+        }
+      } else {
+        return find;
+      }
+    })
     .then(async (find) => {
       console.log("the find is ", find);
       if (find.allow) {
         const user = find.uid;
         const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-        console.log("accessToken", accessToken);
-        res.cookie("u", accessToken, {
-          httpOnly: true,
-          sameSite: "none",
-          secure: "false",
-          maxAge: 7200000,
-        });
-        // res.cookie("ab","refreshed token",{httpOnly:true,sameSite:"none",secure:"false"});
+        // console.log("accessToken",accessToken);
+        res.cookie("u", accessToken, { httpOnly: true });
         next();
       } else {
         console.log(find);
@@ -132,55 +145,6 @@ const authorizeSeller=async(req,res,next)=>{
       console.log("The error occures is  " + err);
       res.sendStatus(500);
     });
-  // } else if (buyer) {
-  // return Buyer.findOne({
-  //   where: {
-  //     phonenumber: phonenumber,
-  //   },
-  //   attributes: ["id", "password"],
-  // })
-  //   .then(async (data) => {
-  //     // console.log("the data is ",data.Aid,data.password);
-  //     const find = {
-  //       allow: false,
-  //       uid: null,
-  //     };
-  //     if (data) {
-  //       const hashed = data.password;
-  //       const compared = await bcrypt.compare(password, hashed);
-  //       if (compared) {
-  //         find.uid = data.id;
-  //         find.allow = true;
-  //         return find;
-  //       } else {
-  //         return find;
-  //       }
-  //     } else {
-  //       return find;
-  //     }
-  //   })
-  //   .then(async (find) => {
-  //     console.log("the find is ", find);
-  //     if (find.allow) {
-  //       const user = find.uid;
-  //       const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-  //       // console.log("accessToken",accessToken);
-  //       res.cookie("u", accessToken, { httpOnly: true });
-  //       next();
-  //     } else {
-  //       console.log(find);
-  //       res.status(400).send("error username or password");
-  //     }
-  //   })
-  //   .catch((err) => {
-  //     console.log("The error occures is  " + err);
-  //     res.sendStatus(500);
-  //   });
-  // } else {
-  //   console.log("error in user name");
-  //   req.status(404).send("error in usename or passsword");
-  //   next();
-  // }
 };
 const checkAuthorizationSeller = async (req, res, next) => {
   console.log("cookies", req.cookies);
