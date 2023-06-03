@@ -251,28 +251,28 @@ export default function NavBuyer() {
     account: "",
   });
 
-  // useEffect(() => {
-  //   try {
-  //     axios({
-  //       method: "GET",
-  //       url: "http://localhost:5000/customer/profile",
-  //     })
-  //       .then((response) => {
-  //         console.log("data from back ende ", response.data);
-  //         if (response.status === 200) {
-  //           setProfileData(response.data);
-  //           console.log("data from back ende ", response.data);
-  //         } else {
-  //           console.log("not logged in");
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         console.log("catching error while database connection", error);
-  //       });
-  //   } catch (errr) {
-  //     console.log("error trying");
-  //   }
-  // }, []);
+  useEffect(() => {
+    try {
+      axios({
+        method: "GET",
+        url: "http://localhost:5000/customer/profile",
+      })
+        .then((response) => {
+          console.log("data from back ende ", response.data);
+          if (response.status === 200) {
+            setProfileData(response.data);
+            console.log("data from back ende ", response.data);
+          } else {
+            console.log("not logged in");
+          }
+        })
+        .catch((error) => {
+          console.log("ctahc error ", error);
+        });
+    } catch (errr) {
+      console.log("error trying");
+    }
+  }, []);
   ////login Functions
   const handleUsernameChange = (e) => {
     setLoginState({
