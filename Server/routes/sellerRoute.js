@@ -93,6 +93,90 @@ router.post("/mylogin", async (req, res) => {
   }
 });
 
+router.use(cors({
+    origin: ['http://localhost:7494','http://127.0.0.1:3000','http://127.0.0.1:5173'],
+    credentials:true,
+}));
+const authorizeSeller=async(req,res,next)=>{
+    console.log(req.body);
+    let {username,password}=req.body;
+    console.log("username",username);
+    console.log("password",password);
+  return Seller.findOne({
+    where: {
+      phonenumber: phonenumber,
+    },
+    attributes: ["id", "password"],
+  })
+    .then(async (data) => {
+      // console.log("the data is ",data.Aid,data.password);
+      const find = {
+        allow: false,
+        uid: null,
+      };
+      if (data) {
+        const hashed = data.password;
+        const compared = await bcrypt.compare(password, hashed);
+        if (compared) {
+          find.uid = data.id;
+          find.allow = true;
+          return find;
+        } else {
+          return find;
+        }
+      } else {
+        return find;
+      }
+    })
+    .then(async (find) => {
+      console.log("the find is ", find);
+      if (find.allow) {
+        const user = find.uid;
+        const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+        // console.log("accessToken",accessToken);
+        res.cookie("u", accessToken, { httpOnly: true });
+        next();
+      } else {
+        console.log(find);
+        res.status(400).send("error username or password");
+      }
+    })
+    .catch((err) => {
+      console.log("The error occures is  " + err);
+      res.sendStatus(500);
+    });
+};
+const checkAuthorizationSeller = async (req, res, next) => {
+  console.log("cookies", req.cookies);
+  // console.log("cookies",req.headers)
+
+  if (req.cookies.u) {
+    console.log("in the first check");
+    const token = req.cookies.u;
+    if (token == null) {
+      res.status(403).send("not logged in");
+    }
+    jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+      console.log("verifing");
+      if (err) {
+        console.log("Token error is ", err);
+        res.status(403).send("not logged in");
+      } else {
+        req.user = user;
+        next();
+      }
+    });
+  } else if (req.headers.cookies) {
+    console.log("in the second check");
+    let contentincookie = req.headers.cookies;
+    const token = contentincookie.slice(0);
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+      if (err) {
+        res.sendStatus(403);
+      }
+      console.log("the request user is ", user);
+      req.user = user;
+      next();
     });
   } else {
     res.sendStatus(403);
@@ -167,9 +251,9 @@ router.post("/changepp", checkAuthorizationSeller, async (req, res) => {
       res.sendStatus(500);
     });
 });
-//get profile
-router.get("/profile", checkAuthorizationSeller, (req, res) => {
-  let uid = req.user;
+//get profile 
+router.get('/profile', checkAuthorizationSeller, (req,res)=>{
+  let uid=req.user;
   console.log("running get profile ");
   return Seller.findOne({
     attributes: { exclude: ["password", "createdAt", "updatedAt"] },
@@ -181,15 +265,14 @@ router.get("/profile", checkAuthorizationSeller, (req, res) => {
     .catch((err) => {
       res.sendStatus(500);
     });
-});
+})
 // get detail  of the auction seller perspective
-router.get("/moreon/:id", checkAuthorizationSeller, async (req, res) => {
-  let uid = req.user;
-  let aid = req.params.id;
-  let response = {
-    detail: "",
-    pictures: "",
-  };
+router.get('/moreon/:id', checkAuthorizationSeller,async (req,res)=>{
+  let uid=req.user;
+  let aid=req.params.id;
+  let response={
+    detail:"",
+    pictures:""};
   console.log("running get profile ");
   return Auction.findOne({
     include: [
@@ -199,18 +282,18 @@ router.get("/moreon/:id", checkAuthorizationSeller, async (req, res) => {
     ],
     where: { id: aid },
   })
-    .then(async (data) => {
-      if (data) {
-        response.detail = data;
+    .then(async(data) => {
+      if(data){
+        response.detail=data;
       }
-      let pic = await Pictures.findAll({ where: { AuctionId: data.id } });
-      response.pictures = pic;
+      let pic=await Pictures.findAll({where:{AuctionId:data.id}})
+      response.pictures=pic;
       res.send(response);
     })
     .catch((err) => {
       res.sendStatus(404);
     });
-});
+})
 // change password
 router.post("/changepassword", checkAuthorizationSeller, async (req, res) => {
   let { pp, np, cp } = req.body;
@@ -249,113 +332,102 @@ router.post("/changepassword", checkAuthorizationSeller, async (req, res) => {
       });
   }
 });
-router.post("/changepp", checkAuthorizationSeller, async (req, res) => {
-  let { fname, lname, email, region, city, telUsername } = req.body;
+router.post('/changepp',checkAuthorizationSeller,async(req,res)=>{
+    let {fname,lname,email,region,city,telUsername}=req.body;
 
-  let uid = req.user;
-
-  console.log("userid", uid);
-  // res.sendStatus(200);
-  if (
-    email != null &&
-    fname != null &&
-    lname != null &&
-    city != null &&
-    region != null
-  ) {
-    return Seller.update(
-      {
-        fname: fname,
-        lname: lname,
-        email: email,
-        telUsername: telUsername,
-        region: region,
-        city: city,
-      },
-      {
-        where: { id: uid },
-      }
-    )
-      .then((data) => {
-        if (data) {
-          res.sendStatus(200);
-        } else {
-          res.sendStatus(404);
+    let uid=req.user;
+  
+    console.log("userid",uid);
+    // res.sendStatus(200);
+    if(email!=null&&fname!=null&&lname!=null&&city!=null&&region!=null){
+return Seller.update({
+        fname:fname,
+        lname:lname,
+        email:email,
+        telUsername:telUsername,
+        region:region,
+        city:city
+    },{
+        where:{id:uid}
+    })
+    .then(data=>{
+        if(data){
+            res.sendStatus(200);
+        }else{
+            res.sendStatus(404);
         }
-      })
-      .catch((err) => {
+    })
+    .catch((err)=>{
         console.log(err);
         res.sendStatus(500);
-      });
-  }
-});
-// change password
-router.post("/changepassword", checkAuthorizationSeller, async (req, res) => {
-  let { pp, np, cp } = req.body;
-  console.log(req.body);
-  let uid = req.user;
-  return Seller.findOne({
-    attributes: ["password"],
-    where: { id: uid },
-  })
-    .then(async (data) => {
-      const check = await bcrypt.compare(pp, data.password);
-      if (check) {
-        console.log("true");
-        const hash = await bcrypt.hashSync(np, bcrypt.genSaltSync(10));
-        return Seller.update(
-          {
-            password: hash,
-          },
-          {
-            where: { id: uid },
-          }
-        ).then((data) => {
-          console.log("succesful update");
-          if (data) {
-            res.status(200).send("ok");
-          }
-        });
-      } else {
-        console.log("false");
-        res.sendStatus(500);
-      }
     })
-    .catch((err) => {
-      console.log(err);
-      res.status(404);
-    });
-});
+    }
+    
+  
+})
+// change password
+router.post('/changepassword',checkAuthorizationSeller,async(req,res)=>{
+    let {pp, np,cp}=req.body;
+    console.log(req.body);
+    let uid=req.user;
+        return Seller.findOne({
+            attributes:[
+                "password"
+            ],
+            where:{id:uid}
+        })
+        .then(async (data)=>{
+            const check=await bcrypt.compare(pp,data.password);
+            if(check){  
+                console.log("true")
+                const hash = await bcrypt.hashSync(np, bcrypt.genSaltSync(10));
+                return Seller.update({
+                    password:hash
+                },{
+                    where:{id:uid}
+                }).then((data)=>{
+                    console.log("succesful update")
+                    if(data){
+                        res.status(200).send("ok");
+                    }
+                })
+            }else{
+                console.log("false")
+                res.sendStatus(500);
+            }
+        })
+        .catch((err)=>{
+            console.log(err);
+            res.status(404);
+        })
+    
+})
 // seller login
 router.post("/login", authorizeSeller, (req, res) => {
   res.sendStatus(200);
 });
 
 //seller notification
-router.get("/notification", checkAuthorizationSeller, async (req, res) => {
-  console.log("fetching notification");
-  let uid = req.user;
-  return Notification.findAll({
-    where: { selid: uid },
-  })
-    .then(async (data) => {
-      res.send(data);
-      await Notification.update(
-        {
-          read: true,
-        },
-        {
-          where: {
-            read: false,
-            selid: uid,
-          },
-        }
-      );
+router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
+    console.log("fetching notification")
+    let uid=req.user;
+    return Notification.findAll({
+        where:{selid:uid}
+    }).then( async data=>{
+        res.send(data);
+        await Notification.update({
+            read:true
+        },{
+            where:{
+                read:false,
+                selid:uid
+            }
+        })
+    }).catch(err=>{
+        res.sendStatus(500)
     })
-    .catch((err) => {
-      res.sendStatus(500);
-    });
-});
+
+}) 
 
 // create auction
 router.post("/upload", checkAuthorizationSeller, (req, res) => {
