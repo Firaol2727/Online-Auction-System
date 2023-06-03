@@ -45,12 +45,12 @@ const selHome=()=>{
                 setloading(false)
             }
             if(response.status===403){
-                nav('/login')
+                nav('/sel/login')
             }
         }).catch(
             err=>{
                 if(err.response.status===403){
-                    nav('/login')
+                    nav('/sel/login')
                 }
                 setloading(false)
                 console.log("The error found is",err);

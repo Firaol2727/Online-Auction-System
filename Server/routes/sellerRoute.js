@@ -78,7 +78,7 @@ const authorizeSeller=async(req,res,next)=>{
 
   return Seller.findOne({
     where: {
-      phonenumber: phonenumber,
+      phonenumber: username,
     },
     attributes: ["id", "password"],
   })
