@@ -128,6 +128,7 @@ const authorizeSeller=async(req,res,next)=>{
       console.log("The error occures is  " + err);
       res.sendStatus(500);
     });
+
 };
 const checkAuthorizationSeller = async (req, res, next) => {
   console.log("cookies", req.cookies);
@@ -165,10 +166,13 @@ const checkAuthorizationSeller = async (req, res, next) => {
     res.sendStatus(403);
   }
 };
+
+router.get("another",(req,res)=>{res.send("hello")})
+=======
 router.get("/testpull", (req, res) => {
   res.send("success");
 });
-// Seller registration
+  // Seller registration
 router.post("/register", async (req, res) => {
   let { firstName, lastName, email, password, phoneNumber, region, city } =
     req.body;
