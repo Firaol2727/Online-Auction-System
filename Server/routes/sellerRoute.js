@@ -23,7 +23,7 @@ const {
   Seller,
   Transaction,
 } = sequelize.models;
-
+var cookieParser = require("cookie-parser");
 let filname;
 const multer = require("multer");
 const path = require("path");
@@ -59,21 +59,28 @@ const upload = multer({
   fileFilter: multerFilter,
 }).fields([{ name: "imgCollection", maxCount: 7 }]);
 router.use(jsonParser);
+// router.use(express.json());
+// router.use(express.urlencoded({
+//     extended:true
+// }));
+router.use(cookieParser());
 router.use(
   cors({
     origin: [
-      "http://localhost:7494",
       "http://127.0.0.1:3000",
       "http://127.0.0.1:5173",
     ],
     credentials: true,
   })
 );
+router.options('*', cors());
+
 
 router.use(cors({
     origin: ['http://localhost:7494','http://127.0.0.1:3000','http://127.0.0.1:5173'],
     credentials:true,
 }));
+
 const authorizeSeller=async(req,res,next)=>{
     console.log(req.body);
     let {username,password}=req.body;
@@ -82,7 +89,7 @@ const authorizeSeller=async(req,res,next)=>{
 
   return Seller.findOne({
     where: {
-      phonenumber: phonenumber,
+      phonenumber: username,
     },
     attributes: ["id", "password"],
   })
@@ -112,7 +119,7 @@ const authorizeSeller=async(req,res,next)=>{
         const user = find.uid;
         const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
         // console.log("accessToken",accessToken);
-        res.cookie("u", accessToken, { httpOnly: true });
+        res.cookie("u",accessToken,{maxAge: 7200000,httpOnly:true,sameSite:"none",secure:true});
         next();
       } else {
         console.log(find);
@@ -127,7 +134,7 @@ const authorizeSeller=async(req,res,next)=>{
 };
 const checkAuthorizationSeller = async (req, res, next) => {
   console.log("cookies", req.cookies);
-  // console.log("cookies",req.headers)
+  console.log("headers",req.headers)
 
   if (req.cookies.u) {
     console.log("in the first check");

@@ -6,7 +6,7 @@ const app = express();
 const bcrypt = require("bcrypt");
 var cookieParser = require("cookie-parser");
 const { json } = require("express");
-
+const jwt = require("jsonwebtoken");
 const auth = require("./routes/auth");
 const adminRoutes = require("./routes/adminRoutes");
 const buyerRoute = require("./routes/buyerRoute");
@@ -55,43 +55,19 @@ var mailOptions = {
 // });
 // trying the request
 
-// app.use(cors({ origin: 'http://127.0.0.1:5173' }))
-
+app.use(cookieParser());
 app.use(express.json());
-app.use(
-  express.urlencoded({
-    extended: true,
-  })
-);
-// app.use(function (req, res, next) {
-
-//     // Website you wish to allow to connect
-//     res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1:3000');
-
-//     // Request methods you wish to allow
-//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-
-//     // Request headers you wish to allow
-//     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
-//     // Set to true if you need the website to include cookies in the requests sent
-//     // to the API (e.g. in case you use sessions)
-//     res.setHeader('Access-Control-Allow-Credentials', true);
-
-//     // Pass to next layer of middleware
-//     next();
-// });
+app.use(express.urlencoded({
+    extended:true
+}));
 app.use(
   cors({
-    origin: [
-      "http://127.0.0.1:3000",
-      "http://127.0.0.1:5173",
-      "http://localhost:5173",
-    ],
+    origin: "http://127.0.0.1:5173",
     credentials: true,
   })
 );
-app.options("*", cors());
+// app.options('*', cors());
+// app.use(express.json()); 
 app.use(cookieParser());
 app.use("/custom", buyerRoute);
 app.use("/special", adminRoutes);
@@ -201,6 +177,57 @@ let onlineUsers = [];
 let thereisStart = false;
 let waitingchangeauctions = [];
 // Getting image api
+const authorizeSeller=async(req,res,next)=>{
+  console.log(req.body);
+  let {username,password}=req.body;
+  console.log("username",username);
+  console.log("password",password);
+
+return Seller.findOne({
+  where: {
+    phonenumber: username,
+  },
+  attributes: ["id", "password"],
+})
+  .then(async (data) => {
+    // console.log("the data is ",data.Aid,data.password);
+    const find = {
+      allow: false,
+      uid: null,
+    };
+    if (data) {
+      const hashed = data.password;
+      const compared = await bcrypt.compare(password, hashed);
+      if (compared) {
+        find.uid = data.id;
+        find.allow = true;
+        return find;
+      } else {
+        return find;
+      }
+    } else {
+      return find;
+    }
+  })
+  .then(async (find) => {
+    console.log("the find is ", find);
+    if (find.allow) {
+      const user = find.uid;
+      const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+      // console.log("accessToken",accessToken);
+      res.cookie("u",accessToken,{maxAge: 7200000,httpOnly:true,sameSite:"none",secure:true});
+      next();
+    } else {
+      console.log(find);
+      res.status(400).send("error username or password");
+    }
+  })
+  .catch((err) => {
+    console.log("The error occures is  " + err);
+    res.sendStatus(500);
+  });
+
+};
 app.get("/images/:picid", (req, res) => {
   let id = req.params.picid;
   console.log("fetch image - ", id);
@@ -260,6 +287,9 @@ app.get("/", (req, res) => {
     });
 });
 
+app.post('/slogin',authorizeSeller,(req,res)=>{
+    res.sendStatus(200)
+})
 app.get("/category/:cname", async (req, res) => {
   console.log(req.params);
   const name = req.params.cname;
@@ -395,10 +425,17 @@ app.get("/search", async (req, res) => {
   // console.log(count);
   // console.log(rows);
 });
+app.get("/cookiecheck", async (req, res) => {
+  
+  // console.log("The cookie is",req.headers);
+  console.log("The cookie is",req.cookies);
+  res.sendStatus(400)
+  // console.log(rows);
+});
 app.post("/hele", (req, res) => {
   console.log(req.body);
   console.log("Connected successfully");
-  res.cookie("u", "token");
+ 
   res.sendStatus(200);
 });
 // app.get('/subcategory/',async(req,res)=>{
