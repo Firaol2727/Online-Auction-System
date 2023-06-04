@@ -75,6 +75,12 @@ router.use(
 );
 router.options('*', cors());
 
+
+router.use(cors({
+    origin: ['http://localhost:7494','http://127.0.0.1:3000','http://127.0.0.1:5173'],
+    credentials:true,
+}));
+
 const authorizeSeller=async(req,res,next)=>{
     console.log(req.body);
     let {username,password}=req.body;
@@ -576,5 +582,6 @@ function formatDate(date) {
 }
 function padTo2Digits(num) {
   return num.toString().padStart(2, "0");
+}
 }
 module.exports = router;
