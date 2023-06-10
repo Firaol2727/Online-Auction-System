@@ -45,9 +45,6 @@ router.post("/login", async (req, res) => {
     uid: null,
     userType: null,
   };
-  let temporayType = "";
-  let responseBuyer = "";
-  let responseSeller = "";
 
   console.log("username", username);
   console.log("password", password);
@@ -69,7 +66,7 @@ router.post("/login", async (req, res) => {
       res.cookie("u", accessToken, {
         httpOnly: true,
         sameSite: "none",
-        secure: "false",
+        secure: true,
         maxAge: 7200000,
       });
       res.status(200).send("BUYER");
@@ -77,7 +74,6 @@ router.post("/login", async (req, res) => {
       // res.cookie("ab","refreshed token",{httpOnly:true,sameSite:"none",secure:"false"});
       // res.status(200).send(find);
     } else {
-      responseBuyer = "error";
       console.log("error in buyer pass");
       res.status(404).send("error in password ");
     }
@@ -97,7 +93,7 @@ router.post("/login", async (req, res) => {
       res.cookie("u", accessToken, {
         httpOnly: true,
         sameSite: "none",
-        secure: "false",
+        secure: true,
         maxAge: 7200000,
       });
       res.status(200).send("SELLER");
@@ -111,9 +107,7 @@ router.post("/login", async (req, res) => {
   } else {
     res.status(400).send("error in password or username");
   }
-  if (responseBuyer === "error" && responseSeller === "error") {
-    res.status(404).send("error in password or username");
-  }
+
 });
 
 module.exports = router;
