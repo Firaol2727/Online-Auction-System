@@ -200,11 +200,23 @@ const reducerSeller = (stateSeller, action) => {
   }
 };
 
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "PROFILE_DATA":
+      return { ...state, data: action.profile };
+    default:
+      return state;
+  }
+};
+
 export default function NavBuyer() {
+  const [state, dispatch] = useReducer(reducer, { data: null });
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [notify, setNotify] = React.useState(null);
   const [account, setAccount] = React.useState(null);
   const [loggedin, setLoggedin] = React.useState("no");
+
   const navigate = useNavigate();
 
   const [open, setOpen] = React.useState(false);
@@ -232,12 +244,14 @@ export default function NavBuyer() {
   const [responseSeller, setResponseSeller] = useState("");
   const [savingSeller, setSavingSeller] = useState(false);
 
+  const [logins, setlogins] = useState(false);
   ////login
 
   const [loginState, setLoginState] = useState({
     username: "",
     password: "",
   });
+
   const [savingLogin, setSavingLogin] = useState(false);
   const [responseLogin, setResponseLogin] = useState("");
 
@@ -250,29 +264,40 @@ export default function NavBuyer() {
     email: "",
     account: "",
   });
+  // useEffect(() => {
+
+  //   axios({
+  //     methon:"GET",
+  //     URL:"http://localhost:5000/customer/profile"
+  //   })
+  // });
 
   useEffect(() => {
-    try {
-      axios({
-        method: "GET",
-        url: "http://localhost:5000/customer/profile",
+    console.log("in the priofile");
+    axios
+      .get("http://localhost:5000/custom/profile", {
+        withCredentials: true,
       })
-        .then((response) => {
-          console.log("data from back ende ", response.data);
-          if (response.status === 200) {
-            setProfileData(response.data);
-            console.log("data from back ende ", response.data);
-          } else {
-            console.log("not logged in");
-          }
-        })
-        .catch((error) => {
-          console.log("ctahc error ", error);
-        });
-    } catch (errr) {
-      console.log("error trying");
-    }
+      .then((response) => {
+        dispatch({ type: "PROFILE_DATA", profile: response.data });
+        setLoggedin("yes");
+
+        // getProfileData(response.data);
+
+        console.log("in the profile page", response.data);
+        console.log("the state from the profile", state.data.fname);
+      })
+      //
+
+      .catch((err) => {
+        if (err.response.status === 403) {
+          // nav("/login");
+        }
+
+        // nav('/login')
+      });
   }, []);
+
   ////login Functions
   const handleUsernameChange = (e) => {
     setLoginState({
@@ -298,7 +323,8 @@ export default function NavBuyer() {
       console.log("in the try");
       axios({
         method: "POST",
-        url: "http://localhost:5000/auth/login",
+        url: "http://localhost:5000/login",
+        withCredentials: true,
         data: {
           ...loginState,
         },
@@ -309,9 +335,8 @@ export default function NavBuyer() {
             setResponseLogin("login  succesffull");
             if (response.data === "BUYER") {
               console.log("buyerrrr");
-              setTimeout(() => {
-                setLoggedin("yes");
-              }, 2000);
+              setlogins(true);
+              setLoggedin("yes");
             } else if (response.data === "SELLER") {
               console.log("it is seller");
               setTimeout(() => {
@@ -1353,7 +1378,8 @@ export default function NavBuyer() {
                   }}
                 >
                   {" "}
-                  Profiles
+                  {state && state.data.fname}
+                  {!state && "Profile"}
                 </Typography>
               </IconButton>
             )}

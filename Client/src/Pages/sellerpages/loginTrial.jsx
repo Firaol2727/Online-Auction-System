@@ -16,7 +16,7 @@ const LoginTrial = () => {
     console.log(username);
     console.log(password);
     baseUri
-      .post("/sel/login", { username, password })
+      .post("/sel/login", { username, password }, { withCredentials: true })
       .then((response) => {
         if (response.status === 200) {
           setmessage("Success");
