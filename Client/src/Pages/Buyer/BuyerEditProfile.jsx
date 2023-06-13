@@ -138,18 +138,18 @@ const initialPassword = {
   confirmPhoneNumber: "",
 };
 
-function reducer(state, action) {
-  switch (action.type) {
-    case "oldPassword":
-      return { ...state, oldPassword: action.oldPassword };
-    case "newPassword":
-      return { ...state, newPassword: action.newPassword };
-    case "confirmPasswpr":
-      return { ...state, confirmPassword: action.confirmPassword };
-    default:
-      throw new Error();
-  }
-}
+// function reducer(state, action) {
+//   switch (action.type) {
+//     case "oldPassword":
+//       return { ...state, oldPassword: action.oldPassword };
+//     case "newPassword":
+//       return { ...state, newPassword: action.newPassword };
+//     case "confirmPasswpr":
+//       return { ...state, confirmPassword: action.confirmPassword };
+//     default:
+//       throw new Error();
+//   }
+// }
 
 function BuyerEditProfile() {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -384,7 +384,7 @@ function BuyerEditProfile() {
             <Typography
               style={{
                 marginBottom: "10px",
-                color: "red",
+                // color: "red",
                 fontSize: "15px",
                 fontFamily: " Roboto",
                 marginLeft: "50px",

@@ -1378,8 +1378,10 @@ export default function NavBuyer() {
                   }}
                 >
                   {" "}
-                  {state && state.data.fname}
-                  {!state && "Profile"}
+                  {/* {state &&  state.data.fname} */}
+                  {state !== null ? <>state.data.fname</> : <>Profile</>}
+                  // {console.log("check state", state)}
+                  // {!state && "Profile"}
                 </Typography>
               </IconButton>
             )}
