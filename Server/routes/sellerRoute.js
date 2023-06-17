@@ -133,8 +133,8 @@ const authorizeSeller=async(req,res,next)=>{
 
 };
 const checkAuthorizationSeller = async (req, res, next) => {
-  console.log("cookies", req.cookies);
-  console.log("headers",req.headers)
+  // console.log("cookies", req.cookies);
+  // console.log("headers",req.headers)
 
   if (req.cookies.u) {
     console.log("in the first check");
@@ -583,5 +583,5 @@ function formatDate(date) {
 function padTo2Digits(num) {
   return num.toString().padStart(2, "0");
 }
-}
+
 module.exports = router;

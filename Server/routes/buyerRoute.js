@@ -5,9 +5,10 @@ const bcrypt = require("bcrypt");
 const bodyParser = require("body-parser");
 var jsonParser = bodyParser.json();
 var nodemailer = require("nodemailer");
+
 const { uid } = require("uid");
 var transporter = nodemailer.createTransport({
-  service: "gmail",
+  service: "Gmail",
   auth: {
     user: "Nucherata@gmail.com",
     pass: "nuchereta",
@@ -129,9 +130,6 @@ router.post("/register", async (req, res) => {
   console.log(req.body);
   // res.status(200).send("ok")
   //   res.send("data from the back end");
-
-  let type = "buyer";
-
   const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
   return Buyer.create({
     id: "",
@@ -140,7 +138,7 @@ router.post("/register", async (req, res) => {
     password: hash,
     email: email,
     phonenumber: phoneNumber,
-    type: "buyer",
+    // type: "buyer",
   })
     .then(() => {
       res.send("registeration verified");
@@ -423,6 +421,26 @@ router.post("/forgotpassword", async (req, res) => {
   } else {
     res.send("invalid email").status(400);
   }
+});
+router.get('/send-code/:email', (req, res) => {
+  const { email } = req.params;
+  const verificationCode = generateVerificationCode();
+  // Create a Nodemailer transport
+  // Send the verification code to the user's email
+  transporter.sendMail({
+    from: 'Nucherata@gmail.com',
+    to: email,
+    subject: 'Verification Code',
+    text: `Your verification code is ${verificationCode}. It will expire in 4 minutes.`
+  }, (error, info) => {
+    if (error) {
+      console.log(error);
+      res.status(500).send('Error sending verification code');
+    } else {
+      console.log('Verification code sent:', info.response);
+      res.status(200).send({ code: verificationCode });
+    }
+  });
 });
 router.post("/codesent", async (req, res) => {
   let { email, verificationcode } = req.body;
