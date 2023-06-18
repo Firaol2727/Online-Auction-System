@@ -77,7 +77,19 @@ function AuctionCard() {
 
   //   console.log("state.product", state.products,indexs);
   // }, [data.auction, state.index,indexs]);
-
+  useEffect(() => {
+    console.log("in the useeffect");
+    axios({
+      method: "GET",
+      url: "http://localhost:5000/mytest",
+    })
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => {
+        console.log("catching error", err);
+      });
+  }, []);
   return (
     <Box my={4} className="homeContainer">
       <Box sx={{ textAlign: "center", alignItems: "center" }}>

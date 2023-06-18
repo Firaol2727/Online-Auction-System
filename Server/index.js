@@ -8,7 +8,7 @@ var cookieParser = require("cookie-parser");
 const { json } = require("express");
 const jwt = require("jsonwebtoken");
 const auth = require("./routes/auth");
-const cookie=require("cookie")
+const cookie = require("cookie");
 const adminRoutes = require("./routes/adminRoutes");
 const buyerRoute = require("./routes/buyerRoute");
 const sellerRoute = require("./routes/sellerRoute");
@@ -28,13 +28,13 @@ const {
   Notifyme,
 } = sequelize.models;
 
-const http = require('http').Server(app);
+const http = require("http").Server(app);
 // const { Server, Socket } = require("socket.io");
-const io = require("socket.io")(http,{
+const io = require("socket.io")(http, {
   cors: {
     origin: "http://localhost:5173",
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['my-custom-header'],
+    methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
     credentials: true,
   },
 });
@@ -64,17 +64,19 @@ var mailOptions = {
 
 app.use(cookieParser());
 app.use(express.json());
-app.use(express.urlencoded({
-    extended:true
-}));
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 app.use(
   cors({
-    origin:"http://localhost:5173",
+    origin: "http://127.0.0.1:5173",
     credentials: true,
   })
 );
-// app.options('*', cors());
-// app.use(express.json()); 
+// app.options("*", cors());
+// app.use(express.json());
 app.use(cookieParser());
 app.use("/custom", buyerRoute);
 app.use("/special", adminRoutes);
@@ -104,7 +106,8 @@ async function addAdmin() {
     email: "fraolgetachew2772@gmail.com",
     phone: "+251966003807",
     password: hash,
-  }).on((data) => {
+  })
+    .on((data) => {
       console.log(data);
       console.log("finished");
     })
@@ -184,56 +187,65 @@ let reisStart = false;
 let waitingchangeauctions = [];
 // Getting image api
 
-const authorizeSeller=async(req,res,next)=>{
+const authorizeSeller = async (req, res, next) => {
   console.log(req.body);
-  let {username,password}=req.body;
-  console.log("username",username);
-  console.log("password",password);
+  let { username, password } = req.body;
+  console.log("username", username);
+  console.log("password", password);
 
-return Seller.findOne({
-  where: {
-    phonenumber: username,
-  },
-  attributes: ["id", "password"],
-.then(async (data) => {
-    // console.log("data is ",data.Aid,data.password);
-    const find = {
-      allow: false,
-      uid: null,
-    };
-    if (data) {
-      const hashed = data.password;
-      const compared = await bcrypt.compare(password, hashed);
-      if (compared) {
-        find.uid = data.id;
-        find.allow = true;
-        return find;
+  return Seller.findOne({
+    where: {
+      phonenumber: username,
+    },
+    attributes: ["id", "password"],
+  })
+    .then(async (data) => {
+      // console.log("data is ",data.Aid,data.password);
+      const find = {
+        allow: false,
+        uid: null,
+      };
+      if (data) {
+        const hashed = data.password;
+        const compared = await bcrypt.compare(password, hashed);
+        if (compared) {
+          find.uid = data.id;
+          find.allow = true;
+          return find;
+        } else {
+          return find;
+        }
       } else {
         return find;
       }
-    } else {
-      return find;
-    }
-
-  })
-.then((find)=>{
-    console.log("find is ", find);
-    if (find.allow) {
-      const user = find.uid;
-      const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-      // console.log("accessToken",accessToken);
-      res.cookie("u",accessToken,{maxAge: 7200000,httpOnly:true,sameSite:"none",secure:true});
-      next();
-    } else {
-      console.log(find);
-      res.status(400).send("error username or password");
-    }
-  })
-  .catch((err) => {
-    console.log(" error occures is  " + err);
-    res.sendStatus(500);
-  });
+    })
+    .then((find) => {
+      console.log("find is ", find);
+      if (find.allow) {
+        const user = find.uid;
+        const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+        // console.log("accessToken",accessToken);
+        res.cookie("u", accessToken, {
+          maxAge: 7200000,
+          httpOnly: true,
+          sameSite: "none",
+          secure: true,
+        });
+        next();
+      } else {
+        console.log(find);
+        res.status(400).send("error username or password");
+      }
+    })
+    .catch((err) => {
+      console.log(" error occures is  " + err);
+      res.sendStatus(500);
+    });
 };
+
+app.get("/mytest", (req, res) => {
+  res.send("the data sent toy");
+});
 
 app.get("/images/:picid", (req, res) => {
   let id = req.params.picid;
@@ -272,7 +284,7 @@ app.get("/", (req, res) => {
   return Auction.findAndCountAll({
     order: [["createdAt", "DESC"]],
     attributes: { exclude: ["createdAt", "updatedAt"] },
-    where:{state:["open","waiting"]},
+    where: { state: ["open", "waiting"] },
     offset: jumpingSet,
     limit: no_response,
   })
@@ -295,296 +307,288 @@ app.get("/", (req, res) => {
     });
 });
 
-
 // fetching by category price region  date
 app.get("/cat/:cname", async (req, res) => {
   console.log(req.params);
-  let {phigh,plow,region,daterange}=req.query;
+  let { phigh, plow, region, daterange } = req.query;
   console.log("running");
   console.log("the query is", req.query);
   let page = req.query.page == null ? 1 : req.query.page;
   // let type=req.query.subname==null?"electronics":req.query.subname;
   let no_response = 10;
-  let price= (phigh== null && plow==null)? phigh-plow:null;
+  let price = phigh == null && plow == null ? phigh - plow : null;
   let limit = 1;
   let jumpingSet = (page - 1) * no_response;
   console.log(page);
   const type = req.params.cname;
-  let category=await Category.findOne({where:{name:type}});
-  let cid=category.id;
-  if(cid){
-
-
-  if( price!= null &&  region!=null && daterange!=null ){
-    return Auction.findAndCountAll({
-      order: [["createdAt", "DESC"]],
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-      where:{
-        baseprice:{
-          [Op.between]: [plow, phigh],   
+  let category = await Category.findOne({ where: { name: type } });
+  let cid = category.id;
+  if (cid) {
+    if (price != null && region != null && daterange != null) {
+      return Auction.findAndCountAll({
+        order: [["createdAt", "DESC"]],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        where: {
+          baseprice: {
+            [Op.between]: [plow, phigh],
           },
-        region:region,
-        CategoryCid:cid,
-        startdate:{
-          [Op.lt]: new Date(),
-          [Op.gt]: new Date(new Date() - daterange*24 * 60 * 60 * 1000)
-        },
-        state:["open","waiting"]
-      },
-      offset: jumpingSet,
-      limit: no_response,
-    })
-      .then((data) => {
-        let nopage = parseInt(data.count / no_response) + 1;
-        // console.log(data.rows);
-        let response = {
-          count: nopage,
-          data: data.rows,
-        };
-        if (response) {
-          console.log(response);
-          res.send(response);
-        } else {
-          res.sendStatus(404);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  
-  }
-  else if( price!= null &&  region!=null ){
-    return Auction.findAndCountAll({
-      order: [["createdAt", "DESC"]],
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-      where:{
-        baseprice:{
-          [Op.between]: [plow, phigh],   
+          region: region,
+          CategoryCid: cid,
+          startdate: {
+            [Op.lt]: new Date(),
+            [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
           },
-        region:region,
-        CategoryCid:cid,
-        startdate:{
-          [Op.lt]: new Date(),
-          [Op.gt]: new Date(new Date() - daterange*24 * 60 * 60 * 1000)
+          state: ["open", "waiting"],
         },
-        state:["open","waiting"]},
-      offset: jumpingSet,
-      limit: no_response,
-    })
-      .then((data) => {
-        let nopage = parseInt(data.count / no_response) + 1;
-        // console.log(data.rows);
-        let response = {
-          count: nopage,
-          data: data.rows,
-        };
-        if (response) {
-          console.log(response);
-          res.send(response);
-        } else {
-          res.sendStatus(404);
-        }
+        offset: jumpingSet,
+        limit: no_response,
       })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-  else if( price!= null &&  daterange!=null){
-    return Auction.findAndCountAll({
-      order: [["createdAt", "DESC"]],
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-      where:{
-        baseprice:{
-          [Op.between]: [plow, phigh],   
+        .then((data) => {
+          let nopage = parseInt(data.count / no_response) + 1;
+          // console.log(data.rows);
+          let response = {
+            count: nopage,
+            data: data.rows,
+          };
+          if (response) {
+            console.log(response);
+            res.send(response);
+          } else {
+            res.sendStatus(404);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else if (price != null && region != null) {
+      return Auction.findAndCountAll({
+        order: [["createdAt", "DESC"]],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        where: {
+          baseprice: {
+            [Op.between]: [plow, phigh],
           },
-        CategoryCid:cid,
-        startdate:{
-          [Op.lt]: new Date(),
-          [Op.gt]: new Date(new Date() - daterange*24 * 60 * 60 * 1000)
-        },
-        state:["open","waiting"]
-      },
-      offset: jumpingSet,
-      limit: no_response,
-    })
-      .then((data) => {
-        let nopage = parseInt(data.count / no_response) + 1;
-        // console.log(data.rows);
-        let response = {
-          count: nopage,
-          data: data.rows,
-        };
-        if (response) {
-          console.log(response);
-          res.send(response);
-        } else {
-          res.sendStatus(404);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-  else if(  region!=null && daterange!=null ){
-    return Auction.findAndCountAll({
-      order: [["createdAt", "DESC"]],
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-      where:{
-        region:region,
-        CategoryCid:cid,
-        startdate:{
-          [Op.lt]: new Date(),
-          [Op.gt]: new Date(new Date() - daterange*24 * 60 * 60 * 1000)
-        },
-        state:["open","waiting"]
-      },
-      offset: jumpingSet,
-      limit: no_response,
-    })
-      .then((data) => {
-        let nopage = parseInt(data.count / no_response) + 1;
-        // console.log(data.rows);
-        let response = {
-          count: nopage,
-          data: data.rows,
-        };
-        if (response) {
-          console.log(response);
-          res.send(response);
-        } else {
-          res.sendStatus(404);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-  else if( price!= null ){
-    return Auction.findAndCountAll({
-      order: [["createdAt", "DESC"]],
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-      where:{
-        baseprice:{
-          [Op.between]: [plow, phigh],   
+          region: region,
+          CategoryCid: cid,
+          startdate: {
+            [Op.lt]: new Date(),
+            [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
           },
-        CategoryCid:cid,
-        state:["open","waiting"]
-      },
-      offset: jumpingSet,
-      limit: no_response,
-    })
-      .then((data) => {
-        let nopage = parseInt(data.count / no_response) + 1;
-        // console.log(data.rows);
-        let response = {
-          count: nopage,
-          data: data.rows,
-        };
-        if (response) {
-          console.log(response);
-          res.send(response);
-        } else {
-          res.sendStatus(404);
-        }
+          state: ["open", "waiting"],
+        },
+        offset: jumpingSet,
+        limit: no_response,
       })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-  else if( region!=null ){
-    return Auction.findAndCountAll({
-      order: [["createdAt", "DESC"]],
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-      where:{
-        region:region,
-        CategoryCid:cid,
-        state:["open","waiting"]
-      },
+        .then((data) => {
+          let nopage = parseInt(data.count / no_response) + 1;
+          // console.log(data.rows);
+          let response = {
+            count: nopage,
+            data: data.rows,
+          };
+          if (response) {
+            console.log(response);
+            res.send(response);
+          } else {
+            res.sendStatus(404);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else if (price != null && daterange != null) {
+      return Auction.findAndCountAll({
+        order: [["createdAt", "DESC"]],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        where: {
+          baseprice: {
+            [Op.between]: [plow, phigh],
+          },
+          CategoryCid: cid,
+          startdate: {
+            [Op.lt]: new Date(),
+            [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
+          },
+          state: ["open", "waiting"],
+        },
+        offset: jumpingSet,
+        limit: no_response,
+      })
+        .then((data) => {
+          let nopage = parseInt(data.count / no_response) + 1;
+          // console.log(data.rows);
+          let response = {
+            count: nopage,
+            data: data.rows,
+          };
+          if (response) {
+            console.log(response);
+            res.send(response);
+          } else {
+            res.sendStatus(404);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else if (region != null && daterange != null) {
+      return Auction.findAndCountAll({
+        order: [["createdAt", "DESC"]],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        where: {
+          region: region,
+          CategoryCid: cid,
+          startdate: {
+            [Op.lt]: new Date(),
+            [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
+          },
+          state: ["open", "waiting"],
+        },
+        offset: jumpingSet,
+        limit: no_response,
+      })
+        .then((data) => {
+          let nopage = parseInt(data.count / no_response) + 1;
+          // console.log(data.rows);
+          let response = {
+            count: nopage,
+            data: data.rows,
+          };
+          if (response) {
+            console.log(response);
+            res.send(response);
+          } else {
+            res.sendStatus(404);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else if (price != null) {
+      return Auction.findAndCountAll({
+        order: [["createdAt", "DESC"]],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        where: {
+          baseprice: {
+            [Op.between]: [plow, phigh],
+          },
+          CategoryCid: cid,
+          state: ["open", "waiting"],
+        },
+        offset: jumpingSet,
+        limit: no_response,
+      })
+        .then((data) => {
+          let nopage = parseInt(data.count / no_response) + 1;
+          // console.log(data.rows);
+          let response = {
+            count: nopage,
+            data: data.rows,
+          };
+          if (response) {
+            console.log(response);
+            res.send(response);
+          } else {
+            res.sendStatus(404);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else if (region != null) {
+      return Auction.findAndCountAll({
+        order: [["createdAt", "DESC"]],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        where: {
+          region: region,
+          CategoryCid: cid,
+          state: ["open", "waiting"],
+        },
 
-      offset: jumpingSet,
-      limit: no_response,
-    })
-      .then((data) => {
-        let nopage = parseInt(data.count / no_response) + 1;
-        // console.log(data.rows);
-        let response = {
-          count: nopage,
-          data: data.rows,
-        };
-        if (response) {
-          console.log(response);
-          res.send(response);
-        } else {
-          res.sendStatus(404);
-        }
+        offset: jumpingSet,
+        limit: no_response,
       })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-  else if( daterange!=null ){
-    return Auction.findAndCountAll({
-      order: [["createdAt", "DESC"]],
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-      where:{
-        startdate:{
-          [Op.lt]: new Date(),
-          [Op.gt]: new Date(new Date() - daterange*24 * 60 * 60 * 1000)
+        .then((data) => {
+          let nopage = parseInt(data.count / no_response) + 1;
+          // console.log(data.rows);
+          let response = {
+            count: nopage,
+            data: data.rows,
+          };
+          if (response) {
+            console.log(response);
+            res.send(response);
+          } else {
+            res.sendStatus(404);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else if (daterange != null) {
+      return Auction.findAndCountAll({
+        order: [["createdAt", "DESC"]],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        where: {
+          startdate: {
+            [Op.lt]: new Date(),
+            [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
+          },
+          CategoryCid: cid,
+          state: ["open", "waiting"],
         },
-        CategoryCid:cid,
-        state:["open","waiting"]
-      },
-      offset: jumpingSet,
-      limit: no_response,
-    })
-      .then((data) => {
-        let nopage = parseInt(data.count / no_response) + 1;
-        // console.log(data.rows);
-        let response = {
-          count: nopage,
-          data: data.rows,
-        };
-        if (response) {
-          console.log(response);
-          res.send(response);
-        } else {
-          res.sendStatus(404);
-        }
+        offset: jumpingSet,
+        limit: no_response,
       })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-  else{
-    return Auction.findAndCountAll({
-      order: [["createdAt", "DESC"]],
-      attributes: { exclude: ["createdAt", "updatedAt"] },
-      where:{
-        state:["open","waiting"],
-        CategoryCid:cid,},
-      offset: jumpingSet,
-      limit: no_response,
-    })
-      .then((data) => {
-        let nopage = parseInt(data.count / no_response) + 1;
-        // console.log(data.rows);
-        let response = {
-          count: nopage,
-          data: data.rows,
-        };
-        if (response) {
-          console.log(response);
-          res.send(response);
-        } else {
-          res.sendStatus(404);
-        }
+        .then((data) => {
+          let nopage = parseInt(data.count / no_response) + 1;
+          // console.log(data.rows);
+          let response = {
+            count: nopage,
+            data: data.rows,
+          };
+          if (response) {
+            console.log(response);
+            res.send(response);
+          } else {
+            res.sendStatus(404);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      return Auction.findAndCountAll({
+        order: [["createdAt", "DESC"]],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        where: {
+          state: ["open", "waiting"],
+          CategoryCid: cid,
+        },
+        offset: jumpingSet,
+        limit: no_response,
       })
-      .catch((err) => {
-        console.log(err);
-      });
-
+        .then((data) => {
+          let nopage = parseInt(data.count / no_response) + 1;
+          // console.log(data.rows);
+          let response = {
+            count: nopage,
+            data: data.rows,
+          };
+          if (response) {
+            console.log(response);
+            res.send(response);
+          } else {
+            res.sendStatus(404);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  } else {
+    res.status(400).send("No auction in defined category");
   }
-  }else{ res.status(400).send("No auction in defined category")}
   // Auction.findAll({
   //   attributes: { exclude: ["createdAt", "updatedAt"] },
   //   include: {
@@ -675,16 +679,15 @@ app.get("/search", async (req, res) => {
   // console.log(rows);
 });
 app.get("/cookiecheck", async (req, res) => {
-  
   // console.log("The cookie is",req.headers);
-  console.log("The cookie is",req.cookies);
-  res.sendStatus(400)
+  console.log("The cookie is", req.cookies);
+  res.sendStatus(400);
   // console.log(rows);
 });
 app.post("/hele", (req, res) => {
   console.log(req.body);
   console.log("Connected successfully");
- 
+
   res.sendStatus(200);
 });
 // app.get('/subcategory/',async(req,res)=>{
@@ -908,11 +911,11 @@ const auctionManage = async () => {
 };
 
 const addOnlineUser = (userid, socketid) => {
-  console.log("The user id is ",userid);
-  console.log("The user socket id is ",socketid);
+  console.log("The user id is ", userid);
+  console.log("The user socket id is ", socketid);
   !onlineUsers.some((user) => user.userid === userid) &&
     onlineUsers.push({ userid, socketid });
-  console.log("Online users",onlineUsers)
+  console.log("Online users", onlineUsers);
 };
 
 const removeonlineUser = (socketid) => {
@@ -921,7 +924,7 @@ const removeonlineUser = (socketid) => {
 
 io.use((socket, next) => {
   const { headers } = socket.handshake;
-  const cookieString=  socket.handshake.headers.cookie;
+  const cookieString = socket.handshake.headers.cookie;
   // console.log("socket hand shake ",socket.handshake);
   // console.log("headers",headers);
   // extract cookie from header
@@ -939,17 +942,16 @@ io.use((socket, next) => {
       }
     });
   } else {
-    console.log('No cookies found!');
+    console.log("No cookies found!");
     socket.disconnect();
   }
   // verify session ID and associate socket with authenticated user
-  
 });
 io.on("connection", (socket) => {
   // console.log("The socket id is ", socket.id);
   // console.log("The socket user is ", socket.user);
   console.log("The number of users are ", io.engine.clientsCount);
-  addOnlineUser(socket.user,socket.id)
+  addOnlineUser(socket.user, socket.id);
   let data = [];
   // bidplaced notification
   socket.on("bidupdate", async (userid, auctionid) => {

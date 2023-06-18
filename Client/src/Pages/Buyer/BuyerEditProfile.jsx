@@ -490,7 +490,6 @@ function BuyerEditProfile() {
               variant="outlined"
               onClick={handleOpenChangePass}
               sx={{
-                color: "black",
                 border: "none",
                 backgroundColor: "red",
                 textTransform: "unset",
