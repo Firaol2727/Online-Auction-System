@@ -31,21 +31,35 @@ const AdLogin=()=>{
         })
     }
     return (
-        <>
-            <br /> <br /> <br /> <br /> <br /> <br />
+        <div style={{
+            position:"absolute",
+            width:"100%",
+            backgroundColor:"white",
+            height:"100%"
+        }}>
+            <br /> <br /> 
             <center>
+                <h1 style={{color:"white",fontSize:"40px",
+                fontFamily:"sans-serif",backgroundColor:"red",
+                height:"70px",
+                width:"500px",
+                paddingTop:"7px"
+                }}>Nuchereta.com</h1>
+            </center>
+
+                <center>
                 <h2>Login</h2>
-            <hr />
+        
             <p>{message}</p>
             <TextField  onChange={(e)=>{
                 setusername(e.target.value)
             }} label="Email or phoneNumber"/> <br /> <br />
             <TextField   onChange={(e)=>{
                 setpassword(e.target.value)
-            }} label="Password" type='password'/> <br />
-            <Button variant="contained" onClick={login}>Loging</Button>
+            }} label="Password" type='password'/> <br /> <br />
+            <Button variant="contained" color='error' onClick={login}>Loging</Button>
             </center>
-        </>
+        </div>
     )
 }
 export default AdLogin;

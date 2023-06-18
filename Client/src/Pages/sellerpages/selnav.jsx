@@ -20,11 +20,17 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import { NavLink, useNavigate } from "react-router-dom";
 import Badge from '@mui/material/Badge';
 import Popper from '@mui/material/Popper';
+import io from 'socket.io-client';
+import axios from "axios";
 import NotificationPop from "./Notificationpop";
+const socket = io('http://localhost:5000',{
+    withCredentials: true,
+    extraHeaders: {
+        'my-custom-header': 'my-custom-value',
+    },
+}); // replace with your server URL
 const drawerWidth = 240;
 const navItems = ['MyProduct','AddProduct', 'Myprofile'];
-import axios from "axios";
-
 
 function SellerNavbar(props) {
     const { window } = props;
@@ -67,7 +73,10 @@ function SellerNavbar(props) {
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
-
+    // socket.on('bidupdate', (data) => {
+    //     console.log("The client is litsening to the port 5000")
+    // // handle event data
+    // });
     const handleClose = () => {
         setAnchorEl(null);
     };
@@ -81,7 +90,11 @@ function SellerNavbar(props) {
             fetchNotifications();
         }
     };
-
+    useEffect(()=>{
+        // socket.on('bidupdate', (data) => {
+        //     console.log("successfully connected to the server socket")
+        // });
+    },[])
 
 return (
     <Box sx={{ display: 'flex' }}>
