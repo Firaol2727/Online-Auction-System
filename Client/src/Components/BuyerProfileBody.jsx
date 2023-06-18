@@ -6,7 +6,7 @@ import {
   Divider,
   Button,
   IconButton,
-  Link
+  Link,
 } from "@mui/material";
 import { NavLink } from "react-router-dom";
 import Category from "./Category/Category";
@@ -16,8 +16,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-
-function BuyerProfileBody() {
+function BuyerProfileBody(props) {
   const [region, setRegion] = useState("Oromia");
 
   const handleChange = (event) => {
@@ -68,7 +67,8 @@ function BuyerProfileBody() {
             {" "}
             Account info
           </Typography>
-          <Button sx={{
+          <Button
+            sx={{
               height: "50px",
               fontSize: "5px",
               textTransform: "unset",
@@ -83,21 +83,21 @@ function BuyerProfileBody() {
               },
             }}
           >
-            <Link href="/editprofile" sx={{textDecoration:"none"}}>
-            {" "}
-            <Typography
-              sx={{
-                paddingLeft: "20px",
-                paddingRight: "20px",
-                paddingTop: "5px",
-                paddingBottom: "5px",
-                backgroundColor: "#FA2121 ",
-                color: "white",
-                alignItems: "center",
-              }}
-            >
-              Edit Profile
-            </Typography>
+            <Link href="/editprofile" sx={{ textDecoration: "none" }}>
+              {" "}
+              <Typography
+                sx={{
+                  paddingLeft: "20px",
+                  paddingRight: "20px",
+                  paddingTop: "5px",
+                  paddingBottom: "5px",
+                  backgroundColor: "#FA2121 ",
+                  color: "white",
+                  alignItems: "center",
+                }}
+              >
+                Edit Profile
+              </Typography>
             </Link>
           </Button>
         </Box>
@@ -114,7 +114,8 @@ function BuyerProfileBody() {
             },
           }}
         >
-          <TextField  sx={{
+          <TextField
+            sx={{
               margin: "10px",
               width: {
                 lg: 245,
@@ -226,36 +227,26 @@ function BuyerProfileBody() {
         </Box>
 
         <Box sx={{ marginTop: "20px", marginLeft: "10px" }}>
-          <FormControl>
-            <InputLabel id="demo-simple-select-label">Region</InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={region}
-              label="Region"
-              onChange={handleChange}
-              sx={{ width: "250px" }}
-              MenuProps={{
-                style: {
-                  maxHeight: 400,
-                },
-              }}
-            >
-              <MenuItem value="Addis Ababa">Addis Ababa</MenuItem>
-              <MenuItem value="Dire Dawa">Dire Dawa</MenuItem>
-              <MenuItem value="Amhara">Amhara</MenuItem>
-              <MenuItem value="Oromia">Oromia</MenuItem>
-              <MenuItem value="Tigray">Tigray</MenuItem>
-              <MenuItem value="Somali">Somali</MenuItem>
-              <MenuItem value="Benishangul-Gumuz">Benishangul-Gumuz</MenuItem>
-              <MenuItem value="Gambela">Gambela</MenuItem>
-              <MenuItem value="Harari">Harari</MenuItem>
-              <MenuItem value="Sidama">Sidama</MenuItem>
-              <MenuItem value="Afar">Afar</MenuItem>
-              <MenuItem value="SWEPR">SWEPR</MenuItem>
-              <MenuItem value="SNNEP">SNNPR</MenuItem>
-            </Select>
-          </FormControl>
+          <TextField
+            sx={{
+              marginLeft: "10px",
+              marginRight: "10px",
+
+              marginTop: "20px",
+              width: {
+                lg: 510,
+                md: 540,
+                sm: 420,
+                xs: 250,
+              },
+              "& .MuiInputBase-root": {
+                height: 40,
+              },
+            }}
+            variant="outlined"
+            value="Addis Ababa"
+            label="City"
+          />
         </Box>
         <Box sx={{ marginTop: "20px", marginLeft: "0px" }}>
           <Button
