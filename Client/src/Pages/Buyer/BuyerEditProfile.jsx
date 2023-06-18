@@ -13,7 +13,7 @@ import {
   Button,
   IconButton,
 } from "@mui/material";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Category from "../../Components/Category/Category";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -28,71 +28,6 @@ import Select from "@mui/material/Select";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import axios from "axios";
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "firstName":
-      return {
-        ...state,
-        firstName: action.firstName,
-      };
-    case "lastName":
-      return {
-        ...state,
-        lastName: action.lastName,
-      };
-    case "email":
-      return {
-        ...state,
-        email: action.emial,
-      };
-
-    case "password":
-      return {
-        ...state,
-        password: action.password,
-      };
-    case "confirmPassword":
-      return {
-        ...state,
-        confirmPassword: action.confirmPassword,
-      };
-    case "phone":
-      return {
-        ...state,
-        phone: action.phone,
-      };
-    case "city":
-      return {
-        ...state,
-        city: action.city,
-      };
-    case "region":
-      return {
-        ...state,
-        region: action.region,
-      };
-
-    case "savedConfirmation":
-      return {
-        ...state,
-        savedConfirmation: action.savedConfirmation,
-      };
-    default:
-      return state;
-  }
-};
-const initialState = {
-  firstName: "yohannes",
-  lastName: "dejene",
-  email: "yohannesdejene23@gmail.com",
-  password: "12345",
-  confirmPassword: "12345",
-  phone: "+251946951726",
-  city: "Addis Ababa",
-  region: "Oromia",
-  savedConfirmation: "",
-};
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -132,30 +67,59 @@ BootstrapDialogTitle.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-const initialPassword = {
-  oldPhoneNumber: "",
-  newPhoneNumber: "",
-  confirmPhoneNumber: "",
+const initialState = {
+  profileData: {},
+  editedProfileData: {
+    id: "",
+    fname: "",
+    lname: "",
+    phonenumber: "",
+    email: "",
+    region: "",
+    city: "",
+    account: "",
+  },
+  editedPassword: {
+    oldpassword: "",
+    newpassword: "",
+    confirmnewpassword: "",
+  },
 };
-
-// function reducer(state, action) {
-//   switch (action.type) {
-//     case "oldPassword":
-//       return { ...state, oldPassword: action.oldPassword };
-//     case "newPassword":
-//       return { ...state, newPassword: action.newPassword };
-//     case "confirmPasswpr":
-//       return { ...state, confirmPassword: action.confirmPassword };
-//     default:
-//       throw new Error();
-//   }
-// }
+function reducer(state, action) {
+  switch (action.type) {
+    case "SET_PROFILE_DATA":
+      return {
+        ...state,
+        profileData: action.payload,
+      };
+    case "SET_EDITED_PROFILE_DATA":
+      return {
+        ...state,
+        editedProfileData: action.payload,
+      };
+    case "SET_EDITED_PASSWORD":
+      return {
+        ...state,
+        editedPassword: action.payload,
+      };
+    default:
+      throw new Error();
+  }
+}
 
 function BuyerEditProfile() {
+  const navigate = useNavigate();
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  const [loggedin, setLoggedIn] = useState(false);
   const [changePass, setChangePass] = useState(false);
 
-  const [savingLogin, setSavingLogin] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const [responseEdit, setResponseEdit] = useState("");
+
+  const [savingPassChange, setSavingPassChange] = useState(false);
+  const [responsePassChange, setResponsePassChange] = useState("");
 
   const handleOpenChangePass = () => {
     setChangePass(true);
@@ -164,108 +128,238 @@ function BuyerEditProfile() {
     setChangePass(false);
   };
 
-  console.log("toggleState", toggleState);
   const [formErrors, setFormErrors] = useState({});
   const [isSubmit, setIsSubmit] = useState(false);
   //   console.log("state", state);
-
-  const handleSaveEditProfile = (event) => {
-    event.preventDefault();
-    // console.log(formData);
-
-    setFormErrors(validate(state));
-    setIsSubmit(true);
-  };
-
   useEffect(() => {
-    console.log("in the priofile page ");
+    console.log("in the priofile page buyer profile ");
     axios
-      .get("http://localhost:5000/custom/editprofile", {
+      .get("http://localhost:5000/custom/profile", {
         withCredentials: true,
       })
       .then((response) => {
-        dispatch({ type: "PROFILE_DATA", profile: response.data });
+        setLoggedIn(true);
+        dispatch({ type: "SET_PROFILE_DATA", payload: response.data });
+        dispatch({ type: "SET_EDITED_PROFILE_DATA", payload: response.data });
         console.log("fetched data", response.data);
       })
       //
-
       .catch((err) => {
+        setLoggedIn(false);
+        navigate("/login");
+
         if (err.response.status === 403) {
           console.log("errr r");
         }
-
-        // nav('/login')
       });
-  }, []);
+  }, [loggedin]);
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
 
-  useEffect(() => {
-    console.log(formErrors);
-    if (Object.keys(formErrors).length === 0 && isSubmit) {
-      try {
-        axios({
-          method: "POST",
-          url: "/editprofile",
-          data: {
-            ...state,
-          },
-        })
-          .then((response) => {
-            console.log("data sent");
-          })
-          .catch((error) => {
-            console.log("catching error while database connection");
-          });
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  }, [formErrors]);
-
-  const validate = (values) => {
-    const errors = {};
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-    if (!values.firstName) {
-      setIsSubmit(false);
-      errors.firstName = "firstaname is required!";
-    }
-    if (!values.lastName) {
-      setIsSubmit(false);
-      errors.lastName = "lastname is required!";
-    }
-    if (!values.email) {
-      setIsSubmit(false);
-      errors.email = "Email is required!";
-    } else if (!regex.test(values.email)) {
-      setIsSubmit(false);
-      errors.email = "This is not a valid email format!";
-    }
-    if (!values.phone) {
-      setIsSubmit(false);
-      errors.phone = "phone is required!";
-    }
-    if (!values.city) {
-      setIsSubmit(false);
-      errors.city = "city is required!";
-    }
-    if (!values.password) {
-      setIsSubmit(false);
-      errors.password = "Password is required";
-    } else if (values.password.length < 4) {
-      setIsSubmit(false);
-      errors.password = "Password must be more than 4 characters";
-    } else if (values.password.length > 10) {
-      setIsSubmit(false);
-      errors.password = "Password cannot exceed more than 10 characters";
-    }
-
-    if (values.password !== values.confirmPassword) {
-      setIsSubmit(false);
-      errors.confirmPassword = "Password mismatch";
-    }
-
-    return errors;
+    dispatch({
+      type: "SET_EDITED_PROFILE_DATA",
+      payload: { ...state.editedProfileData, [name]: value },
+    });
   };
-  let { id } = useParams();
+
+  const handlePasswordChange = (event) => {
+    const { name, value } = event.target;
+
+    dispatch({
+      type: "SET_EDITED_PASSWORD",
+      payload: { ...state.editedPassword, [name]: value },
+    });
+  };
+
+  const handleSaveEditProfile = (event) => {
+    event.preventDefault();
+    setSaving(true);
+
+    axios({
+      method: "POST",
+      url: "http://localhost:5000/custom/changeprofile",
+      withCredentials: true,
+      data: {
+        ...state.editedProfileData,
+      },
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          setResponseEdit("succesufully updated ");
+          console.log("succesffuly updated");
+          setSaving(false);
+        } else {
+          setResponseEdit("incorrect check your username or password");
+          setSaving(false);
+          console.log("not success");
+        }
+      })
+      .catch((err) => {
+        setResponseEdit(
+          "Check the phone number of password it shoukd be unique"
+        );
+        if (err.response.status === 403) {
+          console.log("errr r", err);
+        }
+        console.log(err);
+        setSaving(false);
+      });
+  };
+  const handleSavePasswordChange = (event) => {
+    event.preventDefault();
+
+    setSavingPassChange(true);
+
+    axios({
+      method: "POST",
+      url: "http://localhost:5000/custom/changepassword",
+      withCredentials: true,
+      data: {
+        ...state.editedPassword,
+      },
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          setResponsePassChange("succesufully updated ");
+          console.log("succesffuly updated");
+          setSavingPassChange(false);
+          setTimeout(() => {
+            setChangePass(false);
+          }, 3000);
+        } else {
+          setResponsePassChange("incorrect check the phone number");
+          setSavingPassChange(false);
+          console.log("not success");
+        }
+      })
+      .catch((err) => {
+        setSavingPassChange(false);
+        setResponsePassChange("incorrect check the phone number");
+        if (err.response.status === 403) {
+          console.log("errr r");
+        }
+      });
+  };
+
+  const passwordDialoge = () => {
+    return (
+      <BootstrapDialog
+        onClose={handleCloseChangePass}
+        aria-labelledby="customized-dialog-title"
+        open={changePass}
+      >
+        <Box
+          sx={{
+            height: {
+              lg: "70px",
+              md: "100px",
+              sm: "80px",
+              xs: "100px",
+            },
+          }}
+          onClose={handleCloseChangePass}
+        >
+          <IconButton sx={{ float: "right" }} onClick={handleCloseChangePass}>
+            <CloseIcon />
+          </IconButton>
+          <Typography
+            sx={{
+              alignItem: "center",
+              // float: "left",
+              textAlign: "Center",
+
+              marginTop: "20px",
+              fontSize: "20px",
+              fontWeight: "bold",
+            }}
+          >
+            Changing password
+          </Typography>
+        </Box>
+
+        <DialogContent dividers>
+          <Box className="changePassword" sx={{ display: "block" }}>
+            <form
+              style={{ display: "block" }}
+              onSubmit={handleSavePasswordChange}
+            >
+              <TextField
+                label=" Old Password"
+                // variant="outlined"
+                type="password"
+                name="oldpassword"
+                value={state.editedPassword.oldpassword}
+                onChange={handlePasswordChange}
+                sx={{
+                  "& .MuiInputBase-input": {
+                    height: "10px",
+                    width: "250px", // Set the height of the input
+                  },
+                  display: "block",
+                }}
+                inputProps={{ required: true }}
+              />
+              <TextField
+                label="New Password"
+                variant="outlined"
+                sx={{
+                  "& .MuiInputBase-input": {
+                    height: "10px",
+                    width: "250px", // Set the height of the input
+                  },
+                  display: "block",
+                }}
+                margin="normal"
+                name="newpassword"
+                type="password"
+                value={state.editedPassword.newpassword}
+                onChange={handlePasswordChange}
+                inputProps={{ required: true }}
+              />
+              <TextField
+                label="Confirm Password"
+                variant="outlined"
+                sx={{
+                  "& .MuiInputBase-input": {
+                    height: "10px",
+                    width: "250px", // Set the height of the input
+                  },
+                  display: "block",
+                }}
+                margin="normal"
+                type="password"
+                name="confirmnewpassword"
+                value={state.editedPassword.confirmnewpassword}
+                onChange={handlePasswordChange}
+                required
+              />
+              <Typography sx={{ mt: "20px", mb: "20px" }}>
+                {responsePassChange}
+              </Typography>
+
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ color: "white", backgroundColor: "red" }}
+                // onClick={handleSavePasswordChange}
+                type="submit"
+                disabled={savingPassChange}
+              >
+                {savingPassChange ? (
+                  <>
+                    <CircularProgress size={24} />
+                    Cheking...
+                  </>
+                ) : (
+                  " Change passwod"
+                )}
+              </Button>
+            </form>
+          </Box>
+        </DialogContent>
+      </BootstrapDialog>
+    );
+  };
 
   return (
     <>
@@ -338,25 +432,12 @@ function BuyerEditProfile() {
                 },
               }}
               autoFocus
-              id="outlined-basic"
               variant="outlined"
               label="First name"
-              value={state.firstName}
-              onChange={(e) =>
-                dispatch({ type: "firstName", firstName: e.target.value })
-              }
+              name="fname"
+              value={state.editedProfileData.fname}
+              onChange={handleInputChange}
             />
-            <Typography
-              style={{
-                marginBottom: "10px",
-                color: "red",
-                fontSize: "15px",
-                fontFamily: " Roboto",
-                marginLeft: "50px",
-              }}
-            >
-              {formErrors.firstName}
-            </Typography>
 
             <TextField
               className="lastName"
@@ -373,25 +454,12 @@ function BuyerEditProfile() {
                   height: 40,
                 },
               }}
-              id="outlined-basic"
               variant="outlined"
               label="Last Name"
-              value={state.lastName}
-              onChange={(e) =>
-                dispatch({ type: "lastName", lastName: e.target.value })
-              }
+              name="lname"
+              value={state.editedProfileData.lname}
+              onChange={handleInputChange}
             />
-            <Typography
-              style={{
-                marginBottom: "10px",
-                // color: "red",
-                fontSize: "15px",
-                fontFamily: " Roboto",
-                marginLeft: "50px",
-              }}
-            >
-              {formErrors.lastName}
-            </Typography>
           </Box>
 
           <Box className="email">
@@ -399,7 +467,6 @@ function BuyerEditProfile() {
               sx={{
                 marginLeft: "10px",
                 marginRight: "10px",
-
                 width: {
                   lg: 510,
                   md: 540,
@@ -410,28 +477,15 @@ function BuyerEditProfile() {
                   height: 40,
                 },
               }}
-              id="outlined-basic"
               variant="outlined"
               label="Email"
-              value={state.email}
-              onChange={(e) =>
-                dispatch({ type: "email", email: e.target.value })
-              }
+              name="email"
+              value={state.editedProfileData.email}
+              onChange={handleInputChange}
             />
-            <Typography
-              style={{
-                marginBottom: "10px",
-                color: "red",
-                fontSize: "15px",
-                fontFamily: " Roboto",
-                marginLeft: "50px",
-              }}
-            >
-              {formErrors.email}
-            </Typography>
           </Box>
 
-          <Box className="popUp" sx={{ marginLeft: "20px" }}>
+          <Box className="popUp" sx={{ marginLeft: "20px", marginTop: "20px" }}>
             <Button
               variant="outlined"
               onClick={handleOpenChangePass}
@@ -449,116 +503,8 @@ function BuyerEditProfile() {
             >
               Change Password
             </Button>
-            <BootstrapDialog
-              onClose={handleCloseChangePass}
-              aria-labelledby="customized-dialog-title"
-              open={changePass}
-            >
-              <Box
-                sx={{
-                  height: {
-                    lg: "70px",
-                    md: "100px",
-                    sm: "80px",
-                    xs: "100px",
-                  },
-                }}
-                onClose={handleCloseChangePass}
-              >
-                <IconButton
-                  sx={{ float: "right" }}
-                  onClick={handleCloseChangePass}
-                >
-                  <CloseIcon />
-                </IconButton>
-                <Typography
-                  sx={{
-                    alignItem: "center",
-                    // float: "left",
-                    textAlign: "Center",
 
-                    marginTop: "20px",
-                    fontSize: "20px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Changing password
-                </Typography>
-              </Box>
-
-              <DialogContent dividers>
-                <Box className="changePassword" sx={{ display: "block" }}>
-                  <form style={{ display: "block" }}>
-                    <TextField
-                      label=" Old Password"
-                      type="number"
-                      // variant="outlined"
-
-                      // margin="normal"
-                      // value={loginState.username}
-                      // onChange={handleUsernameChange}
-                      required
-                      sx={{
-                        "& .MuiInputBase-input": {
-                          height: "10px",
-                          width: "250px", // Set the height of the input
-                        },
-                        display: "block",
-                      }}
-                    />
-                    <TextField
-                      label="New Password"
-                      type="number"
-                      variant="outlined"
-                      sx={{
-                        "& .MuiInputBase-input": {
-                          height: "10px",
-                          width: "250px", // Set the height of the input
-                        },
-                        display: "block",
-                      }}
-                      margin="normal"
-                      // value={loginState.username}
-                      // onChange={handleUsernameChange}
-                      required
-                    />
-                    <TextField
-                      label="Confirm Password"
-                      variant="outlined"
-                      sx={{
-                        "& .MuiInputBase-input": {
-                          height: "10px",
-                          width: "250px", // Set the height of the input
-                        },
-                        display: "block",
-                      }}
-                      margin="normal"
-                      type="password"
-                      // value={loginState.password}
-                      // onChange={handlePasswordChange}
-                      required
-                    />
-
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      sx={{ color: "white", backgroundColor: "red" }}
-                      // disabled={savingLogin}
-                      type="submit"
-                    >
-                      {savingLogin ? (
-                        <>
-                          <CircularProgress size={24} />
-                          Cheking...
-                        </>
-                      ) : (
-                        "  Log in"
-                      )}
-                    </Button>
-                  </form>
-                </Box>
-              </DialogContent>
-            </BootstrapDialog>
+            {passwordDialoge()}
           </Box>
           <Box className="phone">
             <TextField
@@ -577,13 +523,11 @@ function BuyerEditProfile() {
                   height: 40,
                 },
               }}
-              id="outlined-basic"
               variant="outlined"
               label="Phone number"
-              value={state.phone}
-              onChange={(e) =>
-                dispatch({ type: "phone", phone: e.target.value })
-              }
+              name="phonenumber"
+              value={state.editedProfileData.phonenumber}
+              onChange={handleInputChange}
             />
             <Typography
               style={{
@@ -593,9 +537,7 @@ function BuyerEditProfile() {
                 fontFamily: " Roboto",
                 marginLeft: "50px",
               }}
-            >
-              {formErrors.phone}
-            </Typography>
+            ></Typography>
           </Box>
           <Box className="City">
             <TextField
@@ -614,11 +556,12 @@ function BuyerEditProfile() {
                   height: 40,
                 },
               }}
-              id="outlined-basic"
               variant="outlined"
               label="City"
-              value={state.city}
-              onChange={(e) => dispatch({ type: "city", city: e.target.value })}
+              name="city"
+              value={state.editedProfileData.city}
+              onChange={handleInputChange}
+              required
             />
             <Typography
               style={{
@@ -628,22 +571,20 @@ function BuyerEditProfile() {
                 fontFamily: " Roboto",
                 marginLeft: "50px",
               }}
-            >
-              {formErrors.city}
-            </Typography>
+            ></Typography>
           </Box>
 
           <Box sx={{ marginTop: "20px", marginLeft: "10px" }}>
             <FormControl>
               <InputLabel id="demo-simple-select-label">Region</InputLabel>
               <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
+                // labelId="demo-simple-select-label"
+                // id="demo-simple-select"
+                required
                 label="Region"
-                value={state.region}
-                onChange={(e) =>
-                  dispatch({ type: "region", region: e.target.value })
-                }
+                name="region"
+                value={state.editedProfileData.region}
+                onChange={handleInputChange}
                 sx={{ width: "250px" }}
                 MenuProps={{
                   style: {
@@ -667,29 +608,23 @@ function BuyerEditProfile() {
               </Select>
             </FormControl>
           </Box>
-
-          <Box
-            sx={{
-              alignItems: "center",
-              justify: "center",
-              textAlign: "Center",
-              backgroundColor: "red",
-              marginTop: "30px",
-              width: "200px",
-              marginLeft: "10px",
-            }}
+          <Typography sx={{ margin: "20px" }}>{responseEdit}</Typography>
+          <Button
+            variant="contained"
+            sx={{ color: "white", backgroundColor: "red" }}
+            onClick={handleSaveEditProfile}
+            disabled={saving}
+            type="submit"
           >
-            <Button
-              onClick={handleSaveEditProfile}
-              sx={{
-                fontSize: "15px",
-                textTransform: "unset",
-                color: "white",
-              }}
-            >
-              Save changes
-            </Button>
-          </Box>
+            {saving ? (
+              <>
+                <CircularProgress size={24} />
+                Cheking...
+              </>
+            ) : (
+              "Save Changes"
+            )}
+          </Button>
 
           <Divider />
         </Box>
@@ -698,4 +633,5 @@ function BuyerEditProfile() {
     </>
   );
 }
+
 export default BuyerEditProfile;
