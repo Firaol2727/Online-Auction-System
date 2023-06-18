@@ -397,7 +397,7 @@ router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
     console.log("fetching notification")
     let uid=req.user;
     return Notification.findAll({
-        where:{selid:uid}
+        where:{uid:uid}
     }).then( async data=>{
         res.send(data);
         await Notification.update({

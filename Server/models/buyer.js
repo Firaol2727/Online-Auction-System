@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       Notifyme,
     }) {
       Buyer.belongsToMany(Auction, { through: Bid });
-      Buyer.hasMany(Notification);
+      // Buyer.hasMany(Notification);
       Buyer.hasMany(Payment);
       Buyer.hasMany(Transaction);
       Buyer.hasMany(Notifyme);

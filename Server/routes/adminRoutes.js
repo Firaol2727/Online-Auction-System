@@ -59,6 +59,7 @@ const authorize=async(req,res,next)=>{
     })
 }
 const checkAuthorization =async(req,res,next)=>{
+    console.log("The cookie is ",jwt)
     if(req.cookies.jwt){
         const token=req.cookies.jwt;
         if(token==null){
@@ -76,9 +77,27 @@ const checkAuthorization =async(req,res,next)=>{
         )
     }
 }
- 
 router.post('/login',authorize,(req,res)=>{
     res.sendStatus(200);
+})
+router.post("/seller",(req,res)=>{
+    let sid=req.body.sid;
+    console.log("The input id is ",sid);
+    return Seller.findOne({
+        where:{id:sid},
+        attributes: { exclude: ["password", "createdAt", "updatedAt"] },
+    })
+    .then((data)=>{
+        if(data){
+            res.send(data)
+        }else{
+            res.sendStatus(400)
+        }
+    })
+    .catch(err=>{
+        console.log("The error is ",err);
+        res.sendStatus(500)
+    })
 })
 router.post('/deleteauction',checkAuthorization,async(req,res)=>{
     let aid=req.body.aid;
@@ -128,7 +147,8 @@ router.post('/deletseller',checkAuthorization,async (req,res)=>{
 router.get('/myprofile',checkAuthorization,(req,res)=>{
     let userid=req.user;
     return Admin.findOne({
-        where:{id:uid}
+        where:{id:uid},
+        attributes: { exclude: ["password", "createdAt", "updatedAt"] },
     }).then((data)=>{
         res.send(data);
     }).catch(err=>{
@@ -177,23 +197,70 @@ router.post('/changepassword',checkAuthorization,async(req,res)=>{
     }
 })
 router.get('/closedbid',checkAuthorization,async(req,res)=>{
-    return ClosedBid({
-        include:[
-            {model:"Auction"}
-        ]
-    }).then((data)=>{
-        res.send(data);
+    let limit = 1;
+    let no_response = 20;
+    console.log("The page is ",req.query.page);
+    let page = req.query.page == null ? 1 : req.query.page;
+    let jumpingSet = (page - 1) * no_response;
+    console.log("Fetching the closed bid")
+    return ClosedBid.findAndCountAll({
+        order: [["createdAt", "DESC"]], 
+        offset: jumpingSet,
+        limit: no_response,
     })
+        .then((data) => {
+          let nopage = parseInt(data.count / no_response) + 1;
+          // console.log(data.rows);
+          let response = {
+            count: nopage,
+            data: data.rows,
+          };
+          if (response) {
+            console.log(response);
+            res.send(response);
+          } else {
+            res.sendStatus(404);
+          }
+        })
+        .catch((err)=>{
+            console.log("The closed bid fetching error is  ",err);
+            res.sendStatus(500)
+        }) 
 })
-router.get('/reportedAuction',(req,res)=>{
-    return ReportedAuction.findAll({
+router.get('/reports',(req,res)=>{
+    // return ReportedAuction.findAll({
+    //     include:{model:Auction}
+    // })
+    let limit = 1;
+    let no_response = 20;
+    console.log("The page is ",req.query.page);
+    let page = req.query.page == null ? 1 : req.query.page;
+    let jumpingSet = (page - 1) * no_response;
+    console.log("Fetching the reports")
+    return ReportedAuction.findAndCountAll({
+        order: [["createdAt", "DESC"]], 
+        offset: jumpingSet,
+        limit: no_response,
         include:{model:Auction}
-    }).then((data)=>{
-        res.send(data);
-    }).catch((err)=>{
-        console.log(err);
-        res.status(500).send("Internal server error")
     })
+    .then((data) => {
+        let nopage = parseInt(data.count / no_response) + 1;
+        // console.log(data.rows);
+        let response = {
+        count: nopage,
+        data: data.rows,
+        };
+        if (response) {
+            console.log(response);
+            res.send(response);
+        } else {
+            res.sendStatus(404);
+        }
+    })
+    .catch((err)=>{
+        console.log("The closed bid fetching error is  ",err);
+        res.sendStatus(500)
+    }) 
 })
 
 

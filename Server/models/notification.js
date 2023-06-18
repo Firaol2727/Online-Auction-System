@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       type:DataTypes.STRING,
       allowNull:true
     },
-    selid:{
+    uid:{
       type:DataTypes.STRING,
       allowNull:true
     }

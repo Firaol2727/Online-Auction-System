@@ -89,7 +89,7 @@ async function tableChange() {
   //  a function used to commit database changes just change name of model you want to update and call function
   // await Buyer.sync({ alter: true });
 
-  await Seller.sync({ alter: true });
+  await ClosedBid.sync({ alter: true });
   console.log("finished");
 }
 
@@ -175,10 +175,7 @@ async function addCategories() {
 // addAdmin();
 
 // CreateAuction();
-// io.use((socket,next)=>{
-//     console.log("handshake",socket.handshake);
-//     next();
-// })
+
 let onlineUsers = [];
 let reisStart = false;
 let waitingchangeauctions = [];
@@ -635,45 +632,6 @@ app.post("/hele", (req, res) => {
  
   res.sendStatus(200);
 });
-// app.get('/subcategory/',async(req,res)=>{
-//     const cname=req.query.cname;
-//     const page=req.query.page!=null?req.query.page:1;
-//     console.log(cname,page);
-//     let no_response=6;
-//     let jumpingSet=(page-1)*no_response;
-//     Category.findOne({
-//         attributes:["cid"],
-//         where:{cname:cname}
-//     }).then((data)=>{
-//         if(data){
-//             let cid=data.cid;
-//         return  Product.findAndCountAll({
-//             order:[
-//                 ["createdAt","DESC"]
-//             ],
-//             attributes:{exclude:["createdAt","updatedAt"]},
-//             offset: jumpingSet,
-//             limit: no_response,
-//             where:{CategoryCid:cid}
-//         });
-//         }
-//         return null;
-//     })
-//     .then(data=>{
-//         // console.log(data);
-//         if(data){
-//         let nopage=parseInt(data.count/no_response);
-//         data.count=nopage;
-//         console.log(data.count);
-//         res.send(data);
-//         }else res.sendStatus(404);
-
-//     })
-//     .catch(err=>{
-//         console.log(err);
-//         res.sendStatus(404);
-//     })
-// })
 
 app.get("/details/:id", async (req, res) => {
   let id = req.params.id;
@@ -765,9 +723,6 @@ app.post("/chargeaccount", async (req, res) => {
   }
 });
 
-// app.listen(5000,()=>{
-//     console.log("server running at port on 5000");
-// })
 http.listen(5000, () => {
   console.log("The server is running on 5000");
 });
@@ -797,7 +752,7 @@ const auctionManage = async () => {
         await Notification.create({
           id: "",
           AuctionId: auction.id,
-          BuyerId: winner.BuyerId,
+          uid: winner.BuyerId,
           message: `The auction  ${auction.name} you want to participate on has started }`,
           nottype: "start",
         });
@@ -805,7 +760,7 @@ const auctionManage = async () => {
       await Notification.create({
         id: "",
         AuctionId: auction.id,
-        selid: auction.SellerId,
+        uid: auction.SellerId,
         message: `your auction ${auction.name} has started }`,
         nottype: "start",
       });
@@ -818,22 +773,27 @@ const auctionManage = async () => {
           bidprice: auction.hammerprice,
         },
       });
+      let winnerUser=await Buyer/findOne({
+        where:{id:winner.buyerId}
+      })
       await auction.update({
         status: "closed",
-        winnerId: winner.buyerId,
+        winnerId: winner.buyerId1!=null? winner.buyerId1:'',
         where: { id: auction.id },
       });
-      await Notification.create({
+      if(winnerUser){
+        await Notification.create({
         id: "",
         AuctionId: auction.id,
-        BuyerId: winner.BuyerId,
+        uid: winner.BuyerId,
         message: `Congratulations you have won the auction ${auction.name} you can reach the vendor with phonenumber - ${auction.Seller.phonenumber} `,
       });
+      }
       await Notification.create({
         id: "",
         AuctionId: auction.id,
-        BuyerId: auction.Seller.id,
-        message: `Congratulations you have won the auction ${auction.name} you can reach the vendor with phonenumber - ${auction.Seller.phonenumber} `,
+        uid: auction.Seller.id,
+        message: `Your auction has been ${auction.name} completed  with winning bid ${auction.hammerprice}`,
       });
       let bidders = Bid.findAll({
         where: { AuctionId: auction.id },
@@ -843,14 +803,24 @@ const auctionManage = async () => {
         await Notification.create({
           id: "",
           AuctionId: auction.id,
-          BuyerId: bid.BuyerId,
+          uid: bid.BuyerId,
           message: `The auction ${auction.name} you were participating on has been closed with winning price ${auction.hammerprice}`,
         });
       });
-
-      // await ClosedBid.create({
-
-      // })
+      await ClosedBid.create({
+        id: "",
+        auctionId:auction.id,
+        auctionName:auction.name,
+        startdate:auction.startdate,
+        enddate:auction.enddate,
+        seller:auction.Seller.fname+" "+auction.Seller.lname,
+        sellerId:auction.Seller.id,
+        sphone:auction.Seller.phonenumber,
+        winner:winnerUser.fname+" "+winnerUser.lname,
+        winnerId:winnerUser.id,
+        winningbid:auction.hammerprice,
+        wphone:winnerUser.phonenumber
+      })
     }
   });
 };
@@ -879,7 +849,7 @@ io.use((socket, next) => {
     jwt.verify(myCookieValue, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
       console.log("verifing");
       if (err) {
-        console.log("Token error is ", err);
+        // console.log("Token error is ", err);
         socket.disconnect();
       } else {
         socket.user = user;

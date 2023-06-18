@@ -233,7 +233,7 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
   console.log("The user id is ", uid);
   let { bidprice, aid } = req.body;
   let auction = await Auction.findOne({
-    where: { id: aid },
+    where: { id: aid,status:"started" },
     attributes: ["hammerprice", "name"],
   });
   if (auction !== null) {
@@ -305,7 +305,6 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
               },
               { where: { id: aid } }
             );
-
             let users = await Bid.findAll({
               where: { AuctionId: aid },
               attributes: ["BuyerId"],
@@ -380,7 +379,7 @@ router.get("/report", (req, res) => {
 router.get("/notification", checkAuthorizationCustomer, (req, res) => {
   let uid = req.user;
   return Notification.findAll({
-    where: { BuyerId: uid },
+    where: { uid: uid },
   }).then(async (data) => {
     res.send(data);
     await Notification.update(

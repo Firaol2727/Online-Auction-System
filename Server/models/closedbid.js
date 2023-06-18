@@ -25,10 +25,46 @@ module.exports = (sequelize, DataTypes) => {
       type:DataTypes.STRING,
       primaryKey:true},
     auctionId:{
-        type:DataTypes.STRING,
-        allowNull:false
+      type:DataTypes.STRING,
+      allowNull:false
+    },
+    auctionName:{
+      type:DataTypes.STRING,
+      allowNull:false
+    },
+    startdate:{
+      type:DataTypes.STRING,
+      allowNull:false
+    },
+    enddate:{
+      type:DataTypes.DATE,
+      allowNull:false
+    },
+    seller:{
+      type:DataTypes.STRING,
+      allowNull:false
+    },
+    sellerId:{
+      type:DataTypes.STRING,
+      allowNull:false
+    },
+    sphone:{
+      type:DataTypes.STRING,
+      allowNull:false
+    },
+    winner:{
+      type:DataTypes.STRING,
+      allowNull:true
     },
     winnerId:{
+      type:DataTypes.STRING,
+      allowNull:true
+    },
+    winningbid:{
+      type:DataTypes.STRING,
+      allowNull:true
+    },
+    wphone:{
       type:DataTypes.STRING,
       allowNull:true
     },
@@ -36,10 +72,7 @@ module.exports = (sequelize, DataTypes) => {
       type:DataTypes.BOOLEAN,
       defaultValue:false
     },
-    date:{
-      type:DataTypes.STRING,
-      allowNull:true
-    }
+    
   }, {
     sequelize,
     modelName: 'ClosedBid',

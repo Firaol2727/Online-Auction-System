@@ -34,7 +34,7 @@ let sub=[
 const Sidebar=()=>{
   const [op,setOp]=useState(0);
     useEffect(()=>{
-      console.log("running the use Effect")
+      // console.log("running the use Effect")
     },[])
     return(
       <div >
