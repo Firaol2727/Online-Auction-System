@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const bodyParser = require("body-parser");
 var jsonParser = bodyParser.json();
 var nodemailer = require("nodemailer");
+
 const { uid } = require("uid");
 const { chapaVerify } = require("../controllers/payment");
 var transporter = nodemailer.createTransport({
@@ -161,7 +162,7 @@ router.post("/register", async (req, res) => {
     });
 });
 router.post("/changeprofile", checkAuthorizationCustomer, async (req, res) => {
-  let { fname, lname, telUname, email, region, city } = req.body;
+  let { fname, lname, phonenumber, email, region, city } = req.body;
 
   let uid = req.user;
   let = a = req.body;
@@ -173,13 +174,13 @@ router.post("/changeprofile", checkAuthorizationCustomer, async (req, res) => {
     {
       fname: fname,
       lname: lname,
-      telUname: telUname,
+      phonenumber: phonenumber,
       email: email,
       region: region,
       city: city,
     },
     {
-      where: { cid: uid },
+      where: { id: uid },
     }
   )
     .then((data) => {
@@ -201,7 +202,7 @@ router.post("/changepassword", checkAuthorizationCustomer, async (req, res) => {
   if (np == cp) {
     return Buyer.findOne({
       attributes: ["password"],
-      where: { cid: uid },
+      where: { id: uid },
     })
       .then(async (data) => {
         const check = await bcrypt.compare(pp, data.password);
@@ -473,6 +474,7 @@ router.post("/forgotpassword", async (req, res) => {
       res.status(400).send("invalid email")
     }
 });
+
 // router.get('/send-code/:email', (req, res) => {
 //   const { email } = req.params;
 //   const verificationCode = generateVerificationCode();
@@ -494,6 +496,7 @@ router.post("/forgotpassword", async (req, res) => {
 //   });
 // });
 router.post("/verifycode", async (req, res) => {
+
   let { email, verificationcode } = req.body;
   return Passcode.findOne({
     email:email,

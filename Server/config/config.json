@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "root",
-    "password": "Firaol@$347",
+    "password": "",
     "database": "onlineauction",
     "host": "127.0.0.1",
     "dialect": "mysql"

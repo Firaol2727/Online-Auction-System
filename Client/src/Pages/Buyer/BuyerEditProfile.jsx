@@ -80,9 +80,9 @@ const initialState = {
     account: "",
   },
   editedPassword: {
-    oldpassword: "",
-    newpassword: "",
-    confirmnewpassword: "",
+    pp: "",
+    np: "",
+    cp: "",
   },
 };
 function reducer(state, action) {
@@ -287,8 +287,8 @@ function BuyerEditProfile() {
                 label=" Old Password"
                 // variant="outlined"
                 type="password"
-                name="oldpassword"
-                value={state.editedPassword.oldpassword}
+                name="pp"
+                value={state.editedPassword.pp}
                 onChange={handlePasswordChange}
                 sx={{
                   "& .MuiInputBase-input": {
@@ -310,9 +310,9 @@ function BuyerEditProfile() {
                   display: "block",
                 }}
                 margin="normal"
-                name="newpassword"
+                name="np"
                 type="password"
-                value={state.editedPassword.newpassword}
+                value={state.editedPassword.np}
                 onChange={handlePasswordChange}
                 inputProps={{ required: true }}
               />
@@ -328,8 +328,8 @@ function BuyerEditProfile() {
                 }}
                 margin="normal"
                 type="password"
-                name="confirmnewpassword"
-                value={state.editedPassword.confirmnewpassword}
+                name="cp"
+                value={state.editedPassword.cp}
                 onChange={handlePasswordChange}
                 required
               />
