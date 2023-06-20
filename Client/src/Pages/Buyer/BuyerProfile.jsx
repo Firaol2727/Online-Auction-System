@@ -114,10 +114,9 @@ export default function BuyerProfile() {
         dispatch({ type: "SET_PROFILE_DATA", payload: response.data });
         dispatch({ type: "SET_EDITED_PROFILE_DATA", payload: response.data });
         console.log("fetched data", response.data);
-        saving(false);
       })
-      //
       .catch((err) => {
+        console.group("errrrr", err);
         navigate("/login");
         setLoggedIn(false);
         console.log("heyy", loggedin);

@@ -12,6 +12,8 @@ const cookie = require("cookie");
 const adminRoutes = require("./routes/adminRoutes");
 const buyerRoute = require("./routes/buyerRoute");
 const sellerRoute = require("./routes/sellerRoute");
+const authorizecheck = require("./controllers/authentication/auth");
+
 const {
   Admin,
   Auction,
@@ -71,11 +73,10 @@ app.use(
 );
 app.use(
   cors({
-    origin: "http://127.0.0.1:5173",
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
-// app.options("*", cors());
 // app.use(express.json());
 app.use(cookieParser());
 app.use("/custom", buyerRoute);
@@ -246,6 +247,7 @@ const authorizeSeller = async (req, res, next) => {
 app.get("/mytest", (req, res) => {
   res.send("the data sent toy");
 });
+app.post("/login", authorizecheck);
 
 app.get("/images/:picid", (req, res) => {
   let id = req.params.picid;
@@ -316,297 +318,316 @@ app.get("/cat/:cname", async (req, res) => {
   let page = req.query.page == null ? 1 : req.query.page;
   // let type=req.query.subname==null?"electronics":req.query.subname;
   let no_response = 10;
-  let price = phigh == null && plow == null ? phigh - plow : null;
+  let price = phigh == null && plow == null ? null : phigh - plow;
   let limit = 1;
   let jumpingSet = (page - 1) * no_response;
   console.log(page);
   const type = req.params.cname;
+  console.log("type", type);
   let category = await Category.findOne({ where: { name: type } });
-  let cid = category.id;
-  if (cid) {
-    if (price != null && region != null && daterange != null) {
-      return Auction.findAndCountAll({
-        order: [["createdAt", "DESC"]],
-        attributes: { exclude: ["createdAt", "updatedAt"] },
-        where: {
-          baseprice: {
-            [Op.between]: [plow, phigh],
-          },
-          region: region,
-          CategoryCid: cid,
-          startdate: {
-            [Op.lt]: new Date(),
-            [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
-          },
-          state: ["open", "waiting"],
-        },
-        offset: jumpingSet,
-        limit: no_response,
-      })
-        .then((data) => {
-          let nopage = parseInt(data.count / no_response) + 1;
-          // console.log(data.rows);
-          let response = {
-            count: nopage,
-            data: data.rows,
-          };
-          if (response) {
-            console.log(response);
-            res.send(response);
-          } else {
-            res.sendStatus(404);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else if (price != null && region != null) {
-      return Auction.findAndCountAll({
-        order: [["createdAt", "DESC"]],
-        attributes: { exclude: ["createdAt", "updatedAt"] },
-        where: {
-          baseprice: {
-            [Op.between]: [plow, phigh],
-          },
-          region: region,
-          CategoryCid: cid,
-          startdate: {
-            [Op.lt]: new Date(),
-            [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
-          },
-          state: ["open", "waiting"],
-        },
-        offset: jumpingSet,
-        limit: no_response,
-      })
-        .then((data) => {
-          let nopage = parseInt(data.count / no_response) + 1;
-          // console.log(data.rows);
-          let response = {
-            count: nopage,
-            data: data.rows,
-          };
-          if (response) {
-            console.log(response);
-            res.send(response);
-          } else {
-            res.sendStatus(404);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else if (price != null && daterange != null) {
-      return Auction.findAndCountAll({
-        order: [["createdAt", "DESC"]],
-        attributes: { exclude: ["createdAt", "updatedAt"] },
-        where: {
-          baseprice: {
-            [Op.between]: [plow, phigh],
-          },
-          CategoryCid: cid,
-          startdate: {
-            [Op.lt]: new Date(),
-            [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
-          },
-          state: ["open", "waiting"],
-        },
-        offset: jumpingSet,
-        limit: no_response,
-      })
-        .then((data) => {
-          let nopage = parseInt(data.count / no_response) + 1;
-          // console.log(data.rows);
-          let response = {
-            count: nopage,
-            data: data.rows,
-          };
-          if (response) {
-            console.log(response);
-            res.send(response);
-          } else {
-            res.sendStatus(404);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else if (region != null && daterange != null) {
-      return Auction.findAndCountAll({
-        order: [["createdAt", "DESC"]],
-        attributes: { exclude: ["createdAt", "updatedAt"] },
-        where: {
-          region: region,
-          CategoryCid: cid,
-          startdate: {
-            [Op.lt]: new Date(),
-            [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
-          },
-          state: ["open", "waiting"],
-        },
-        offset: jumpingSet,
-        limit: no_response,
-      })
-        .then((data) => {
-          let nopage = parseInt(data.count / no_response) + 1;
-          // console.log(data.rows);
-          let response = {
-            count: nopage,
-            data: data.rows,
-          };
-          if (response) {
-            console.log(response);
-            res.send(response);
-          } else {
-            res.sendStatus(404);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else if (price != null) {
-      return Auction.findAndCountAll({
-        order: [["createdAt", "DESC"]],
-        attributes: { exclude: ["createdAt", "updatedAt"] },
-        where: {
-          baseprice: {
-            [Op.between]: [plow, phigh],
-          },
-          CategoryCid: cid,
-          state: ["open", "waiting"],
-        },
-        offset: jumpingSet,
-        limit: no_response,
-      })
-        .then((data) => {
-          let nopage = parseInt(data.count / no_response) + 1;
-          // console.log(data.rows);
-          let response = {
-            count: nopage,
-            data: data.rows,
-          };
-          if (response) {
-            console.log(response);
-            res.send(response);
-          } else {
-            res.sendStatus(404);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else if (region != null) {
-      return Auction.findAndCountAll({
-        order: [["createdAt", "DESC"]],
-        attributes: { exclude: ["createdAt", "updatedAt"] },
-        where: {
-          region: region,
-          CategoryCid: cid,
-          state: ["open", "waiting"],
-        },
 
-        offset: jumpingSet,
-        limit: no_response,
-      })
-        .then((data) => {
-          let nopage = parseInt(data.count / no_response) + 1;
-          // console.log(data.rows);
-          let response = {
-            count: nopage,
-            data: data.rows,
-          };
-          if (response) {
-            console.log(response);
-            res.send(response);
-          } else {
-            res.sendStatus(404);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else if (daterange != null) {
-      return Auction.findAndCountAll({
-        order: [["createdAt", "DESC"]],
-        attributes: { exclude: ["createdAt", "updatedAt"] },
-        where: {
-          startdate: {
-            [Op.lt]: new Date(),
-            [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
+  if (category) {
+    console.log("category data", category.id);
+    let cid = category.id;
+    console.log("price", price);
+    console.log("region", region);
+    console.log("daterange", daterange);
+    if (cid) {
+      if (price != null && region != null && daterange != null) {
+        console.log("step 1");
+        return Auction.findAndCountAll({
+          order: [["createdAt", "DESC"]],
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+          where: {
+            baseprice: {
+              [Op.between]: [plow, phigh],
+            },
+            region: region,
+            CategoryId: cid,
+            startdate: {
+              [Op.lt]: new Date(),
+              [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
+            },
+            state: ["open", "waiting"],
           },
-          CategoryCid: cid,
-          state: ["open", "waiting"],
-        },
-        offset: jumpingSet,
-        limit: no_response,
-      })
-        .then((data) => {
-          let nopage = parseInt(data.count / no_response) + 1;
-          // console.log(data.rows);
-          let response = {
-            count: nopage,
-            data: data.rows,
-          };
-          if (response) {
-            console.log(response);
-            res.send(response);
-          } else {
-            res.sendStatus(404);
-          }
+          offset: jumpingSet,
+          limit: no_response,
         })
-        .catch((err) => {
-          console.log(err);
-        });
+          .then((data) => {
+            let nopage = parseInt(data.count / no_response) + 1;
+            // console.log(data.rows);
+            let response = {
+              count: nopage,
+              data: data.rows,
+            };
+            if (response) {
+              console.log(response);
+              res.send(response);
+            } else {
+              res.sendStatus(404);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else if (price != null && region != null) {
+        console.log("step 2");
+        return Auction.findAndCountAll({
+          order: [["createdAt", "DESC"]],
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+          where: {
+            baseprice: {
+              [Op.between]: [plow, phigh],
+            },
+            region: region,
+            categoryId: cid,
+            startdate: {
+              [Op.lt]: new Date(),
+              [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
+            },
+            state: ["open", "waiting"],
+          },
+          offset: jumpingSet,
+          limit: no_response,
+        })
+          .then((data) => {
+            let nopage = parseInt(data.count / no_response) + 1;
+            // console.log(data.rows);
+            let response = {
+              count: nopage,
+              data: data.rows,
+            };
+            if (response) {
+              console.log(response);
+              res.send(response);
+            } else {
+              res.sendStatus(404);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else if (price != null && daterange != null) {
+        console.log("step 3");
+        return Auction.findAndCountAll({
+          order: [["createdAt", "DESC"]],
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+          where: {
+            baseprice: {
+              [Op.between]: [plow, phigh],
+            },
+            categoryId: cid,
+            startdate: {
+              [Op.lt]: new Date(),
+              [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
+            },
+            state: ["open", "waiting"],
+          },
+          offset: jumpingSet,
+          limit: no_response,
+        })
+          .then((data) => {
+            let nopage = parseInt(data.count / no_response) + 1;
+            // console.log(data.rows);
+            let response = {
+              count: nopage,
+              data: data.rows,
+            };
+            if (response) {
+              console.log(response);
+              res.send(response);
+            } else {
+              res.sendStatus(404);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else if (region != null && daterange != null) {
+        console.log("step 4");
+        return Auction.findAndCountAll({
+          order: [["createdAt", "DESC"]],
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+          where: {
+            region: region,
+            categoryId: cid,
+            startdate: {
+              [Op.lt]: new Date(),
+              [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
+            },
+            state: ["open", "waiting"],
+          },
+          offset: jumpingSet,
+          limit: no_response,
+        })
+          .then((data) => {
+            let nopage = parseInt(data.count / no_response) + 1;
+            // console.log(data.rows);
+            let response = {
+              count: nopage,
+              data: data.rows,
+            };
+            if (response) {
+              console.log(response);
+              res.send(response);
+            } else {
+              res.sendStatus(404);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else if (price != null) {
+        console.log("step 5");
+        return Auction.findAndCountAll({
+          order: [["createdAt", "DESC"]],
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+          where: {
+            baseprice: {
+              [Op.between]: [plow, phigh],
+            },
+            categoryId: cid,
+            state: ["open", "waiting"],
+          },
+          offset: jumpingSet,
+          limit: no_response,
+        })
+          .then((data) => {
+            let nopage = parseInt(data.count / no_response) + 1;
+            console.log("data.rows", data);
+            let response = {
+              count: nopage,
+              data: data.rows,
+            };
+            if (response) {
+              console.log(response);
+              res.send(response);
+            } else {
+              res.sendStatus(404);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else if (region != null) {
+        console.log("step 6");
+        return Auction.findAndCountAll({
+          order: [["createdAt", "DESC"]],
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+          where: {
+            region: region,
+            categoryId: cid,
+            state: ["open", "waiting"],
+          },
+
+          offset: jumpingSet,
+          limit: no_response,
+        })
+          .then((data) => {
+            let nopage = parseInt(data.count / no_response) + 1;
+            // console.log(data.rows);
+            let response = {
+              count: nopage,
+              data: data.rows,
+            };
+            if (response) {
+              console.log(response);
+              res.send(response);
+            } else {
+              res.sendStatus(404);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else if (daterange != null) {
+        console.log("step 7");
+        return Auction.findAndCountAll({
+          order: [["createdAt", "DESC"]],
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+          where: {
+            startdate: {
+              [Op.lt]: new Date(),
+              [Op.gt]: new Date(new Date() - daterange * 24 * 60 * 60 * 1000),
+            },
+            categoryId: cid,
+            state: ["open", "waiting"],
+          },
+          offset: jumpingSet,
+          limit: no_response,
+        })
+          .then((data) => {
+            let nopage = parseInt(data.count / no_response) + 1;
+            // console.log(data.rows);
+            let response = {
+              count: nopage,
+              data: data.rows,
+            };
+            if (response) {
+              console.log(response);
+              res.send(response);
+            } else {
+              res.sendStatus(404);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else {
+        return Auction.findAndCountAll({
+          order: [["createdAt", "DESC"]],
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+          where: {
+            state: ["open", "waiting"],
+            categoryId: cid,
+          },
+          offset: jumpingSet,
+          limit: no_response,
+        })
+          .then((data) => {
+            let nopage = parseInt(data.count / no_response) + 1;
+            // console.log(data.rows);
+            let response = {
+              count: nopage,
+              data: data.rows,
+            };
+
+            if (response) {
+              console.log("response", response);
+              res.send(response);
+            } else {
+              res.sendStatus(404);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
     } else {
-      return Auction.findAndCountAll({
-        order: [["createdAt", "DESC"]],
-        attributes: { exclude: ["createdAt", "updatedAt"] },
-        where: {
-          state: ["open", "waiting"],
-          CategoryCid: cid,
-        },
-        offset: jumpingSet,
-        limit: no_response,
-      })
-        .then((data) => {
-          let nopage = parseInt(data.count / no_response) + 1;
-          // console.log(data.rows);
-          let response = {
-            count: nopage,
-            data: data.rows,
-          };
-          if (response) {
-            console.log(response);
-            res.send(response);
-          } else {
-            res.sendStatus(404);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      res.status(400).send("No auction in defined category");
     }
+    // Auction.findAll({
+    //   attributes: { exclude: ["createdAt", "updatedAt"] },
+    //   include: {
+    //     model: Auction,
+    //     attributes: { exclude: ["createdAt", "updatedAt"] },
+    //   },
+    //   where: { name: type },
+    // })
+    //   .then(async (data) => {
+    //     if (data) {
+    //       res.json(data);
+    //     } else {
+    //       res.sendStatus(404);
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
   } else {
-    res.status(400).send("No auction in defined category");
+    console.log("Not found");
+    res.status(404).send("not found");
   }
-  // Auction.findAll({
-  //   attributes: { exclude: ["createdAt", "updatedAt"] },
-  //   include: {
-  //     model: Auction,
-  //     attributes: { exclude: ["createdAt", "updatedAt"] },
-  //   },
-  //   where: { name: type },
-  // })
-  //   .then(async (data) => {
-  //     if (data) {
-  //       res.json(data);
-  //     } else {
-  //       res.sendStatus(404);
-  //     }
-  //   })
-  //   .catch((err) => {
-  //     console.log(err);
-  //   });
 });
 /// searching a product
 
@@ -644,7 +665,7 @@ app.get("/search", async (req, res) => {
     console.log(page, item);
     return Auction.findAndCountAll({
       order: [["createdAt", "DESC"]],
-      attributes: { exclude: ["createdAt", "updatedAt", "CategoryCid"] },
+      attributes: { exclude: ["createdAt", "updatedAt", "categoryId"] },
       offset: jumpingSet,
       limit: no_response,
       where: {
@@ -709,7 +730,7 @@ app.post("/hele", (req, res) => {
 //             attributes:{exclude:["createdAt","updatedAt"]},
 //             offset: jumpingSet,
 //             limit: no_response,
-//             where:{CategoryCid:cid}
+//             where:{categoryId:cid}
 //         });
 //         }
 //         return null;

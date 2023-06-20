@@ -149,7 +149,7 @@ router.post("/register", async (req, res) => {
     });
 });
 router.post("/changeprofile", checkAuthorizationCustomer, async (req, res) => {
-  let { fname, lname, telUname, email, region, city } = req.body;
+  let { fname, lname, phonenumber, email, region, city } = req.body;
 
   let uid = req.user;
   let = a = req.body;
@@ -161,13 +161,13 @@ router.post("/changeprofile", checkAuthorizationCustomer, async (req, res) => {
     {
       fname: fname,
       lname: lname,
-      telUname: telUname,
+      phonenumber: phonenumber,
       email: email,
       region: region,
       city: city,
     },
     {
-      where: { cid: uid },
+      where: { id: uid },
     }
   )
     .then((data) => {
@@ -189,19 +189,19 @@ router.post("/changepassword", checkAuthorizationCustomer, async (req, res) => {
   if (np == cp) {
     return Buyer.findOne({
       attributes: ["password"],
-      where: { cid: uid },
+      where: { id: uid },
     })
       .then(async (data) => {
         const check = await bcrypt.compare(pp, data.password);
         if (check) {
           console.log("true");
           const hash = await bcrypt.hashSync(np, bcrypt.genSaltSync(10));
-          return Customer.update(
+          return Buyer.update(
             {
               password: hash,
             },
             {
-              where: { cid: uid },
+              where: { id: uid },
             }
           ).then((data) => {
             console.log("succesful update");
@@ -422,25 +422,28 @@ router.post("/forgotpassword", async (req, res) => {
     res.send("invalid email").status(400);
   }
 });
-router.get('/send-code/:email', (req, res) => {
+router.get("/send-code/:email", (req, res) => {
   const { email } = req.params;
   const verificationCode = generateVerificationCode();
   // Create a Nodemailer transport
   // Send the verification code to the user's email
-  transporter.sendMail({
-    from: 'Nucherata@gmail.com',
-    to: email,
-    subject: 'Verification Code',
-    text: `Your verification code is ${verificationCode}. It will expire in 4 minutes.`
-  }, (error, info) => {
-    if (error) {
-      console.log(error);
-      res.status(500).send('Error sending verification code');
-    } else {
-      console.log('Verification code sent:', info.response);
-      res.status(200).send({ code: verificationCode });
+  transporter.sendMail(
+    {
+      from: "Nucherata@gmail.com",
+      to: email,
+      subject: "Verification Code",
+      text: `Your verification code is ${verificationCode}. It will expire in 4 minutes.`,
+    },
+    (error, info) => {
+      if (error) {
+        console.log(error);
+        res.status(500).send("Error sending verification code");
+      } else {
+        console.log("Verification code sent:", info.response);
+        res.status(200).send({ code: verificationCode });
+      }
     }
-  });
+  );
 });
 router.post("/codesent", async (req, res) => {
   let { email, verificationcode } = req.body;

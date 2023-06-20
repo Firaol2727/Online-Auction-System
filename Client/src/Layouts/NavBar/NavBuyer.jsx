@@ -1377,8 +1377,9 @@ export default function NavBuyer(props) {
                 >
                   {" "}
                   {/* {state &&  state.data.fname} */}
-                  {state !== null ? <>{state.data.fname}</> : <>Profile</>}
-                  // {!state && "Profile"}
+                  {/* {state !== null ? <>{state.data.fname}</> : <>Profile</>} */}
+                  {/* {"Profile"} */}
+                  Profile
                 </Typography>
               </IconButton>
             )}
