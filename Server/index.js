@@ -203,57 +203,6 @@ let reisStart = false;
 let waitingchangeauctions = [];
 // Getting image api
 
-const authorizeSeller=async(req,res,next)=>{
-  console.log(req.body);
-  let {username,password}=req.body;
-  console.log("username",username);
-  console.log("password",password);
-
-return Seller.findOne({
-  where: {
-    phonenumber: username,
-  },
-  attributes: ["id", "password"],
-.then(async (data) => {
-    // console.log("data is ",data.Aid,data.password);
-    const find = {
-      allow: false,
-      uid: null,
-    };
-    if (data) {
-      const hashed = data.password;
-      const compared = await bcrypt.compare(password, hashed);
-      if (compared) {
-        find.uid = data.id;
-        find.allow = true;
-        return find;
-      } else {
-        return find;
-      }
-    } else {
-      return find;
-    }
-
-  })
-.then((find)=>{
-    console.log("find is ", find);
-    if (find.allow) {
-      const user = find.uid;
-      const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-      // console.log("accessToken",accessToken);
-      res.cookie("u",accessToken,{maxAge: 7200000,httpOnly:true,sameSite:"none",secure:true});
-      next();
-    } else {
-      console.log(find);
-      res.status(400).send("error username or password");
-    }
-  })
-  .catch((err) => {
-    console.log(" error occures is  " + err);
-    res.sendStatus(500);
-  });
-};
-
 app.get("/images/:picid", (req, res) => {
   let id = req.params.picid;
   console.log("fetch image - ", id);

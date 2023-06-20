@@ -240,12 +240,13 @@ router.get("/placebid", async (req, res) => {
   let name;
   let hammerprice;
   let paidresponse;
-  let uid = "d09b7d05ee3ccb43";
+  let uid =req.user;
+  // "d09b7d05ee3ccb43";
    //req.user;
   console.log("The user id is ", uid);
-  // let { bidprice, aid } = req.body;
-  let bidprice=90000
-  let aid="9b1e259afed2b3bf"
+  let { bidprice, aid } = req.body;
+  // let bidprice=90000
+  // let aid="9b1e259afed2b3bf"
   try{
 
   let auction = await Auction.findOne({
