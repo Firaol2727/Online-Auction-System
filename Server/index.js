@@ -99,9 +99,7 @@ async function tableChange() {
 }
 
 // tableChange();
-
 // chapaVerify();
-
 
 async function addAdmin() {
   // adding  database

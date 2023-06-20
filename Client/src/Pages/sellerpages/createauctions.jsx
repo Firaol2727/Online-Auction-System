@@ -213,12 +213,12 @@ export default class CreateAuction extends Component {
                             </LocalizationProvider>
                         </Stack> */}
                         {!this.state.startdatevalid &&<Typography color={"error"}>Invalid date</Typography>}
-                        <LocalizationProvider dateAdapter={AdapterDayjs}  >
+                         <LocalizationProvider dateAdapter={AdapterDayjs}  >
                             <DemoContainer components={['DateRangePicker']}>
-                                <DateRangePicker sx={{width:{sm:"350px",xs:"300px"}}} onChange={(newValue) => this.setState({range:newValue,startdatevalid:true})}
-                                localeText={{ start: 'Opening-Date', end: 'Closing-Date' }} />
+                                {/* <DateRangePicker sx={{width:{sm:"350px",xs:"300px"}}} onChange={(newValue) => this.setState({range:newValue,startdatevalid:true})}
+                                localeText={{ start: 'Opening-Date', end: 'Closing-Date' }} /> */}
                             </DemoContainer>
-                        </LocalizationProvider>
+                        </LocalizationProvider> 
                         <FormControl variant="standard" sx={{ m: 1, minWidth: 200 }}>
                             <InputLabel id="demo-simple-select-standard-label">Type</InputLabel>
                                 <Select

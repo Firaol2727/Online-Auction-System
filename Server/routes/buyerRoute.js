@@ -493,36 +493,43 @@ router.post("/forgotpassword", async (req, res) => {
 //     }
 //   });
 // });
-router.post("/codesent", async (req, res) => {
+router.post("/verifycode", async (req, res) => {
   let { email, verificationcode } = req.body;
-  let verified = userverification.filter((user) => {
-    user.useremail == useremail && user.verificationcode == verificationcode;
-  });
-  let newpassword = uid(6);
-  const hash = await bcrypt.hashSync(newpassword, bcrypt.genSaltSync(10));
-  let buyer = await Buyer.findOne({ where: { email: email } });
-  if (buyer) {
-    if (verified) {
-      Buyer.update({
-        password: hash,
-      });
-      //send the new password to the user via email and remind him to change it after login
-      var mailOptions = {
-        from: "nuchereta@gmail.com",
-        to: email,
-        subject: "Password Changed",
-        text: `Your password has been updated to ${newpassword} please Login and change it to a password that you will not forget `,
-      };
-      transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log("Email sent: " + info.response);
+  return Passcode.findOne({
+    email:email,
+    code:verificationcode
+  }).then( async data=>{
+    if(data){
+      let newpassword = uid(6);
+      const hash = await bcrypt.hashSync(newpassword, bcrypt.genSaltSync(10));
+      let buyer = await Buyer.findOne({ where: { email: email } });
+      if (buyer) {
+        if (verified) {
+          Buyer.update({
+            password: hash,
+          });
+          //send the new password to the user via email and remind him to change it after login
+          var mailOptions = {
+            from: "nuchereta@gmail.com",
+            to: email,
+            subject: "Password Changed",
+            text: `Your password has been updated to ${newpassword} please Login and change it to a password that you will not forget `,
+          };
+          transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+              console.log(error);
+            } else {
+              console.log("Email sent: " + info.response);
+            }
+          });
         }
-      });
-    }
-  } else {
-    res.send("Invalide user email");
-  }
+      } else {
+        res.send("Invalide user email");
+      }
+        }else{
+          res.status(400).send("Invalide Verification code")
+        }
+  })
+  
 });
 module.exports = router;
