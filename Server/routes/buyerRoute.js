@@ -10,8 +10,8 @@ const { chapaVerify } = require("../controllers/payment");
 var transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
-    user: "Nucherata@gmail.com",
-    pass: "nuchereta",
+    user: "nuchereta27@gmail.com",
+    pass: "vwckzzzmmmvobjpz",
   },
 }); 
 let userverification = [];
@@ -39,6 +39,7 @@ const report=require( '../controllers/buyercontroller/report');
 //   }
 // });
 const {
+  Passcode,
   ReportAuction,
   Auction,
   Banker,
@@ -52,6 +53,7 @@ const {
   Product,
   Seller,
   Transaction,
+
 } = sequelize.models;
 // const authorizeCustomer = async (req, res, next) => {
 //   let { phonenumber, password } = req.body;
@@ -437,27 +439,39 @@ router.post("/forgotpassword", async (req, res) => {
   let email = req.body.email;
   let buyer = Buyer.findOne({ where: { email: email } });
   if (buyer) {
-    let verificationcode = uid(5);
+    try{
+      let verificationcode = uid(5);
     userverification.push({
       email: email,
       verificationcode: verificationcode,
     });
     var mailOptions = {
-      from: "nuchereta@gmail.com",
+      from: "nuchereta27@gmail.com",
       to: email,
       subject: "User verification",
       text: `Your Verification code is  ${verificationcode}`,
     };
-    transporter.sendMail(mailOptions, function (error, info) {
+    transporter.sendMail(mailOptions, async function (error, info) {
       if (error) {
         console.log(error);
+        res.status(500).send("Error in sending email verification")
       } else {
+        Passcode.create({
+          id:"",
+          email:email,
+          code:verificationcode
+        })
         console.log("Email sent: " + info.response);
+        res.status(200).send("Verification has been sent to your Email")
       }
     });
-  } else {
-    res.send("invalid email").status(400);
-  }
+    }catch(err){
+      console.log("Email sending error")
+    }
+    }
+    else {
+      res.status(400).send("invalid email")
+    }
 });
 // router.get('/send-code/:email', (req, res) => {
 //   const { email } = req.params;

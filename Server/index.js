@@ -15,6 +15,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const buyerRoute = require("./routes/buyerRoute");
 const sellerRoute = require("./routes/sellerRoute");
 const {
+  Passcode,
   Admin,
   Auction,
   Banker,
@@ -93,7 +94,7 @@ async function tableChange() {
   //  a function used to commit database changes just change name of model you want to update and call function
   // await Buyer.sync({ alter: true });
 
-  await Buyer.sync({ alter: true });
+  await Passcode.sync({ alter: true });
   console.log("finished");
 }
 
