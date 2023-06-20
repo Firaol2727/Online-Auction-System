@@ -8,7 +8,9 @@ var cookieParser = require("cookie-parser");
 const { json } = require("express");
 const jwt = require("jsonwebtoken");
 const auth = require("./routes/auth");
+const pay=require("./controllers/payment")
 const cookie=require("cookie")
+const fetch=require('node-fetch')
 const adminRoutes = require("./routes/adminRoutes");
 const buyerRoute = require("./routes/buyerRoute");
 const sellerRoute = require("./routes/sellerRoute");
@@ -17,6 +19,7 @@ const {
   Auction,
   Banker,
   ReportedAuction,
+  Order,
   Buyer,
   Category,
   ClosedBid,
@@ -27,7 +30,7 @@ const {
   Seller,
   Notifyme,
 } = sequelize.models;
-
+const {paychapa,chapaVerify}=require("./controllers/payment");
 const http = require('http').Server(app);
 // const { Server, Socket } = require("socket.io");
 const io = require("socket.io")(http,{
@@ -40,6 +43,7 @@ const io = require("socket.io")(http,{
 });
 const { Op } = require("sequelize");
 var nodemailer = require("nodemailer");
+const { uid } = require("uid");
 var transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -69,7 +73,7 @@ app.use(express.urlencoded({
 }));
 app.use(
   cors({
-    origin:"http://localhost:5173",
+    origin:["http://localhost:5173","http://127.0.0.1:5173"],
     credentials: true,
   })
 );
@@ -89,11 +93,14 @@ async function tableChange() {
   //  a function used to commit database changes just change name of model you want to update and call function
   // await Buyer.sync({ alter: true });
 
-  await ClosedBid.sync({ alter: true });
+  await Buyer.sync({ alter: true });
   console.log("finished");
 }
 
 // tableChange();
+
+// chapaVerify();
+
 
 async function addAdmin() {
   // adding  database
@@ -169,6 +176,21 @@ async function addCategories() {
 
   console.log("Categories are added in to  database successfully");
 }
+
+//  Verifying Transactions from Chapa
+// setInterval(async () => {
+//   let unverifiedorders=await Order.findAll({
+//     where:{verified:false}
+//   })
+//   if(unverifiedorders){
+//     console.log("There are unverified orders",unverifiedorders)
+//         unverifiedorders.map(uvorder=>{
+//           chapaVerify(uvorder)
+//         })
+//   }else{
+//     console.log("There is no unverified")
+//   }
+// }, 10000);
 // addCategories();
 // main();
 
@@ -241,6 +263,7 @@ app.get("/", (req, res) => {
 });
 
 
+
 // fetching by category price region  date
 app.get("/cat/:cname", async (req, res) => {
   console.log(req.params);
@@ -258,8 +281,6 @@ app.get("/cat/:cname", async (req, res) => {
   let category=await Category.findOne({where:{name:type}});
   let cid=category.id;
   if(cid){
-
-
   if( price!= null &&  region!=null && daterange!=null ){
     return Auction.findAndCountAll({
       order: [["createdAt", "DESC"]],
@@ -573,6 +594,7 @@ app.get("/category/:cname", async (req, res) => {
       console.log(err);
     });
 });
+app.get("/paychapa",paychapa)
 
 app.get("/search", async (req, res) => {
   let item = req.query.item;
@@ -662,7 +684,6 @@ app.get("/details/:id", async (req, res) => {
       res.sendStatus(404);
     });
 });
-
 app.post("/chargeaccount", async (req, res) => {
   console.log(req.body);
   let bankerId = req.body.bankerId;
@@ -700,7 +721,7 @@ app.post("/chargeaccount", async (req, res) => {
               id: "",
               AuctionId: "",
               BuyerId: winner.BuyerId,
-              message: `Dear customer you have successfully recharged your account`,
+              message: `Dear customer you have successfully charged your account`,
             });
             await Payment.create({
               id: "",
@@ -723,6 +744,16 @@ app.post("/chargeaccount", async (req, res) => {
   }
 });
 
+app.get('/checkijg',(req,res)=>{
+  console.log("Function before respond")
+  res.send("Helloe");
+  setTimeout(() => {
+    console.log("Function after respond")
+  }, 3000);
+  
+})
+
+
 http.listen(5000, () => {
   console.log("The server is running on 5000");
 });
@@ -731,14 +762,14 @@ const auctionManage = async () => {
   let auctions = await Auction.findAll({
     attributes: ["id", "startdate", "enddate"],
     where: {
-      [Op.or]: [{ status: "started" }, { pname: "notstarted" }],
+      [Op.or]: [{ status: "open" }, { status: "waiting" }],
     },
   });
   auctions.map(async (auction) => {
     if (auction.startdate == date) {
       waitingchangeauctions.push(auction);
       await Auction.update({
-        status: "started",
+        status: "open",
         // include: {
         //   model: Seller,
         //   attributes: ["phonenumber"],
@@ -753,7 +784,7 @@ const auctionManage = async () => {
           id: "",
           AuctionId: auction.id,
           uid: winner.BuyerId,
-          message: `The auction  ${auction.name} you want to participate on has started }`,
+          message: `The auction  ${auction.name} you want to participate on has been opened }`,
           nottype: "start",
         });
       });
@@ -761,7 +792,7 @@ const auctionManage = async () => {
         id: "",
         AuctionId: auction.id,
         uid: auction.SellerId,
-        message: `your auction ${auction.name} has started }`,
+        message: `your auction ${auction.name} has been opened }`,
         nottype: "start",
       });
     }

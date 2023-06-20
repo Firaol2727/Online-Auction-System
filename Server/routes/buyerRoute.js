@@ -5,21 +5,31 @@ const bcrypt = require("bcrypt");
 const bodyParser = require("body-parser");
 var jsonParser = bodyParser.json();
 var nodemailer = require("nodemailer");
-
 const { uid } = require("uid");
+const { chapaVerify } = require("../controllers/payment");
 var transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
     user: "Nucherata@gmail.com",
     pass: "nuchereta",
   },
-});
+}); 
 let userverification = [];
 function ClearVerificationCodes() {
   setInterval(() => {
     userverification = [];
   }, 3000000);
 }
+const {authorizeCustomer,checkAuthorizationCustomer}=require( '../controllers/buyercontroller/authorizeBuyer');
+const changepassword=require( '../controllers/buyercontroller/changepassword');
+const changeProfile=require( '../controllers/buyercontroller/changeprofile');
+const codSent=require( '../controllers/buyercontroller/codesend');
+const forgotPassword=require( '../controllers/buyercontroller/forgotpassword');
+const notification=require( '../controllers/buyercontroller/notification');
+const placeBid=require( '../controllers/buyercontroller/placebid');
+const profile=require( '../controllers/buyercontroller/profile');
+const register=require( '../controllers/buyercontroller/register');
+const report=require( '../controllers/buyercontroller/report');
 // ClearVerificationCodes();
 // transporter.sendMail(mailOptions, function(error, info){
 //   if (error) {
@@ -43,87 +53,87 @@ const {
   Seller,
   Transaction,
 } = sequelize.models;
-const authorizeCustomer = async (req, res, next) => {
-  let { phonenumber, password } = req.body;
-  console.log(phonenumber, password);
-  console.log(req.body);
-  if (phonenumber == null || password == null) {
-    return;
-  }
-  return Buyer.findOne({
-    where: {
-      phonenumber: phonenumber,
-    },
-    attributes: ["id", "password"],
-  })
-    .then(async (data) => {
-      // console.log("the data is ",data.Aid,data.password);
-      const find = {
-        allow: false,
-        uid: null,
-      };
-      if (data) {
-        const hashed = data.password;
-        const compared = await bcrypt.compare(password, hashed);
-        if (compared) {
-          find.uid = data.id;
-          find.allow = true;
-          return find;
-        } else {
-          return find;
-        }
-      } else {
-        return find;
-      }
-    })
-    .then(async (find) => {
-      console.log("the find is ", find);
-      if (find.allow) {
-        const user = find.uid;
-        const accessToken = await jwt.sign(
-          user,
-          process.env.REFRESH_TOKEN_SECRET
-        );
-        // console.log("accessToken",accessToken);
-        res.cookie("u", accessToken, { httpOnly: true });
-        next();
-      } else {
-        console.log(find);
-        res.status(400).send("error username or password");
-      }
-    })
-    .catch((err) => {
-      console.log("The error occures is  " + err);
-      res.sendStatus(500);
-    });
-};
-const checkAuthorizationCustomer = async (req, res, next) => {
-  if (req.cookies.u) {
-    const token = req.cookies.u;
-    if (token == null) {
-      res.sendStatus(400);
-    }
-    jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-      if (err) {
-        res.sendStatus(403);
-      }
-      req.user = user;
-      next();
-    });
-  } else if (req.headers.cookies) {
-    let contentincookie = req.headers.cookies;
-    const token = contentincookie.slice(2);
-    jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-      if (err) {
-        res.sendStatus(403);
-      }
-      req.user = user;
-      next();
-    });
-  } else {
-    res.sendStatus(403);
-  }
-};
+// const authorizeCustomer = async (req, res, next) => {
+//   let { phonenumber, password } = req.body;
+//   console.log(phonenumber, password);
+//   console.log(req.body);
+//   if (phonenumber == null || password == null) {
+//     return;
+//   }
+//   return Buyer.findOne({
+//     where: {
+//       phonenumber: phonenumber,
+//     },
+//     attributes: ["id", "password"],
+//   })
+//     .then(async (data) => {
+//       // console.log("the data is ",data.Aid,data.password);
+//       const find = {
+//         allow: false,
+//         uid: null,
+//       };
+//       if (data) {
+//         const hashed = data.password;
+//         const compared = await bcrypt.compare(password, hashed);
+//         if (compared) {
+//           find.uid = data.id;
+//           find.allow = true;
+//           return find;
+//         } else {
+//           return find;
+//         }
+//       } else {
+//         return find;
+//       }
+//     })
+//     .then(async (find) => {
+//       console.log("the find is ", find);
+//       if (find.allow) {
+//         const user = find.uid;
+//         const accessToken = await jwt.sign(
+//           user,
+//           process.env.REFRESH_TOKEN_SECRET
+//         );
+//         // console.log("accessToken",accessToken);
+//         res.cookie("u", accessToken, { httpOnly: true });
+//         next();
+//       } else {
+//         console.log(find);
+//         res.status(400).send("error username or password");
+//       }
+//     })
+//     .catch((err) => {
+//       console.log("The error occures is  " + err);
+//       res.sendStatus(500);
+//     });
+// };
+// const checkAuthorizationCustomer = async (req, res, next) => {
+//   if (req.cookies.u) {
+//     const token = req.cookies.u;
+//     if (token == null) {
+//       res.sendStatus(400);
+//     }
+//     jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+//       if (err) {
+//         res.sendStatus(403);
+//       }
+//       req.user = user;
+//       next();
+//     });
+//   } else if (req.headers.cookies) {
+//     let contentincookie = req.headers.cookies;
+//     const token = contentincookie.slice(2);
+//     jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+//       if (err) {
+//         res.sendStatus(403);
+//       }
+//       req.user = user;
+//       next();
+//     });
+//   } else {
+//     res.sendStatus(403);
+//   }
+// };
 router.use(jsonParser);
 router.post("/register", async (req, res) => {
   let { firstName, lastName, phoneNumber, email, password } = req.body;
@@ -196,12 +206,12 @@ router.post("/changepassword", checkAuthorizationCustomer, async (req, res) => {
         if (check) {
           console.log("true");
           const hash = await bcrypt.hashSync(np, bcrypt.genSaltSync(10));
-          return Customer.update(
+          return Buyer.update(
             {
               password: hash,
             },
             {
-              where: { cid: uid },
+              where: { id: uid },
             }
           ).then((data) => {
             console.log("succesful update");
@@ -220,7 +230,7 @@ router.post("/changepassword", checkAuthorizationCustomer, async (req, res) => {
       });
   }
 });
-router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
+router.get("/placebid", async (req, res) => {
   /*
     id: 
     bidprice: 
@@ -229,120 +239,147 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
   let account;
   let name;
   let hammerprice;
-  let uid = req.user;
+  let paidresponse;
+  let uid = "d09b7d05ee3ccb43";
+   //req.user;
   console.log("The user id is ", uid);
-  let { bidprice, aid } = req.body;
+  // let { bidprice, aid } = req.body;
+  let bidprice=90000
+  let aid="9b1e259afed2b3bf"
+  try{
+
   let auction = await Auction.findOne({
-    where: { id: aid,status:"started" },
+    where: { id: aid,state:"open" },
     attributes: ["hammerprice", "name"],
   });
   if (auction !== null) {
-    console.log("passed");
+    console.log("There is auction");
     name = auction.name;
     let now = Date();
     hammerprice = auction.hammerprice;
     console.log("hammerprice", hammerprice);
     console.log("bidprice", bidprice);
     if (bidprice > Number(hammerprice) + 100) {
+      console.log("Valid price")
+      paidresponse=await chapaVerify(uid);
       return Buyer.findOne({
         where: { id: uid },
         attributes: ["account"],
       })
-        .then(async (data) => {
-          let prevbid = await Bid.findOne({
-            where: {
-              BuyerId: uid,
-              AuctionId: aid,
-            },
-          });
-          if (prevbid !== null) {
-            console.log("There is previous bid");
-            await Bid.update(
-              {
-                bidprice: bidprice,
-                biddate: now,
-              },
-              { where: { id: prevbid.id } }
-            );
-            return true;
-          } else if (data.account >= 100) {
-            console.log("There is no previous bid ");
-            account = data.account - 100;
-
-            await Transaction.create({
-              id: "",
-              amount: 100,
-              date: now,
-              AuctionId: aid,
-              BuyerId: uid,
-            });
-            await Buyer.update(
-              {
-                account: account,
-              },
-              {
-                where: { id: uid },
-              }
-            );
-            await Bid.create({
-              id: "",
+      .then(async (data) => {
+        console.log("Buyer account fetched ",data.account)
+        let prevbid = await Bid.findOne({
+          where: {
+            BuyerId: uid,
+            AuctionId: aid,
+          },
+        });
+        
+        if (prevbid !== null ) {
+          console.log("There is previous bid");
+          await Bid.update(
+            {
               bidprice: bidprice,
               biddate: now,
-              BuyerId: uid,
-              AuctionId: aid,
-            });
-            return true;
-          } else {
-            return false;
-          }
-        })
-        .then(async (data) => {
-          console.log(data);
-          if (data) {
-            await Auction.update(
-              {
-                hammerprice: bidprice,
-              },
-              { where: { id: aid } }
-            );
-            let users = await Bid.findAll({
-              where: { AuctionId: aid },
-              attributes: ["BuyerId"],
-            });
-            console.log(users);
-            users.map(async (user) => {
-              console.log("the bidder is ", user);
-              if (user.BuyerId !== uid) {
-                await Notification.create({
-                  id: "",
-                  AuctionId: aid,
-                  BuyerId: user.BuyerId,
-                  message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
-                  nottype: "bidupdate",
-                });
-              }
-            });
+            },
+            { where: { id: prevbid.id } }
+          );
+          return true;
+        } 
+        else if (data.account >= 100 || paidresponse) {
+          console.log("There is no previous bid  has paid onchap");
+          account = data.account>0?Number(data.account ) - 100:0;
+          await Transaction.create({
+            id: "",
+            amount: 100,
+            date: now,
+            AuctionId: aid,
+            BuyerId: uid,
+          });
+          await Buyer.update(
+            {
+              account: account,
+            },
+            {
+              where: { id: uid },
+            }
+          );
+          await Bid.create({
+            id: "",
+            bidprice: bidprice,
+            biddate: now,
+            BuyerId: uid,
+            AuctionId: aid,
+          });
+          return true;
+        }
+        else {
+          return false;
+        }
+      })
+      .then(async (has_bid) => {
+        console.log("the bidder has made succesfull bid ",has_bid);
+        if (has_bid) {
+          await Auction.update(
+            {
+              hammerprice: bidprice,
+            },
+            { where: { id: aid } }
+          );
+          res.sendStatus(200);
+        // Thing to be done after responding  
+          if(paidresponse){
             await Notification.create({
               id: "",
-              AuctionId: aid,
-              selid: user.BuyerId,
-              message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
-              nottype: "bidupdate",
+              AuctionId: auction.id,
+              BuyerId: uid,
+              message: `Dear customer you have successfully charged your account`,
             });
-            res.sendStatus(200);
-          } else {
-            console.log("There is no sufficient balance");
-            res.send("insufficient balance to bid").status(400);
           }
-        })
-        .catch((err) => {
-          console.log("The error is ", err);
-          res.sendStatus(500);
-        });
+          let users = await Bid.findAll({
+            where: { AuctionId: aid },
+            attributes: ["BuyerId"],
+          });
+          console.log(users);
+          users.map(async (user) => {
+            console.log("the bidder is ", user);
+            if (user.BuyerId !== uid) {
+              await Notification.create({
+                id: "",
+                AuctionId: aid,
+                BuyerId: user.BuyerId,
+                message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
+                nottype: "bidupdate",
+              });
+            }
+          });
+          await Notification.create({
+            id: "",
+            AuctionId: aid,
+            selid: auction.SellerId,
+            message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
+            nottype: "bidupdate",
+          });
+        } else {
+          console.log("There is no sufficient balance");
+          res.status(402).send("balance_insufficient")
+        }
+      })
+      .catch((err) => {
+        console.log("The error is ", err);
+        res.status(500).send("Internal server error");
+      });
     } else {
-      res.sendStatus(404);
+      res.sendStatus(404).send("Invalid bidding price");
     }
+  }else{
+    res.sendStatus(404).send("Auction not found");
   }
+}catch(err){
+  console.log(err);
+  res.status(500).send("Internal server error ")
+
+}
 });
 router.post("/login", authorizeCustomer, (req, res) => {
   res.sendStatus(200);
@@ -361,7 +398,7 @@ router.get("/profile", checkAuthorizationCustomer, (req, res) => {
       res.sendStatus(500);
     });
 });
-router.get("/report", (req, res) => {
+router.post("/report", (req, res) => {
   let aid = req.body.aid;
   let type = req.body.type;
   return ReportAuction.create({
@@ -421,26 +458,26 @@ router.post("/forgotpassword", async (req, res) => {
     res.send("invalid email").status(400);
   }
 });
-router.get('/send-code/:email', (req, res) => {
-  const { email } = req.params;
-  const verificationCode = generateVerificationCode();
-  // Create a Nodemailer transport
-  // Send the verification code to the user's email
-  transporter.sendMail({
-    from: 'Nucherata@gmail.com',
-    to: email,
-    subject: 'Verification Code',
-    text: `Your verification code is ${verificationCode}. It will expire in 4 minutes.`
-  }, (error, info) => {
-    if (error) {
-      console.log(error);
-      res.status(500).send('Error sending verification code');
-    } else {
-      console.log('Verification code sent:', info.response);
-      res.status(200).send({ code: verificationCode });
-    }
-  });
-});
+// router.get('/send-code/:email', (req, res) => {
+//   const { email } = req.params;
+//   const verificationCode = generateVerificationCode();
+//   // Create a Nodemailer transport
+//   // Send the verification code to the user's email
+//   transporter.sendMail({
+//     from: 'Nucherata@gmail.com',
+//     to: email,
+//     subject: 'Verification Code',
+//     text: `Your verification code is ${verificationCode}. It will expire in 4 minutes.`
+//   }, (error, info) => {
+//     if (error) {
+//       console.log(error);
+//       res.status(500).send('Error sending verification code');
+//     } else {
+//       console.log('Verification code sent:', info.response);
+//       res.status(200).send({ code: verificationCode });
+//     }
+//   });
+// });
 router.post("/codesent", async (req, res) => {
   let { email, verificationcode } = req.body;
   let verified = userverification.filter((user) => {

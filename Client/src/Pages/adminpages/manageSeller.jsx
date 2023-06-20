@@ -15,25 +15,29 @@ import './css/report.css';
 import { useNavigate } from "react-router-dom";
 import {useEffect,useState} from 'react';
 import axios from "axios";
-const baseapi=axios.create({withCredentials:true,baseURL:"http://localhost:5000/special"})
+const baseapi=axios.create({baseURL:"http://localhost:5000/special"})
 const ManageSeller=()=>{
-    const nav=useNavigate();
-    const [auction,setauction]=useState(null);
-    const [message,setmessage]=useState();
+    const [user,setuser]=useState('');
+    const [message,setmessage]=useState('');
     const [searchid,setsearchid]=useState('')
     const [loading,setloading]=useState(false);
+    const [noauct,setnoauct]=useState(1);
     const [dloading,setdloading]=useState(false);
+    const nav=useNavigate();
     const handleSearch=(id)=>{
         console.log("The id is ",id)
-        setauction(null);
+        setloading(true)
+        setuser('');
         baseapi.post("/seller",{"sid":id},{withCredentials:true})
         .then(res=>{
             setloading(false)
             if(res.status==200){
-                setauction(res.data);
+                console.log("The response data is ",res.data)
+                setnoauct(res.data.count)
+                setuser(res.data.data);
             }
             else if (res.status==400){
-                setmessage("No Auction with this id")
+                setmessage("No seller with this id")
             }
             else if (res.status==403){
                 nav('/adlogin')
@@ -43,6 +47,7 @@ const ManageSeller=()=>{
             }
         })
         .catch(err=>{
+            setmessage("No Seller with the specified id")
             console.log("The error is ",err);
             setloading(false);
         })
@@ -55,7 +60,7 @@ const ManageSeller=()=>{
         .then(res=>{
             setdloading(false)
             if(res.status==200){
-                setauction(res.data);
+                setuser("")
             }
             else if (res.status==400){
                 setmessage("No Seller with this id")
@@ -68,6 +73,7 @@ const ManageSeller=()=>{
         .catch(err=>{
             console.log("The error is ",err);
             setloading(false);
+            setmessage("Unable to delete")
         })
     }
     return(
@@ -84,9 +90,11 @@ const ManageSeller=()=>{
             <h3>Enter Seller Id </h3>
             <Stack direction="row"style={{marginLeft:"30px"}} >
                 <TextField id="filled-basic" label="id" variant="filled" sx={{width:"300px"}} onChange={(e)=>{setsearchid(e.target.value)}}/>
-                <Button id="find" variant="contained" sx={{width:"100px"}} disabled={loading} onClick={()=>{handleSearch(searchid)}}>{ loading?<center><CircularProgress /></center>:"Search"}</Button>
+                <Button id="find" variant="contained" sx={{width:"100px",height:"50px"}} disabled={loading} onClick={()=>{handleSearch(searchid)}}>
+                    { loading?<CircularProgress sx={{color:"white"}} />:<p>Search</p>}
+                    </Button>
             </Stack>
-            {auction && <Box sx={{
+            {user && <Box sx={{
                     position:"relative",
                     marginTop:"5px",
                     // s
@@ -115,7 +123,7 @@ const ManageSeller=()=>{
                 <h4 style={{
                     marginLeft:"80px",
                     marginTop:"5px",
-                }}>Liul Girma</h4>
+                }}>{user.fname+" "+user.lname}</h4>
                 </Box>
                 <Box className="description" style={{
                     position:"absolute",
@@ -125,31 +133,31 @@ const ManageSeller=()=>{
                     padding:"5px",
                     backgroundColor:"white"
                 }}>
-                    <p style={{color:"black"}}>User Id -<b>1543f1h5d4xfgh3215</b> </p>
-                    <p style={{color:"black"}}> User Name- <b>Liul Girma Tamirat</b></p>
-                    <p style={{color:"black"}}>Total Auction - <b>8</b></p>
+                    <p style={{color:"black"}}>User Id -<b>{user.id}</b> </p>
+                    <p style={{color:"black"}}> User Name- <b>{user.fname+" "+user.lname}</b></p>
+                    <p style={{color:"black"}}>Total Auction - <b>{noauct}</b></p>
 
-                    <ListItem direction={"row"} sx={{height:"20px",padding:"0px"}} ><PhoneIcon /><p style={{color:"black"}}>Phone No  - <b> AddisAbaba,Bole</b></p></ListItem><br></br>
-                    <ListItem direction={"row"} sx={{height:"20px",padding:"0px"}}><MailIcon/><p style={{color:"black"}}>Email  - <b>12/05/2012</b></p></ListItem><br></br>
-                    <ListItem direction={"row"} sx={{height:"20px",padding:"0px"}}><PinDropIcon/><p style={{color:"black"}} >City  - <b>13/07/2012</b></p></ListItem><br></br>
-                    <ListItem direction={"row"} sx={{height:"20px",padding:"0px"}}><PlaceIcon/><p style={{color:"black"}} >Region  - <b>13/07/2012</b></p></ListItem><br></br>
+                    <ListItem direction={"row"} sx={{height:"20px",padding:"0px"}} ><PhoneIcon /><p style={{color:"black"}}>Phone No  - <b>{user.phonenumber}</b></p></ListItem><br></br>
+                    <ListItem direction={"row"} sx={{height:"20px",padding:"0px"}}><MailIcon/><p style={{color:"black"}}>Email  - <b>{user.email}</b></p></ListItem><br></br>
+                    <ListItem direction={"row"} sx={{height:"20px",padding:"0px"}}><PinDropIcon/><p style={{color:"black"}} >City  - <b>{user.city}</b></p></ListItem><br></br>
+                    <ListItem direction={"row"} sx={{height:"20px",padding:"0px"}}><PlaceIcon/><p style={{color:"black"}} >Region  - <b>{user.region}</b></p></ListItem><br></br>
                     <br></br>
                     
-                    <Button variant="contained" disabled={dloading} onClick={handledelete} sx={{
+                    <Button variant="contained" disabled={dloading} onClick={()=>{handledelete(auction.id)}}sx={{
                         position:"relative",
-                        marginLeft:"600px",
+                        marginLeft:"400px",
                         width:"200px",
                         backgroundColor:"red",
                         color:"white",
                         ':hover':{
                             backgroundColor:"brown",
                         }
-                    }}> { dloading?<center><CircularProgress /></center>:"Delete"}</Button>
+                    }}> { dloading?<center><p>Deleting...</p></center>:<p>Delete</p>}</Button>
                 </Box>
-                
+                 
                 </Box>
             </Box>}
-            {message && <center><b>No Seller with this id </b></center>}
+            { message && <Box sx={{marginTop:"40px"}}> <center><b>No Seller with this id </b></center></Box>}
                 </Box>
             </Box>
         </Stack>

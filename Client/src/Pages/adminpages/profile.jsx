@@ -5,21 +5,71 @@ import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import TextField from '@mui/material/TextField';
 import { useState,useEffect } from "react";
+import {useNavigate} from 'react-router-dom'
 import './css/report.css';
+import axios from "axios";
+const baseapi=axios.create({baseURL:"http://localhost:5000/special"})
 const Adprofile=()=>{
-
+    const nav=useNavigate();
     const [editmode,setedimode]=useState(0);
+    const [profile,setprofile]=useState();
+    const [message,setmessage]=useState();
+    const [loading,setloading]=useState(false);
+    const [error,seterror]=useState(2);
+    const [pp,setpp]=useState('');
+    const [np,setnp]=useState('');
+    const [cp,setcp]=useState('');
     const openEditmode=()=>{
         editmode==0?setedimode(1):setedimode(0);
+        seterror(2)
+
     }
-    const [loading,setloading]=useState(0);
-    
+    const handleChangepassword=()=>{
+        console.log("old password",pp)
+        console.log("new password",np)
+        console.log("confirm password",cp)
+        if(cp==pp && pp !=''){
+            baseapi.post("changepp",{withCredentials:true})
+            .then(res=>{
+                setloading(false);
+                if(res.status==200){
+                    seterror(0);
+                }
+            })
+            .catch(err=>{
+                console.log("Error",err);
+                setloading(false);
+                seterror(0)
+                
+            })
+        }
+        else{
+            seterror(3)
+        }
+    }
+    useEffect(()=>{
+        baseapi.get("/myprofile",{withCredentials:true})
+        .then(res=>{
+            console.log("Response",res)
+            if(res.status==200){
+                setprofile(res.data)
+                seterror(1)
+            }else if(res.status==403){
+                nav("/adlogin")
+            }
+        })
+        .catch(err=>{
+            console.log("The error ",err);
+        })
+    },[]);
+
     return(
     <div>
         <NavbarAdmin sx={{position:"absolute"}}/>
         <Stack direction="row" sx={{position:"relative",marginTop:"30px"}} spacing={0.5}>
             <Sidebar/>
-            <Box flex={6} >
+
+            {profile && <Box flex={6} >
                 <Box  sx={{
                     position:"relative",
                     marginTop:"50px",
@@ -54,10 +104,10 @@ const Adprofile=()=>{
                         color:"white"
                     }}/>
                 </Box>
-                <h4 style={{
+                <h3 style={{
                     marginLeft:"80px",
                     marginTop:"5px",
-                }}>Liul Girma</h4>
+                }}>ADMIN</h3>
                 </Box>
                 <Box className="description" style={{
                     position:"absolute",
@@ -67,28 +117,33 @@ const Adprofile=()=>{
                     padding:"5px",
                     backgroundColor:"white"
                 }}>
-                    <p style={{color:"gray"}}><b style={{fontSize:"17px",color:"black"}}>Admin Email</b> - 1543f1h5d4xfgh3215</p>
-                    <p style={{color:"gray"}}> <b style={{fontSize:"17px",color:"black"}}>Phone Number</b>- Liul Girma Tamirat</p>
-                    <p style={{color:"gray"}}><b style={{fontSize:"17px",color:"black"}}>Total Auction</b> - 8</p>
+                    <p style={{color:"gray"}}><b style={{fontSize:"17px",color:"black"}}> Email</b> - {profile.email}</p>
+                    <p style={{color:"gray"}}> <b style={{fontSize:"17px",color:"black"}}>Phone Number</b>- {profile.phone}</p>
+                    
                     <br></br>
                     <Button variant="contained" onClick={openEditmode} sx={{
                         marginLeft:"500px"
                     }}> <EditIcon/>Change password</Button>
-                   {editmode==1 && <div>
+                {editmode==1 && <div>
                     <div style={{
                             marginLeft:"50px",
                             marginTop:"70px"
                     }}>
-                        <h3 style={{color:"red"}}>Change Password</h3>
+                        <h3 style={{color:"blue"}}>Change Password</h3>
                         </div>
                     <div style={{
                             marginLeft:"100px",
                             marginTop:"30px"
                     }}>
-                        <b>Old password -</b>  <TextField id="standard-basic" label="Old password" variant="filled" /><br /><br />
-                        <b>New password -</b> <TextField id="filled-basic" label="New Password" variant="filled" sx={{marginRight:"80px"}}/>
-                          <TextField id="filled-basic" label="Confirm Password" variant="filled" /><br /> <br />
-                        <Button variant="contained" color="secondary" sx={{
+                        {error==1 && <center><b style={{color:"red"}}>Error password</b></center>}
+                        {error==0 && <center><b style={{color:"green"}}>password changed successfully</b></center>}
+                        {error==3 && <center><b style={{color:"red"}}>password must be same</b></center>}
+                        <b>Old password -</b>  <TextField id="standard-basic" label="Old password" variant="filled" onChange={(e)=>{setpp(e.target.value)}} /><br /><br />
+                        <b>New password -</b> <TextField id="filled-basic" label="New Password" variant="filled" onChange={(e)=>{setnp(e.target.value)}}  sx={{marginRight:"80px"}}/>
+                            <TextField id="filled-basic" label="Confirm Password" variant="filled" onChange={(e)=>{setcp(e.target.value)}} /><br /> <br />
+                        <Button variant="contained" color="secondary" 
+                            onClick={handleChangepassword}
+                        sx={{
                             marginTop:"50px",
                             marginLeft:"50px"
                         }}>Confirm Change</Button>
@@ -101,7 +156,7 @@ const Adprofile=()=>{
                 </Box>
                 </Box>
                 </Box>
-            </Box>
+            </Box>}
         </Stack>
         
     </div>

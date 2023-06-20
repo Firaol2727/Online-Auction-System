@@ -36,6 +36,8 @@ import ManageAuction from "./Pages/adminpages/manageAuction";
 import ManageSeller from "./Pages/adminpages/manageSeller";
 import Adprofile from "./Pages/adminpages/profile";
 import MoreDetail from "./Pages/adminpages/moreDetail";
+import PayChapa from "./Pages/adminpages/paychapa";
+
 /*   -  SELLER ROUTE IMPORTS    */
 import SelHome from "./Pages/sellerpages/selhome";
 import CreateAuction from "./Pages/sellerpages/createauctions";
@@ -89,7 +91,7 @@ function App() {
           <Route path="/moreon/:id" element={<MoreDetail />} />
           <Route path="/auctioncontrol" element={<AdminAuctions />} />
           <Route path="/adprofile" element={<Adprofile />} />
-          {/* <Route path="/deleteuser" element={<DeleteUser />} /> */}
+          <Route path="/paychapa" element={<PayChapa />} />
           <Route path="/adlogin" element={<AdLogin />} />
 
           {/* >>>>>>> main */}

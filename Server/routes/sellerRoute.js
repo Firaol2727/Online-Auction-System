@@ -58,11 +58,25 @@ const upload = multer({
   storage: storage,
   fileFilter: multerFilter,
 }).fields([{ name: "imgCollection", maxCount: 7 }]);
+
+const {authorizeSeller,checkAuthorizationSeller}=require( '../controllers/sellercontroller/authorizeSeller');
+const changePassword=require( '../controllers/sellercontroller/changepassword');
+const changeProfile=require( '../controllers/sellercontroller/changeprofileS');
+const deleteAuction=require( '../controllers/sellercontroller/deleteauction');
+const moreOn=require( '../controllers/sellercontroller/moreon');
+const myAuction=require( '../controllers/sellercontroller/myauction');
+const notification=require( '../controllers/sellercontroller/notificationS');
+const register=require( '../controllers/sellercontroller/register');
+const uploadAuction=require( '../controllers/sellercontroller/upload');
+
+
+
 router.use(jsonParser);
 // router.use(express.json());
 // router.use(express.urlencoded({
 //     extended:true
 // }));
+
 router.use(cookieParser());
 router.use(
   cors({
@@ -74,100 +88,98 @@ router.use(
   })
 );
 router.options('*', cors());
-
-
 router.use(cors({
     origin: ['http://localhost:7494','http://127.0.0.1:3000','http://127.0.0.1:5173'],
     credentials:true,
 }));
 
-const authorizeSeller=async(req,res,next)=>{
-    console.log(req.body);
-    let {username,password}=req.body;
-    console.log("username",username);
-    console.log("password",password);
+// const authorizeSeller=async(req,res,next)=>{
+//     console.log(req.body);
+//     let {username,password}=req.body;
+//     console.log("username",username);
+//     console.log("password",password);
 
-  return Seller.findOne({
-    where: {
-      phonenumber: username,
-    },
-    attributes: ["id", "password"],
-  })
-    .then(async (data) => {
-      // console.log("the data is ",data.Aid,data.password);
-      const find = {
-        allow: false,
-        uid: null,
-      };
-      if (data) {
-        const hashed = data.password;
-        const compared = await bcrypt.compare(password, hashed);
-        if (compared) {
-          find.uid = data.id;
-          find.allow = true;
-          return find;
-        } else {
-          return find;
-        }
-      } else {
-        return find;
-      }
-    })
-    .then(async (find) => {
-      console.log("the find is ", find);
-      if (find.allow) {
-        const user = find.uid;
-        const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-        // console.log("accessToken",accessToken);
-        res.cookie("u",accessToken,{maxAge: 7200000,httpOnly:true,sameSite:"none",secure:true});
-        next();
-      } else {
-        console.log(find);
-        res.status(400).send("error username or password");
-      }
-    })
-    .catch((err) => {
-      console.log("The error occures is  " + err);
-      res.sendStatus(500);
-    });
+//   return Seller.findOne({
+//     where: {
+//       phonenumber: username,
+//     },
+//     attributes: ["id", "password"],
+//   })
+//     .then(async (data) => {
+//       // console.log("the data is ",data.Aid,data.password);
+//       const find = {
+//         allow: false,
+//         uid: null,
+//       };
+//       if (data) {
+//         const hashed = data.password;
+//         const compared = await bcrypt.compare(password, hashed);
+//         if (compared) {
+//           find.uid = data.id;
+//           find.allow = true;
+//           return find;
+//         } else {
+//           return find;
+//         }
+//       } else {
+//         return find;
+//       }
+//     })
+//     .then(async (find) => {
+//       console.log("the find is ", find);
+//       if (find.allow) {
+//         const user = find.uid;
+//         const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+//         // console.log("accessToken",accessToken);
+//         res.cookie("u",accessToken,{maxAge: 7200000,httpOnly:true,sameSite:"none",secure:true});
+//         next();
+//       } else {
+//         console.log(find);
+//         res.status(400).send("error username or password");
+//       }
+//     })
+//     .catch((err) => {
+//       console.log("The error occures is  " + err);
+//       res.sendStatus(500);
+//     });
 
-};
-const checkAuthorizationSeller = async (req, res, next) => {
-  // console.log("cookies", req.cookies);
-  // console.log("headers",req.headers)
+// };
+// const checkAuthorizationSeller = async (req, res, next) => {
+//   // console.log("cookies", req.cookies);
+//   // console.log("headers",req.headers)
 
-  if (req.cookies.u) {
-    console.log("in the first check");
-    const token = req.cookies.u;
-    if (token == null) {
-      res.status(403).send("not logged in");
-    }
-    jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-      console.log("verifing");
-      if (err) {
-        console.log("Token error is ", err);
-        res.status(403).send("not logged in");
-      } else {
-        req.user = user;
-        next();
-      }
-    });
-  } else if (req.headers.cookies) {
-    console.log("in the second check");
-    let contentincookie = req.headers.cookies;
-    const token = contentincookie.slice(0);
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-      if (err) {
-        res.sendStatus(403);
-      }
-      console.log("the request user is ", user);
-      req.user = user;
-      next();
-    });
-  } else {
-    res.sendStatus(403);
-  }
-};
+//   if (req.cookies.u) {
+//     console.log("in the first check");
+//     const token = req.cookies.u;
+//     if (token == null) {
+//       res.status(403).send("not logged in");
+//     }
+//     jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+//       console.log("verifing");
+//       if (err) {
+//         console.log("Token error is ", err);
+//         res.status(403).send("not logged in");
+//       } else {
+//         req.user = user;
+//         next();
+//       }
+//     });
+//   } else if (req.headers.cookies) {
+//     console.log("in the second check");
+//     let contentincookie = req.headers.cookies;
+//     const token = contentincookie.slice(0);
+//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+//       if (err) {
+//         res.sendStatus(403);
+//       }
+//       console.log("the request user is ", user);
+//       req.user = user;
+//       next();
+//     });
+//   } else {
+//     res.sendStatus(403);
+//   }
+// };
 
   // Seller registration
 router.post("/register", async (req, res) => {
@@ -194,48 +206,49 @@ router.post("/register", async (req, res) => {
     });
 });
 // change profile
-router.post("/changepp", checkAuthorizationSeller, async (req, res) => {
-  let { fname, lname, email, region, city } = req.body;
-  /**
-    fname,
-    lname,
-    phonenumber,
-    email,
-    city,
-    password,
-    account, 
-    region
-     * 
-     */
-  let uid = req.user;
-  let = a = req.body;
-  console.log("a", a);
-  // console.log("fname",fname);
-  // res.sendStatus(200);
-  return Seller.update(
-    {
-      fname: fname,
-      lname: lname,
-      email: email,
-      region: region,
-      city: city,
-    },
-    {
-      where: { cid: uid },
-    }
-  )
-    .then((data) => {
-      if (data) {
-        res.sendStatus(200);
-      } else {
-        res.sendStatus(404);
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      res.sendStatus(500);
-    });
-});
+// router.post("/changepp", checkAuthorizationSeller, async (req, res) => {
+//   let { fname, lname, email, region, city } = req.body;
+//   /**
+//     fname,
+//     lname,
+//     phonenumber,
+//     email,
+//     city,
+//     password,
+//     account, 
+//     region
+//      * 
+//      */
+//   let uid = req.user;
+//   let = a = req.body;
+//   console.log("a", a);
+//   // console.log("fname",fname);
+//   // res.sendStatus(200);
+//   return Seller.update(
+//     {
+//       fname: fname,
+//       lname: lname,
+//       email: email,
+//       region: region,
+//       city: city,
+//     },
+//     {
+//       where: { cid: uid },
+//     }
+//   )
+//     .then((data) => {
+//       if (data) {
+//         res.sendStatus(200);
+//       } else {
+//         res.sendStatus(404);
+//       }
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//       res.sendStatus(500);
+//     });
+// });
+
 //get profile 
 router.get('/profile', checkAuthorizationSeller, (req,res)=>{
   let uid=req.user;
@@ -250,7 +263,7 @@ router.get('/profile', checkAuthorizationSeller, (req,res)=>{
     .catch((err) => {
       res.sendStatus(500);
     });
-})
+}) 
 // get detail  of the auction seller perspective
 router.get('/moreon/:id', checkAuthorizationSeller,async (req,res)=>{
   let uid=req.user;
@@ -265,7 +278,7 @@ router.get('/moreon/:id', checkAuthorizationSeller,async (req,res)=>{
         model: Pictures,
       },
     ],
-    where: { id: aid },
+    where: { id: aid,SellerId:uid },
   })
     .then(async(data) => {
       if(data){
@@ -280,43 +293,6 @@ router.get('/moreon/:id', checkAuthorizationSeller,async (req,res)=>{
     });
 })
 // change password
-router.post("/changepassword", checkAuthorizationSeller, async (req, res) => {
-  let { pp, np, cp } = req.body;
-  console.log(req.body);
-  if (np == cp) {
-    return Seller.findOne({
-      attributes: ["password"],
-      where: { cid: uid },
-    })
-      .then(async (data) => {
-        const check = await bcrypt.compare(pp, data.password);
-        if (check) {
-          console.log("true");
-          const hash = await bcrypt.hashSync(np, bcrypt.genSaltSync(10));
-          return Customer.update(
-            {
-              password: hash,
-            },
-            {
-              where: { cid: uid },
-            }
-          ).then((data) => {
-            console.log("succesful update");
-            if (data) {
-              res.status(200).send("ok");
-            }
-          });
-        } else {
-          console.log("false");
-          res.sendStatus(404);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(404);
-      });
-  }
-});
 router.post('/changepp',checkAuthorizationSeller,async(req,res)=>{
     let {fname,lname,email,region,city,telUsername}=req.body;
 
@@ -391,7 +367,6 @@ router.post('/changepassword',checkAuthorizationSeller,async(req,res)=>{
 router.post("/login", authorizeSeller, (req, res) => {
   res.sendStatus(200);
 });
-
 //seller notification
 router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
     console.log("fetching notification")
@@ -413,7 +388,6 @@ router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
     })
 
 }) 
-
 // create auction
 router.post("/upload", checkAuthorizationSeller, (req, res) => {
   upload(req, res, function (err) {
@@ -520,7 +494,13 @@ router.post("/upload", checkAuthorizationSeller, (req, res) => {
 // delete auction
 router.post("/deleteauction", async (req, res) => {
   let aid = req.body.aid;
+  
   try {
+    await Auction.destroy({
+      where: {
+        id: aid,
+      },
+    });
     let bidders = await Bid.findAll({
       where: { AuctionId: aid },
     });
@@ -540,11 +520,6 @@ router.post("/deleteauction", async (req, res) => {
           message: `The auction you were  participating on has been deleted by the 
                 auctioner, your account has been recharged by ${bidder.bidprice}`,
         });
-      });
-      await Auction.destroy({
-        where: {
-          id: aid,
-        },
       });
 
       res.sendStatus(200);
@@ -567,7 +542,6 @@ router.get("/myauction", checkAuthorizationSeller, (req, res) => {
     res.send(data);
   });
 });
-
 router.get("/h", (req, res) => {
   let now = formatDate(new Date());
   console.log("The current date is", now);

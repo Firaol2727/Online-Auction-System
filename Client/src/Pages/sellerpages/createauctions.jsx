@@ -92,7 +92,7 @@ export default class CreateAuction extends Component {
             this.setState({filevalid:false})
         }else{
             for (let i = 0; i < fileObj[0].length; i++) {
-            if (fileObj[0][i].size>1048576) {
+            if (fileObj[0][i].size>2048576) {
                 this.state.filevalid=false;
                 break;
             }else{

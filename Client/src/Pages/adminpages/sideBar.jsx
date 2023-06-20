@@ -21,16 +21,16 @@ import Notifications from "./notification";
 const api=axios.create({
   baseURL:"http://localhost:5000"
 })
-let sub=[
-  "Closed Auctions",
-  "Active Auctions",
-  "Waiting Auctions",
-  "Auctions",
-  "Message",
-  "Reports",
-  "Profile",
-  "Notifications",
-]
+// let sub=[
+//   "Closed Auctions",
+//   "Active Auctions",
+//   "Waiting Auctions",
+//   "Auctions",
+//   "Message",
+//   "Reports",
+//   "Profile",
+//   "Notifications",
+// ]
 const Sidebar=()=>{
   const [op,setOp]=useState(0);
     useEffect(()=>{
@@ -87,21 +87,18 @@ const Sidebar=()=>{
         
         <Divider/>
         </nav>
-        <nav aria-label="comment" >
-        
+        <Link href="/paychapa" underline="none">
           <ListItem disablePadding >
-          <ListItemButton
-                onClick={()=>{ document.getElementById("mySidenav").style.width = "350px"}}
-          >
+          <ListItemButton>
             <ListItemIcon>
               <CommentIcon />
             </ListItemIcon>
             <ListItemText secondary="Comments"/>
           </ListItemButton>
         </ListItem>
-       
+        </Link>
         <Divider/>
-        </nav>
+       
         <Link href="/manageseller" underline="none">
         {/* <Link  key ={subcategory} href={`/custom/${subcategory}`} underline="none" 
           sx={{
