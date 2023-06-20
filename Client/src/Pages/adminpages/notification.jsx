@@ -22,7 +22,7 @@ const Notifications=(props)=>{
     )
         }
     else{
-        console.log("The notification is not opened so there is no running the use effect")
+        // console.log("The notification is not opened so there is no running the use effect")
         return (
             <></>
         )

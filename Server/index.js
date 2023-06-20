@@ -8,17 +8,23 @@ var cookieParser = require("cookie-parser");
 const { json } = require("express");
 const jwt = require("jsonwebtoken");
 const auth = require("./routes/auth");
-const cookie = require("cookie");
+
+const pay=require("./controllers/payment")
+const cookie=require("cookie")
+const fetch=require('node-fetch')
+
 const adminRoutes = require("./routes/adminRoutes");
 const buyerRoute = require("./routes/buyerRoute");
 const sellerRoute = require("./routes/sellerRoute");
 const authorizecheck = require("./controllers/authentication/auth");
 
 const {
+  Passcode,
   Admin,
   Auction,
   Banker,
   ReportedAuction,
+  Order,
   Buyer,
   Category,
   ClosedBid,
@@ -30,18 +36,21 @@ const {
   Notifyme,
 } = sequelize.models;
 
-const http = require("http").Server(app);
+const {paychapa,chapaVerify}=require("./controllers/payment");
+const http = require('http').Server(app);
 // const { Server, Socket } = require("socket.io");
-const io = require("socket.io")(http, {
+const io = require("socket.io")(http,{
   cors: {
     origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
-    allowedHeaders: ["my-custom-header"],
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['my-custom-header'],
+
     credentials: true,
   },
 });
 const { Op } = require("sequelize");
 var nodemailer = require("nodemailer");
+const { uid } = require("uid");
 var transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -73,7 +82,8 @@ app.use(
 );
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin:["http://localhost:5173","http://127.0.0.1:5173"],
+
     credentials: true,
   })
 );
@@ -92,11 +102,14 @@ async function tableChange() {
   //  a function used to commit database changes just change name of model you want to update and call function
   // await Buyer.sync({ alter: true });
 
-  await Seller.sync({ alter: true });
+
+  await Passcode.sync({ alter: true });
+
   console.log("finished");
 }
 
 // tableChange();
+// chapaVerify();
 
 async function addAdmin() {
   // adding  database
@@ -173,81 +186,34 @@ async function addCategories() {
 
   console.log("Categories are added in to  database successfully");
 }
+
+//  Verifying Transactions from Chapa
+// setInterval(async () => {
+//   let unverifiedorders=await Order.findAll({
+//     where:{verified:false}
+//   })
+//   if(unverifiedorders){
+//     console.log("There are unverified orders",unverifiedorders)
+//         unverifiedorders.map(uvorder=>{
+//           chapaVerify(uvorder)
+//         })
+//   }else{
+//     console.log("There is no unverified")
+//   }
+// }, 10000);
 // addCategories();
 // main();
 
 // addAdmin();
 
 // CreateAuction();
-// io.use((socket,next)=>{
-//     console.log("handshake",socket.handshake);
-//     next();
-// })
+
 let onlineUsers = [];
 let reisStart = false;
 let waitingchangeauctions = [];
 // Getting image api
 
-const authorizeSeller = async (req, res, next) => {
-  console.log(req.body);
-  let { username, password } = req.body;
-  console.log("username", username);
-  console.log("password", password);
 
-  return Seller.findOne({
-    where: {
-      phonenumber: username,
-    },
-    attributes: ["id", "password"],
-  })
-    .then(async (data) => {
-      // console.log("data is ",data.Aid,data.password);
-      const find = {
-        allow: false,
-        uid: null,
-      };
-      if (data) {
-        const hashed = data.password;
-        const compared = await bcrypt.compare(password, hashed);
-        if (compared) {
-          find.uid = data.id;
-          find.allow = true;
-          return find;
-        } else {
-          return find;
-        }
-      } else {
-        return find;
-      }
-    })
-    .then((find) => {
-      console.log("find is ", find);
-      if (find.allow) {
-        const user = find.uid;
-        const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-        // console.log("accessToken",accessToken);
-        res.cookie("u", accessToken, {
-          maxAge: 7200000,
-          httpOnly: true,
-          sameSite: "none",
-          secure: true,
-        });
-        next();
-      } else {
-        console.log(find);
-        res.status(400).send("error username or password");
-      }
-    })
-    .catch((err) => {
-      console.log(" error occures is  " + err);
-      res.sendStatus(500);
-    });
-};
-
-app.get("/mytest", (req, res) => {
-  res.send("the data sent toy");
-});
-app.post("/login", authorizecheck);
 
 app.get("/images/:picid", (req, res) => {
   let id = req.params.picid;
@@ -309,6 +275,9 @@ app.get("/", (req, res) => {
     });
 });
 
+
+
+
 // fetching by category price region  date
 app.get("/cat/:cname", async (req, res) => {
   console.log(req.params);
@@ -323,6 +292,7 @@ app.get("/cat/:cname", async (req, res) => {
   let jumpingSet = (page - 1) * no_response;
   console.log(page);
   const type = req.params.cname;
+
   console.log("type", type);
   let category = await Category.findOne({ where: { name: type } });
 
@@ -628,6 +598,7 @@ app.get("/cat/:cname", async (req, res) => {
     console.log("Not found");
     res.status(404).send("not found");
   }
+
 });
 /// searching a product
 
@@ -653,6 +624,7 @@ app.get("/category/:cname", async (req, res) => {
       console.log(err);
     });
 });
+app.get("/paychapa",paychapa)
 
 app.get("/search", async (req, res) => {
   let item = req.query.item;
@@ -711,45 +683,7 @@ app.post("/hele", (req, res) => {
 
   res.sendStatus(200);
 });
-// app.get('/subcategory/',async(req,res)=>{
-//     const cname=req.query.cname;
-//     const page=req.query.page!=null?req.query.page:1;
-//     console.log(cname,page);
-//     let no_response=6;
-//     let jumpingSet=(page-1)*no_response;
-//     Category.findOne({
-//         attributes:["cid"],
-//         where:{cname:cname}
-//     }).then((data)=>{
-//         if(data){
-//             let cid=data.cid;
-//         return  Product.findAndCountAll({
-//             order:[
-//                 ["createdAt","DESC"]
-//             ],
-//             attributes:{exclude:["createdAt","updatedAt"]},
-//             offset: jumpingSet,
-//             limit: no_response,
-//             where:{categoryId:cid}
-//         });
-//         }
-//         return null;
-//     })
-//     .then(data=>{
-//         // console.log(data);
-//         if(data){
-//         let nopage=parseInt(data.count/no_response);
-//         data.count=nopage;
-//         console.log(data.count);
-//         res.send(data);
-//         }else res.sendStatus(404);
 
-//     })
-//     .catch(err=>{
-//         console.log(err);
-//         res.sendStatus(404);
-//     })
-// })
 
 app.get("/details/:id", async (req, res) => {
   let id = req.params.id;
@@ -780,7 +714,6 @@ app.get("/details/:id", async (req, res) => {
       res.sendStatus(404);
     });
 });
-
 app.post("/chargeaccount", async (req, res) => {
   console.log(req.body);
   let bankerId = req.body.bankerId;
@@ -818,7 +751,7 @@ app.post("/chargeaccount", async (req, res) => {
               id: "",
               AuctionId: "",
               BuyerId: winner.BuyerId,
-              message: `Dear customer you have successfully recharged your account`,
+              message: `Dear customer you have successfully charged your account`,
             });
             await Payment.create({
               id: "",
@@ -841,9 +774,16 @@ app.post("/chargeaccount", async (req, res) => {
   }
 });
 
-// app.listen(5000,()=>{
-//     console.log("server running at port on 5000");
-// })
+app.get('/checkijg',(req,res)=>{
+  console.log("Function before respond")
+  res.send("Helloe");
+  setTimeout(() => {
+    console.log("Function after respond")
+  }, 3000);
+  
+})
+
+
 http.listen(5000, () => {
   console.log("The server is running on 5000");
 });
@@ -852,14 +792,16 @@ const auctionManage = async () => {
   let auctions = await Auction.findAll({
     attributes: ["id", "startdate", "enddate"],
     where: {
-      [Op.or]: [{ status: "started" }, { pname: "notstarted" }],
+      [Op.or]: [{ status: "open" }, { status: "waiting" }],
     },
   });
   auctions.map(async (auction) => {
     if (auction.startdate == date) {
       waitingchangeauctions.push(auction);
       await Auction.update({
-        status: "started",
+
+        status: "open",
+
         // include: {
         //   model: Seller,
         //   attributes: ["phonenumber"],
@@ -873,16 +815,16 @@ const auctionManage = async () => {
         await Notification.create({
           id: "",
           AuctionId: auction.id,
-          BuyerId: winner.BuyerId,
-          message: `The auction  ${auction.name} you want to participate on has started }`,
+          uid: winner.BuyerId,
+          message: `The auction  ${auction.name} you want to participate on has been opened }`,
           nottype: "start",
         });
       });
       await Notification.create({
         id: "",
         AuctionId: auction.id,
-        selid: auction.SellerId,
-        message: `your auction ${auction.name} has started }`,
+        uid: auction.SellerId,
+        message: `your auction ${auction.name} has been opened }`,
         nottype: "start",
       });
     }
@@ -894,22 +836,27 @@ const auctionManage = async () => {
           bidprice: auction.hammerprice,
         },
       });
+      let winnerUser=await Buyer/findOne({
+        where:{id:winner.buyerId}
+      })
       await auction.update({
         status: "closed",
-        winnerId: winner.buyerId,
+        winnerId: winner.buyerId1!=null? winner.buyerId1:'',
         where: { id: auction.id },
       });
-      await Notification.create({
+      if(winnerUser){
+        await Notification.create({
         id: "",
         AuctionId: auction.id,
-        BuyerId: winner.BuyerId,
+        uid: winner.BuyerId,
         message: `Congratulations you have won the auction ${auction.name} you can reach the vendor with phonenumber - ${auction.Seller.phonenumber} `,
       });
+      }
       await Notification.create({
         id: "",
         AuctionId: auction.id,
-        BuyerId: auction.Seller.id,
-        message: `Congratulations you have won the auction ${auction.name} you can reach the vendor with phonenumber - ${auction.Seller.phonenumber} `,
+        uid: auction.Seller.id,
+        message: `Your auction has been ${auction.name} completed  with winning bid ${auction.hammerprice}`,
       });
       let bidders = Bid.findAll({
         where: { AuctionId: auction.id },
@@ -919,24 +866,35 @@ const auctionManage = async () => {
         await Notification.create({
           id: "",
           AuctionId: auction.id,
-          BuyerId: bid.BuyerId,
+          uid: bid.BuyerId,
           message: `The auction ${auction.name} you were participating on has been closed with winning price ${auction.hammerprice}`,
         });
       });
-
-      // await ClosedBid.create({
-
-      // })
+      await ClosedBid.create({
+        id: "",
+        auctionId:auction.id,
+        auctionName:auction.name,
+        startdate:auction.startdate,
+        enddate:auction.enddate,
+        seller:auction.Seller.fname+" "+auction.Seller.lname,
+        sellerId:auction.Seller.id,
+        sphone:auction.Seller.phonenumber,
+        winner:winnerUser.fname+" "+winnerUser.lname,
+        winnerId:winnerUser.id,
+        winningbid:auction.hammerprice,
+        wphone:winnerUser.phonenumber
+      })
     }
   });
 };
 
 const addOnlineUser = (userid, socketid) => {
-  console.log("The user id is ", userid);
-  console.log("The user socket id is ", socketid);
+  console.log("The user id is ",userid);
+  console.log("The user socket id is ",socketid);
   !onlineUsers.some((user) => user.userid === userid) &&
     onlineUsers.push({ userid, socketid });
-  console.log("Online users", onlineUsers);
+  console.log("Online users",onlineUsers)
+
 };
 
 const removeonlineUser = (socketid) => {
@@ -945,7 +903,9 @@ const removeonlineUser = (socketid) => {
 
 io.use((socket, next) => {
   const { headers } = socket.handshake;
-  const cookieString = socket.handshake.headers.cookie;
+
+  const cookieString=  socket.handshake.headers.cookie;
+
   // console.log("socket hand shake ",socket.handshake);
   // console.log("headers",headers);
   // extract cookie from header
@@ -955,7 +915,8 @@ io.use((socket, next) => {
     jwt.verify(myCookieValue, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
       console.log("verifing");
       if (err) {
-        console.log("Token error is ", err);
+        // console.log("Token error is ", err);
+
         socket.disconnect();
       } else {
         socket.user = user;
@@ -963,16 +924,20 @@ io.use((socket, next) => {
       }
     });
   } else {
-    console.log("No cookies found!");
+    console.log('No cookies found!');
     socket.disconnect();
   }
   // verify session ID and associate socket with authenticated user
+  
+
 });
 io.on("connection", (socket) => {
   // console.log("The socket id is ", socket.id);
   // console.log("The socket user is ", socket.user);
   console.log("The number of users are ", io.engine.clientsCount);
-  addOnlineUser(socket.user, socket.id);
+
+  addOnlineUser(socket.user,socket.id)
+
   let data = [];
   // bidplaced notification
   socket.on("bidupdate", async (userid, auctionid) => {

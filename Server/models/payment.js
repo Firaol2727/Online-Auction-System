@@ -29,6 +29,12 @@ module.exports = (sequelize, DataTypes) => {
     type:DataTypes.STRING,
     allowNull:false
   },
+  paymentid:{
+    type:DataTypes.STRING
+  },
+  paymentreference:{
+    type:DataTypes.STRING
+  },
   date:{type:DataTypes.DATE}
   }, {
     sequelize,

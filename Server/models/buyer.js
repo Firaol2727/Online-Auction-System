@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       Notifyme,
     }) {
       Buyer.belongsToMany(Auction, { through: Bid });
-      Buyer.hasMany(Notification);
+      // Buyer.hasMany(Notification);
       Buyer.hasMany(Payment);
       Buyer.hasMany(Transaction);
       Buyer.hasMany(Notifyme);
@@ -64,8 +64,8 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       account: {
-        type: DataTypes.STRING,
-        allowNull: true,
+        type: DataTypes.DOUBLE,
+        defaultValue: 0,
       },
       region: {
         type: DataTypes.STRING,
