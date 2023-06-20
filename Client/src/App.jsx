@@ -13,7 +13,7 @@ import Loading from "./Pages/Loading/Loading";
 import NotFound from "./Pages/NotFound/NotFound";
 // <<<<<<< Updated upstream
 ////buyer
-
+import Login from "./Components/LoginForm";
 import BuyerLogout from "./Pages/Buyer/BuyerLogout";
 import BuyerEditProfile from "./Pages/Buyer/BuyerEditProfile";
 import BuyerProfile from "./Pages/Buyer/BuyerProfile";
@@ -62,6 +62,7 @@ function App() {
             data="manufacturing"
             element={<Clasify />}
           />
+          <Route path="/login" element={<Login />} />
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/about" element={<About />} />
           <Route path="/auctions/:id" element={<Clasify />} />

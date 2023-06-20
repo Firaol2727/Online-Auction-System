@@ -200,61 +200,22 @@ const reducerSeller = (stateSeller, action) => {
   }
 };
 
-function reducer(state, action) {
+const reducer = (state, action) => {
   switch (action.type) {
-    case "SET_PROFILE_DATA":
-      return {
-        ...state,
-        profileData: action.payload,
-      };
-    case "SET_BUYER__DATA":
-      return {
-        ...state,
-        buyerData: action.payload,
-      };
-    case "SET_SELLER_DATA":
-      return {
-        ...state,
-        sellerData: action.payload,
-      };
+    case "PROFILE_DATA":
+      return { ...state, data: action.profile };
     default:
-      throw new Error();
+      return state;
   }
-}
-const initialState = {
-  profileData: {},
-  buyerData: {
-    id: "",
-    fname: "",
-    lname: "",
-    password: "",
-    confirmpassword: "",
-    phonenumber: "",
-    email: "",
-    account: "",
-  },
-  sellerData: {
-    id: "",
-    fname: "",
-    lname: "",
-    password: "",
-    confirmpassword: "",
-    phonenumber: "",
-    email: "",
-    region: "",
-    city: "",
-    account: "",
-  },
 };
 
-export default function NavBuyer(props) {
-  const [state, dispatch] = useReducer(reducer, initialState);
+export default function NavBuyerL(props) {
+  const [state, dispatch] = useReducer(reducer, { data: null });
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [notify, setNotify] = React.useState(null);
   const [account, setAccount] = React.useState(null);
   const [loggedin, setLoggedin] = React.useState(false);
-
   const navigate = useNavigate();
   const [openRegister, setOpenRegister] = React.useState(false);
   const [openLogin, setOpenLogin] = React.useState(false);
@@ -329,7 +290,6 @@ export default function NavBuyer(props) {
               console.log("buyerrrr");
 
               setLoggedin(true);
-              navigate("");
             } else if (response.data === "SELLER") {
               console.log("it is seller");
               setTimeout(() => {
@@ -409,24 +369,6 @@ export default function NavBuyer(props) {
     // setSavingBuyer(false);
   }
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-
-    dispatch({
-      type: "SET_SELLER_DATA",
-      payload: { ...state.sellerData, [name]: value },
-    });
-  };
-
-  const handleInputChangeBuyer = (event) => {
-    const { name, value } = event.target;
-
-    dispatch({
-      type: "SET_BUYER_DATA",
-      payload: { ...state.buyerData, [name]: value },
-    });
-  };
-
   const validateBuyer = (values) => {
     const errors = {};
 
@@ -452,8 +394,8 @@ export default function NavBuyer(props) {
     event.preventDefault();
 
     setSavingSeller(true);
-    console.log(state.sellerData);
-    setFormErrorsSeller(validateSeller(state.sellerData));
+
+    setFormErrorsSeller(validateSeller(stateSeller));
 
     if (Object.keys(formErrorsSeller).length == 0 && isSubmitSeller) {
       console.log("lengths", Object.keys.length);
@@ -462,7 +404,7 @@ export default function NavBuyer(props) {
           method: "POST",
           url: "http://localhost:5000/sel/register",
           data: {
-            ...state.sellerData,
+            ...stateSeller,
           },
         })
           .then((response) => {
@@ -510,7 +452,7 @@ export default function NavBuyer(props) {
       errors.password = "Password cannot exceed more than 10 characters";
     }
 
-    if (values.password !== values.confirmpassword) {
+    if (values.password !== values.confirmPassword) {
       setIsSubmitSeller(false);
       errors.confirmPassword = "Password mismatch";
     }
@@ -647,9 +589,11 @@ export default function NavBuyer(props) {
             }}
           >
             <TextField
-              onChange={handleInputChangeBuyer}
-              value={state.buyerData.fname}
-              name="fname"
+              id="standard-basic"
+              onChange={(e) =>
+                dispatchBuyer({ type: "firstName", firstName: e.target.value })
+              }
+              value={stateBuyer.firstName}
               label="First Name"
               variant="standard"
               sx={{ margin: "5px" }}
@@ -657,9 +601,10 @@ export default function NavBuyer(props) {
             />
 
             <TextField
-              onChange={handleInputChangeBuyer}
-              value={state.buyerData.lname}
-              name="lname"
+              onChange={(e) =>
+                dispatchBuyer({ type: "lastName", lastName: e.target.value })
+              }
+              value={stateBuyer.lastName}
               label="Last Name"
               variant="standard"
               sx={{ margin: "5px" }}
@@ -667,9 +612,10 @@ export default function NavBuyer(props) {
             />
 
             <TextField
-              onChange={handleInputChangeBuyer}
-              value={state.buyerData.email}
-              name="email"
+              onChange={(e) =>
+                dispatchBuyer({ type: "email", email: e.target.value })
+              }
+              value={stateBuyer.email}
               label="Email"
               variant="standard"
               sx={{ margin: "5px" }}
@@ -678,9 +624,13 @@ export default function NavBuyer(props) {
             />
 
             <TextField
-              onChange={handleInputChangeBuyer}
-              value={state.buyerData.phonenumber}
-              name="phonenumber"
+              onChange={(e) =>
+                dispatchBuyer({
+                  type: "phoneNumber",
+                  phoneNumber: e.target.value,
+                })
+              }
+              value={stateBuyer.phoneNumber}
               label="Phone Number"
               variant="standard"
               sx={{ margin: "5px" }}
@@ -689,27 +639,34 @@ export default function NavBuyer(props) {
             />
 
             <TextField
-              onChange={handleInputChangeBuyer}
-              value={state.buyerData.password}
-              name="password"
+              onChange={(e) =>
+                dispatchBuyer({ type: "password", password: e.target.value })
+              }
+              value={stateBuyer.password}
               label="Password"
               variant="standard"
               sx={{ margin: "5px" }}
               type="password"
               required
             />
-
+            <span style={{ color: "red" }}>{formErrorsBuyer.password}</span>
             <TextField
-              onChange={handleInputChangeBuyer}
-              value={state.buyerData.confirmpassword}
-              name="confirmpassword"
+              onChange={(e) =>
+                dispatchBuyer({
+                  type: "confirmPassword",
+                  confirmPassword: e.target.value,
+                })
+              }
+              value={stateBuyer.confirmPassword}
               label="Confirm Password"
               variant="standard"
               type="password"
               sx={{ margin: "5px" }}
               required
             />
-
+            <span style={{ color: "red" }}>
+              {formErrorsBuyer.confirmPassword}
+            </span>
             <Box>
               <Typography sx={{ color: "red" }}>{responseBuyer}</Typography>
             </Box>
@@ -780,13 +737,10 @@ export default function NavBuyer(props) {
             }}
           >
             <TextField
-              // onChange={(e) =>
-              //   dispatchSeller({ type: "firstName", firstName: e.target.value })
-              // }
-              // value={stateSeller.firstName}\
-              onChange={handleInputChange}
-              value={state.sellerData.fname}
-              name="fname"
+              onChange={(e) =>
+                dispatchSeller({ type: "firstName", firstName: e.target.value })
+              }
+              value={stateSeller.firstName}
               label="First Name"
               variant="standard"
               sx={{ margin: "5px" }}
@@ -794,10 +748,10 @@ export default function NavBuyer(props) {
             />
 
             <TextField
-              //
-              onChange={handleInputChange}
-              value={state.sellerData.lname}
-              name="lname"
+              onChange={(e) =>
+                dispatchSeller({ type: "lastName", lastName: e.target.value })
+              }
+              value={stateSeller.lastName}
               label="Last Name"
               variant="standard"
               sx={{ margin: "5px" }}
@@ -805,9 +759,10 @@ export default function NavBuyer(props) {
             />
 
             <TextField
-              onChange={handleInputChange}
-              value={state.sellerData.email}
-              name="email"
+              onChange={(e) =>
+                dispatchSeller({ type: "email", email: e.target.value })
+              }
+              value={stateSeller.email}
               label="Email"
               variant="standard"
               sx={{ margin: "5px" }}
@@ -816,9 +771,13 @@ export default function NavBuyer(props) {
             />
 
             <TextField
-              onChange={handleInputChange}
-              value={state.sellerData.phonenumber}
-              name="phonenumber"
+              onChange={(e) =>
+                dispatchSeller({
+                  type: "phoneNumber",
+                  phoneNumber: e.target.value,
+                })
+              }
+              value={stateSeller.phoneNumber}
               label="Phone Number"
               variant="standard"
               sx={{ margin: "5px" }}
@@ -827,9 +786,10 @@ export default function NavBuyer(props) {
             />
 
             <TextField
-              onChange={handleInputChange}
-              value={state.sellerData.password}
-              name="password"
+              onChange={(e) =>
+                dispatchSeller({ type: "password", password: e.target.value })
+              }
+              value={stateSeller.password}
               label="Password"
               variant="standard"
               sx={{ margin: "5px" }}
@@ -838,9 +798,13 @@ export default function NavBuyer(props) {
             />
             <span style={{ color: "red" }}>{formErrorsSeller.password}</span>
             <TextField
-              onChange={handleInputChange}
-              value={state.sellerData.confirmpassword}
-              name="confirmpassword"
+              onChange={(e) =>
+                dispatchSeller({
+                  type: "confirmPassword",
+                  confirmPassword: e.target.value,
+                })
+              }
+              value={stateSeller.confirmPassword}
               label="Confirm Password"
               variant="standard"
               sx={{ margin: "5px" }}
@@ -859,9 +823,11 @@ export default function NavBuyer(props) {
                 <Select
                   // value={region}
                   required
-                  onChange={handleInputChange}
-                  value={state.sellerData.region}
-                  name="region"
+                  value={stateSeller.region}
+                  // onChange={handleChangeRegion}
+                  onChange={(e) =>
+                    dispatchSeller({ type: "region", region: e.target.value })
+                  }
                   // displayEmpty
                   inputProps={{ "aria-label": "Without label" }}
                   sx={{ height: "40px" }}
@@ -885,9 +851,10 @@ export default function NavBuyer(props) {
             </Box>
 
             <TextField
-              onChange={handleInputChange}
-              value={state.sellerData.city}
-              name="city"
+              onChange={(e) =>
+                dispatchSeller({ type: "city", city: e.target.value })
+              }
+              value={stateSeller.city}
               label="City"
               variant="standard"
               sx={{ margin: "5px" }}
@@ -1057,22 +1024,18 @@ export default function NavBuyer(props) {
   );
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/custom/profile", {
-        withCredentials: true,
-      })
-      .then((response) => {
-        setLoggedin(true);
+    setOpenLogin(!props.checkProfilePage);
+    // setLoggedin(!props.checkEditProfilePage);
+    console.log("running", loggedin);
+    console.log("open", openLogin);
+    setOpenLogin(!props.checkEditProfilePage);
+  }, [openLogin]);
 
-        console.log("fetched data", response.data);
-      })
-      //
-      .catch((err) => {
-        setLoggedin(false);
-      });
-  }, []);
   return (
     <Box sx={{ flexGrow: 1 }}>
+      {console.log("check log in profile", props.checkProfilePage)}
+      {console.log("check log in Editprofile", props.checkEditProfilePage)}
+
       <AppBar
         position="relative"
         elevation={1}
@@ -1356,7 +1319,7 @@ export default function NavBuyer(props) {
                 </Box>
               </>
             )}
-            {loggedin && (
+            {loggedin == "yes" && (
               <IconButton
                 size="large"
                 edge="end"
@@ -1377,7 +1340,8 @@ export default function NavBuyer(props) {
                 >
                   {" "}
                   {/* {state &&  state.data.fname} */}
-                  {state !== null ? <>{state.data.fname}</> : <>Profile</>}
+                  {state !== null ? <>state.data.fname</> : <>Profile</>}
+                  // {console.log("check state", state)}
                   // {!state && "Profile"}
                 </Typography>
               </IconButton>

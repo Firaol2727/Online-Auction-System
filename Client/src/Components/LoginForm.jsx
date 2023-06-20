@@ -1,7 +1,10 @@
 import React from "react";
 import { useState, useEffect, useReducer } from "react";
+import { useNavigate } from "react-router-dom";
 
-import axios from "../Service/api";
+import CircularProgress from "@mui/material/CircularProgress";
+import axios from "axios";
+
 import {
   Typography,
   Box,
@@ -14,154 +17,139 @@ import {
   MenuItem,
 } from "@mui/material";
 
-const initialState = {
-  isLoggedIn: false,
-  phone: "",
-  password: "",
-  response: "",
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "inputPhone":
-      return {
-        ...state,
-        phone: action.phone,
-      };
-    case "inputPassword":
-      return {
-        ...state,
-        password: action.password,
-      };
-
-    default:
-      return state;
-  }
-};
-
 function LoginForm(props) {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const [formErrors, setFormErrors] = useState({});
-  const [isSubmit, setIsSubmit] = useState(false);
-  const [loggedin, setLoggedin] = useState("no");
-  const data = "Hello from child";
-  props.sendData(loggedin);
-  function handleSubmit(event) {
-    event.preventDefault();
-    try {
-      axios({
-        method: "GET",
-        url: "/seller",
-        data: {
-          phone: state.phone,
-          password: state.password,
-        },
-      })
-        .then((response) => {
-          if (response == true) {
-            navigate("/");
-          } else {
-            state.response = "User name or password not correct";
-          }
-          console.log("data sent", response);
-        })
-        .catch((error) => {
-          // navigate("/");
+  const navigate = useNavigate();
 
-          state.response = "User name or password not correct";
-          console.log("catching error while database connection");
+  const [loginState, setLoginState] = useState({
+    username: "",
+    password: "",
+  });
 
-          return;
-        });
-    } catch (err) {
-      console.log("err", err);
-    }
-    console.log(state);
-  }
-  const loginHandler = () => {
-    console.log("this is loginHandler");
-    setLoggedin("yes");
+  const [savingLogin, setSavingLogin] = useState(false);
+  const [responseLogin, setResponseLogin] = useState("");
+
+  ////login Functions
+  const handleUsernameChange = (e) => {
+    setLoginState({
+      ...loginState,
+      username: e.target.value,
+    });
   };
-  useEffect(() => {}, [state.response]);
+
+  const handlePasswordChange = (e) => {
+    setLoginState({
+      ...loginState,
+      password: e.target.value,
+    });
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Handle form submission here
+    setSavingLogin(true);
+    console.log("clicked logged", loginState);
+    setResponseLogin("");
+    axios({
+      method: "POST",
+      url: "http://localhost:5000/login",
+      withCredentials: true,
+      data: {
+        ...loginState,
+      },
+    })
+      .then((response) => {
+        console.log("data from back ende ", response.data);
+        if (response.status === 200) {
+          setResponseLogin("login  succesffull");
+          if (response.data === "BUYER") {
+            console.log("buyerrrr");
+            navigate(-1);
+          } else if (response.data === "SELLER") {
+            console.log("it is seller");
+            setTimeout(() => {
+              navigate("/sel/home");
+            }, 2000);
+          } else {
+            console.log("none");
+          }
+
+          console.log("successss");
+        } else {
+          setResponseLogin("incorrect check your username or password");
+          console.log("not success");
+        }
+        setSavingLogin(false);
+      })
+      .catch((error) => {
+        console.log("catching error while database connection", error);
+        setResponseLogin("incorrect check your username or password");
+        setSavingLogin(false);
+      });
+  };
 
   return (
     <Box
       sx={{
-        marginTop: "0px",
-        width: {
-          lg: "500px",
-          md: "450px",
-          sm: "300px",
-          xs: "250px",
-        },
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
       }}
     >
-      <form onSubmit={handleSubmit}>
-        <Box sx={{ display: "flex", flexDirection: "column" }}>
-          <label>{state.response}</label>
+      {" "}
+      <Box
+        sx={{
+          p: 3,
+          border: "1px solid #ccc",
+          borderRadius: "8px",
+          maxWidth: "400px",
+          width: "100%",
+        }}
+      >
+        <Typography sx={{ m: "40px", color: "blue" }}>
+          {" "}
+          Welcome Back{" "}
+        </Typography>
+        <form onSubmit={handleSubmit}>
           <TextField
-            id="standard-basic"
-            onChange={(e) =>
-              dispatch({ type: "inputPhone", phone: e.target.value })
-            }
-            value={state.phone}
-            label="Phone"
-            variant="standard"
-            sx={{ margin: "5px" }}
-          />
+            label="Phone Number"
+            type="number"
+            variant="outlined"
+            // margin="normal"
 
-          <span style={{ color: "red" }}>{formErrors.phone}</span>
+            value={loginState.username}
+            onChange={handleUsernameChange}
+            required
+          />
           <TextField
-            id="standard-basic"
-            onChange={(e) =>
-              dispatch({ type: "inputPassword", password: e.target.value })
-            }
-            value={state.password}
             label="Password"
-            variant="standard"
-            sx={{ margin: "5px" }}
+            variant="outlined"
+            margin="normal"
+            type="password"
+            value={loginState.password}
+            onChange={handlePasswordChange}
+            required
           />
 
-          <span style={{ color: "red" }}>{formErrors.password}</span>
-
-          {state.password !== "" && state.phone !== "" && (
-            <Button
-              sx={{ backgroundColor: "red", color: "white" }}
-              id="loginPass"
-              className="loginButton"
-            >
-              {" "}
-              Log in
-            </Button>
-          )}
-
-          {(state.password == "" || state.phone === "") && (
-            <Box
-              sx={{
-                alignItems: "center",
-                justify: "center",
-                textAlign: "Center",
-                backgroundColor: "red",
-                marginTop:"20px"
-              }}
-
-            >
-              <Button
-                sx={{
-                 
-                  fontSize: "20px",
-                  width: "30px",
-                  textTransform: "unset",
-                  color:"white"
-                }}
-                onClick={loginHandler}
-              >
-                Login
-              </Button>
-            </Box>
-          )}
-        </Box>
-      </form>
+          <Typography sx={{ marginTop: "30px" }}>{responseLogin}</Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ color: "white", backgroundColor: "red" }}
+            disabled={savingLogin}
+            type="submit"
+          >
+            {savingLogin ? (
+              <>
+                <CircularProgress size={24} />
+                Cheking...
+              </>
+            ) : (
+              "  Log in"
+            )}
+          </Button>
+        </form>
+      </Box>
     </Box>
   );
 }
