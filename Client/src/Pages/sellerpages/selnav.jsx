@@ -36,7 +36,7 @@ function SellerNavbar(props) {
     const { window } = props;
     const baseapi=axios.create({
         baseURL:"http://localhost:5000/sel"
-    })
+    }) 
     const nav=useNavigate();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
@@ -101,7 +101,25 @@ return (
         {/* backgroundImage: "linear-gradient(#04519b,  "#B54E47"   #044687 60%, #033769)" */}
     <AppBar component="nav"  sx={{ backgroundColor: "white", height:"60px" }} >
         <Toolbar >
-        <img
+                <img src="/logo2.png" href="" width="40px" height={"60px"} 
+                style={{ width: "40px", margin: "6px 10px " }}></img>
+                 <Typography
+                    variant="h5"
+                    component="div"
+                    sx={{fontFamily:"sans-serif",color:"brown", fontWeight:"bolder",flexGrow: 1, display: {  xs: 'none', sm: 'block' }  }} // xs: 'none',
+                >
+                    Nuchereta
+                </Typography> 
+                {/* <h1 style={{
+                    position:"absolute",
+                    // backgroundColor:"yellow",
+                    top:"0%",
+                    left:"43px",
+                    fontSize:"40px",
+                    fontFamily:"sans-serif",color:"brown",
+                    
+                }}>Nuchereta</h1> */}
+        {/* <img
             alt="Home Page"
             src="https://oaresources.azureedge.net/images/oa-gavel-sm.png"
             style={{ width: "40px", margin: "6px 10px ",backgroundColor:"brown" }}
@@ -112,7 +130,7 @@ return (
             sx={{color:"black", flexGrow: 1, display: {  xs: 'none', sm: 'block' }  }} // xs: 'none',
         >
             NU CHERETA
-        </Typography>
+        </Typography> */}
         <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
         
         <NavLink

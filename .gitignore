@@ -1,2 +1,4 @@
 *.env
-/Server/dbImages
+
+/server/dbImages
+

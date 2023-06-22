@@ -51,27 +51,14 @@ const io = require("socket.io")(http, {
 const { Op } = require("sequelize");
 var nodemailer = require("nodemailer");
 const { uid } = require("uid");
+const { authorize } = require("./controllers/adminController/authorizeAdmin");
 var transporter = nodemailer.createTransport({
-  service: "gmail",
+  service: "Gmail",
   auth: {
-    user: "youremail@gmail.com",
-    pass: "yourpassword",
+    user: "nuchereta27@gmail.com",
+    pass: "vwckzzzmmmvobjpz",
   },
-});
-var mailOptions = {
-  from: "youremail@gmail.com",
-  to: "myfriend@yahoo.com",
-  subject: "Sending Email using Node.js",
-  text: "That was easy!",
-};
-// transporter.sendMail(mailOptions, function(error, info){
-//   if (error) {
-//     console.log(error);
-//   } else {
-//     console.log('Email sent: ' + info.response);
-//   }
-// });
-// trying the request
+}); 
 
 app.use(cookieParser());
 app.use(express.json());
@@ -106,7 +93,6 @@ async function tableChange() {
 
   console.log("finished");
 }
-
 // tableChange();
 // chapaVerify();
 
@@ -187,28 +173,6 @@ async function addCategories() {
 
   console.log("Categories are added in to  database successfully");
 }
-
-//  Verifying Transactions from Chapa
-// setInterval(async () => {
-//   let unverifiedorders=await Order.findAll({
-//     where:{verified:false}
-//   })
-//   if(unverifiedorders){
-//     console.log("There are unverified orders",unverifiedorders)
-//         unverifiedorders.map(uvorder=>{
-//           chapaVerify(uvorder)
-//         })
-//   }else{
-//     console.log("There is no unverified")
-//   }
-// }, 10000);
-// addCategories();
-// main();
-
-// addAdmin();
-
-// CreateAuction();
-
 let onlineUsers = [];
 let reisStart = false;
 let waitingchangeauctions = [];
@@ -273,8 +237,156 @@ app.get("/", (req, res) => {
       console.log(err);
     });
 });
+
+
+
+app.post('/forgotpassword', async (req, res) => {
+  let email = req.body.email;
+  let buyer =await  Buyer.findOne({ where: { email: email } });
+  let seller = await Seller.findOne({where:{email:email}});
+  if (buyer) {
+    console.log("It is the buyer ")
+    try{
+      let code = uid(5);
+    var mailOptions = {
+      from: "nuchereta27@gmail.com",
+      to: email,
+      subject: "User verification",
+      text: `Your Verification code is  ${code}`,
+    };
+    transporter.sendMail(mailOptions, async function (error, info) {
+      if (error) {
+        console.log(error);
+        res.status(500).send("Error in sending email verification")
+      } else {
+        Passcode.create({
+          id:"",
+          email:email,
+          code:code
+        })
+        console.log("Email sent: " + info.response);
+        res.status(200).send("Verification has been sent to your Email")
+      }
+    });
+    }catch(err){
+      console.log("Email sending error",err)
+      res.status(400).send("Unknown email error")
+    }
+    }
+  else if(seller){
+    console.log("It is the seller ")
+    try{
+      let verificationcode = uid(5);
+    userverification.push({
+      email: email,
+      verificationcode: verificationcode,
+    });
+    var mailOptions = {
+      from: "nuchereta27@gmail.com",
+      to: email,
+      subject: "User verification",
+      text: `Your Verification code is  ${verificationcode}`,
+    };
+    transporter.sendMail(mailOptions, async function (error, info) {
+      if (error) {
+        console.log(error);
+        res.status(500).send("Error in sending email verification")
+      } else {
+        Passcode.create({
+          id:"",
+          email:email,
+          code:verificationcode
+        })
+        console.log("Email sent: " + info.response);
+        res.status(200).send("Verification has been sent to your Email")
+      }
+    });
+    }catch(err){
+      console.log("Email sending error",err)
+      res.status(400).send("Unkown email error")
+
+    }
+  }
+  else {
+    res.status(400).send("invalid email")
+  }
+});
+app.post("/verifycode", async (req, res) => {
+  let { email, code } = req.body;
+  return Passcode.findOne({
+    where:{
+      email:email,
+      code:code
+    }
+  }).then( async data=>{
+    if(data){
+      console.log("There is user ",data)
+      let newpassword = uid(6);
+      const hash = await bcrypt.hashSync(newpassword, bcrypt.genSaltSync(10));
+      let buyer = await Buyer.findOne({ where: { email: email } });
+      let seller=await Seller.findOne({where:{email:email}})
+      if (buyer) {
+          Buyer.update({
+            password: hash,
+          },{
+            where:{id:buyer.id}
+          });
+          //send the new password to the user via email and remind him to change it after login
+          var mailOptions = {
+            from: "nuchereta@gmail.com",
+            to: email,
+            subject: "Password Changed",
+            text: `Your password has been updated to ${newpassword} please Login and change it to a password that you will not forget `,
+          };
+          transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+              console.log(error);
+              res.status(400).send("Error email")
+            } else {
+              console.log("Email sent: " + info.response);
+              res.status(200).send("Email send")
+            }
+          });
+        
+      } 
+      else if(seller){
+        Seller.update({
+          password: hash,
+        },{
+          where:{id:seller.id}
+        });
+        //send the new password to the user via email and remind him to change it after login
+        var mailOptions = {
+          from: "nuchereta@gmail.com",
+          to: email,
+          subject: "Password Changed",
+          text: `Your password has been updated to ${newpassword} please Login and change it to a password that you will not forget `,
+        };
+        transporter.sendMail(mailOptions, function (error, info) {
+          if (error) {
+            console.log(error);
+            res.status(400).send("Error email")
+          } else {
+            console.log("Email sent: " + info.response);
+            res.status(200).send("Email sent ")
+          }
+        });
+      
+      }
+      else {
+        res.send("Invalide user email");
+      }
+
 app.post("/login", authorizecheck);
 
+
+        }else{
+          console.log("Ther is no data")
+          res.status(400).send("Invalide Verification code")
+        }
+  })
+  
+});
 // fetching by category price region  date
 app.get("/cat/:cname", async (req, res) => {
   console.log(req.params);
@@ -597,7 +709,78 @@ app.get("/cat/:cname", async (req, res) => {
   }
 });
 /// searching a product
+app.post("/login",async (req, res) => {
+  let { username, password } = req.body;
+  console.log(req.body);
+  let find = {
+    allow: false,
+    uid: null,
+    userType: null,
+  };
 
+  console.log("username", username);
+  console.log("password", password);
+
+  const buyer = await Buyer.findOne({ where: { phonenumber: username } });
+  const seller = await Seller.findOne({ where: { phonenumber: username } });
+
+  if (buyer) {
+    const hashed = buyer.password;
+    const compared = await bcrypt.compare(password, hashed);
+    if (compared) {
+      console.log("correct password");
+      find.uid = buyer.id;
+      find.allow = true;
+      find.userType = "buyer";
+      const user = find.uid;
+      const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+      console.log("accessToken", accessToken);
+      res.cookie("u", accessToken, {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+        maxAge: 7200000,
+      });
+      res.status(200).send("BUYER");
+
+      // res.cookie("ab","refreshed token",{httpOnly:true,sameSite:"none",secure:"false"});
+      // res.status(200).send(find);
+    } else {
+      console.log("error in buyer pass");
+      res.status(404).send("error in password ");
+    }
+  }
+  if (seller) {
+    const hashed = seller.password;
+    const compared = await bcrypt.compare(password, hashed);
+    if (compared) {
+      console.log("correct password");
+      find.uid = seller.id;
+      find.allow = true;
+      find.userType = "seller";
+
+      const user = find.uid;
+      const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+      console.log("accessToken", accessToken);
+      res.cookie("u", accessToken, {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+        maxAge: 7200000,
+      });
+      res.status(200).send("SELLER");
+      // res.cookie("ab","refreshed token",{httpOnly:true,sameSite:"none",secure:"false"});
+      // res.status(200).send(find);
+    } else {
+      responseSeller = "error";
+      console.log("error in seller pass");
+      res.status(404).send("error in password ");
+    }
+  } else {
+    res.status(400).send("error in password or username");
+  }
+
+})
 app.get("/category/:cname", async (req, res) => {
   console.log(req.params);
   const name = req.params.cname;

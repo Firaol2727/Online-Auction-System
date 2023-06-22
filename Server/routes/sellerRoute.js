@@ -512,7 +512,6 @@ router.post("/upload", checkAuthorizationSeller, (req, res) => {
 // delete auction
 router.post("/deleteauction", async (req, res) => {
   let aid = req.body.aid;
-  
   try {
     await Auction.destroy({
       where: {
@@ -546,7 +545,7 @@ router.post("/deleteauction", async (req, res) => {
       res.sendStatus(200);
     }
   } catch (error) {
-    console.log("The error was ", err);
+    console.log("The error was ", error);
     res.sendStatus(500);
   }
 });

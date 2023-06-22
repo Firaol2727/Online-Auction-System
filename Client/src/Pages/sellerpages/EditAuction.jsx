@@ -49,10 +49,22 @@ const EditAuction = () => {
   const [loading, setloading] = useState(true);
   const [imgdisplay, setimgdisplay] = useState("");
   const [dload, setdload] = useState(false);
+  const handledelete=(id)=>{
+    setdload(true)
+    api.post('/deleteauction',{"aid":id},{withCredentials:true}).then(res=>{
+        if (res.status==200) {
+            setdload(false);
+            nav('/sel/home')
+        }
+    }).catch(err=>{
+        setdload(false);
+        console.log(err)
+    })
+}
   useEffect(() => {
     setloading(true);
     let id = itemid.id;
-
+    
     api
       .get(`/moreon/${id}`, { withCredentials: true })
       .then((response) => {
@@ -98,22 +110,6 @@ const EditAuction = () => {
         sethasdata(false);
       });
   }, []);
-  const handledelete = (id) => {
-    setdload(true);
-    api
-      .post("/delete", { id })
-      .then((res) => {
-        if (res.status == 200) {
-          setdload(false);
-          nav("/sel/selhome");
-        }
-      })
-      .catch((err) => {
-        setdload(false);
-        nav("/sel/selhome");
-        console.log(err);
-      });
-  };
   function changePictures(type) {
     if (id == 0 && type == 0) {
       return;
@@ -144,7 +140,7 @@ const EditAuction = () => {
     <div>
       <SellerNavbar />
 
-      {!loading && hasdata && (
+      {!loading && hasdata && 
         <Box
           sx={{
             position: "absolute",
@@ -205,251 +201,130 @@ const EditAuction = () => {
                       //     backgroundColor:"pink",
                       // }
                       // }>
-
-                      // </Box>
-                      <img
-                        className="auctionImage"
-                        key={pic.id}
-                        alt="auctionImage"
-                        src={`http://localhost:5000/images/${pic.id}`}
-                        onClick={() => {
-                          onchangepic(pic.id);
-                        }}
-                        style={{
-                          position: "relative",
-                          marginTop: "5px",
-                          marginRight: "5px",
-                          width: "80px",
-                          height: "80px",
-                        }}
-                      />
-                    ))}
+                                        // </Box>
+                                        <img
+                                        className="auctionImage"
+                                        key={pic.id}
+                                        alt="auctionImage"
+                                        src={`http://localhost:5000/images/${pic.id}`}
+                                        onClick={()=>{onchangepic(pic.id)}}
+                                        style={{
+                                            position:"relative",
+                                            marginTop:"5px",
+                                            marginRight:"5px",
+                                            width:"80px",
+                                            height:"80px" }}
+                                    />
+                                    ))}
                   </Box>
-                  <Box
-                    className="picture"
-                    sx={{
-                      position: "relative",
-                      display: "flex",
-                      width: { sm: "370px", xs: "100%" },
-                      height: "400px",
+                  <Box className="picture" sx={{
+                      position:"relative",
+                      display:"flex",
+                      width:{sm:"370px",xs:"100%"},
+                      height:"400px",
                       justifyContent: "center",
                       alignItems: "center",
-                      backgroundColor: "lightgrey",
-                    }}
-                  >
-                    <center>
-                      <img
-                        className="auctionImage"
-                        alt="auctionImage"
-                        src={`http://localhost:5000/images/${imgdisplay}`}
-                        style={{ width: "100%" }}
-                      />
-                    </center>
-
-                    <IconButton
-                      onClick={() => {
-                        changePictures(0);
-                      }}
-                      sx={{ position: "absolute", top: "40%", left: "0%" }}
-                    >
-                      <NavigateBeforeIcon />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => {
-                        changePictures(1);
-                      }}
-                      sx={{ position: "absolute", top: "40%", right: "0%" }}
-                    >
-                      <NavigateNextIcon />
-                    </IconButton>
+                      backgroundColor:"lightgrey"
+                  }}><center><img
+                  className="auctionImage"
+                  alt="auctionImage"
+                  src={`http://localhost:5000/images/${imgdisplay}`}
+                  style={{ width:"100%" }}
+              /></center>
+                        
+                      <IconButton onClick={()=>{changePictures(0)}} sx={{position:"absolute",top:"40%",left:"0%"
+                  }}><NavigateBeforeIcon/></IconButton>
+                      <IconButton onClick={()=>{changePictures(1)}} sx={{position:"absolute",top:"40%",right:"0%"
+                  }}><NavigateNextIcon/></IconButton>
                   </Box>
-                </Stack>
-              </Box>
-              <Box
-                className="description"
-                style={{
-                  height: "120%",
-                  padding: "5px",
-                  backgroundColor: "white",
-                }}
-              >
-                <Stack direction={"row"} spacing={2}>
-                  <div
-                    style={{
-                      fontSize: "18px",
-                      color: "black",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Name
-                  </div>
-                  <div style={{ fontSize: "17px", color: "black" }}>
-                    {auct.name}
-                  </div>
-                </Stack>{" "}
-                <br />
-                <Stack direction={"row"} spacing={2}>
-                  <div
-                    style={{
-                      fontSize: "18px",
-                      color: "black",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Base price
-                  </div>
-                  <div style={{ fontSize: "17px", color: "black" }}>
-                    {auct.baseprice} ETB
-                  </div>
-                </Stack>{" "}
-                <br />
-                <Stack direction={"row"} spacing={2}>
-                  <div
-                    style={{
-                      fontSize: "18px",
-                      color: "black",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Hammer price
-                  </div>
-                  <div style={{ fontSize: "17px", color: "black" }}>
-                    {auct.hammerprice} ETB
-                  </div>
-                </Stack>
-                <br />
-                <Stack direction={"row"} spacing={2}>
-                  <div
-                    style={{
-                      fontSize: "18px",
-                      color: "black",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Status
-                  </div>
-                  <div style={{ fontSize: "17px", color: "black" }}>
-                    {auct.state}
-                  </div>
-                </Stack>
-                <br />
-                <Stack direction={"row"} spacing={1}>
-                  <LocationOnIcon />
-                  {/* <div style={{fontSize:"18px",color:"black" ,fontWeight:"bold"   }}>Location</div>  */}
-                  <div style={{ fontSize: "17px", color: "black" }}>
-                    {auct.city},{auct.region}
-                  </div>
-                </Stack>
-                <br />
-                <Stack direction={"row"} spacing={1}>
-                  <div
-                    style={{
-                      fontSize: "18px",
-                      color: "black",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Start Date
-                  </div>
-                  {/* <div style={{fontSize:"18px",color:"black" ,fontWeight:"bold"   }}>Location</div>  */}
-                  <div style={{ fontSize: "17px", color: "green" }}>
-                    {getDateform(auct.createdAt)}
-                  </div>
-                </Stack>
-                <br />
-                <Stack direction={"row"} spacing={1}>
-                  <div
-                    style={{
-                      fontSize: "18px",
-                      color: "black",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    End Date
-                  </div>
-                  {/* <div style={{fontSize:"18px",color:"black" ,fontWeight:"bold"   }}>Location</div>  */}
-                  <div style={{ fontSize: "17px", color: "red" }}>
-                    {" "}
-                    {getDateform(auct.enddate)}
-                  </div>
-                </Stack>
-                <br></br>
-                <h3>Decription</h3>
-                <p>{auct.description}</p>
-                <br />
-                {bidders && (
-                  <div>
-                    <h3>Bidders</h3>
-                    <table id="report">
-                      <thead>
-                        <th>No</th>
-                        <th>Name</th>
-                        <th>Offer</th>
-                        <th>Date</th>
-                      </thead>
-                      <tr>
-                        <td>1</td>
-                        <td>Yohannes Dejene</td>
-                        <td>5000</td>
-                        <td>2/12/2020 </td>
-                      </tr>
-                      <tr>
-                        <td>2</td>
-                        <td>Liul Girma</td>
-                        <td>6000</td>
-                        <td>2/12/2020 </td>
-                      </tr>
-                      <tr>
-                        <td>3</td>
-                        <td>Kalkidan Tibebu</td>
-                        <td>7000</td>
-                        <td>3/12/2020 </td>
-                      </tr>
-                      <tr>
-                        <td>4</td>
-                        <td>Mariamawit Tsegaye</td>
-                        <td>8000 </td>
-                        <td>4/07/2022 </td>
-                      </tr>
-                    </table>
-                    <br /> <br />
-                  </div>
-                )}
-                <h4>Final Bid Report </h4>
-                <p>
-                  Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                  Soluta, quisquam. Omnis suscipit, maiores, sapiente odio
-                  libero nostrum ex corrupti nemo nesciunt repudiandae at
-                  mollitia dolore, quaerat excepturi! Illum, vero laudantium.
-                </p>
-                <br /> <br />
-                <Button
-                  color="error"
-                  variant="contained"
-                  onClick={handledelete}
-                >
-                  {" "}
-                  {dload ? <p>Deleting...</p> : <p>Delete</p>}
-                </Button>
-                <br /> <br /> <br /> <br />
-              </Box>
-            </Stack>
-          </Box>
-        </Box>
-      )}
-      {!loading && !hasdata && (
-        <center>
-          <h2> Page Not found</h2>
-        </center>
-      )}
-      {loading && (
-        <center>
-          <h2 sx={{ position: "absolute", top: "48%", width: "100px" }}>
-            <LinearProgress />{" "}
-          </h2>
-        </center>
-      )}
-    </div>
-  );
-};
+                                </Stack>
+                            </Box>
+                        <Box  className="description"style={{
+                            height:"120%",
+                            padding:"5px",
+                            backgroundColor:"white"
+                        }}>
+                            <Stack direction={"row"} spacing={2}> 
+                                <div style={{fontSize:"18px",color:"black",fontWeight:"bold"  }}>Name</div> 
+                                <div style={{fontSize:"17px",color:"black"  }}>{auct.name}</div> 
+                            </Stack> <br />
+                            <Stack direction={"row"} spacing={2}> 
+                                <div style={{fontSize:"18px",color:"black" ,fontWeight:"bold"   }}>Base price</div> 
+                                <div style={{fontSize:"17px",color:"black"  }}>{auct.baseprice} ETB</div> 
+                            </Stack> <br />
+                            <Stack direction={"row"} spacing={2}> 
+                                <div style={{fontSize:"18px",color:"black" ,fontWeight:"bold"   }}>Hammer price</div> 
+                                <div style={{fontSize:"17px",color:"black"  }}>{auct.hammerprice} ETB</div> 
+                            </Stack>
+                            <br />
+                            <Stack direction={"row"} spacing={2}> 
+                                <div style={{fontSize:"18px",color:"black" ,fontWeight:"bold"   }}>Status</div> 
+                                <div style={{fontSize:"17px",color:"black"  }}>{auct.state}</div> 
+                            </Stack>
+                            <br />
+                            <Stack direction={"row"} spacing={1}> 
+                                <LocationOnIcon />
+                                {/* <div style={{fontSize:"18px",color:"black" ,fontWeight:"bold"   }}>Location</div>  */}
+                                <div style={{fontSize:"17px",color:"black" }}>{auct.city},{auct.region}</div> 
+                            </Stack>
+                            <br />
+                            <Stack direction={"row"} spacing={1}> 
+                                <div style={{fontSize:"18px",color:"black" ,fontWeight:"bold"   }}>Start Date</div> 
+                                {/* <div style={{fontSize:"18px",color:"black" ,fontWeight:"bold"   }}>Location</div>  */}
+                                <div style={{fontSize:"17px",color:"green"  }}>{ getDateform(auct.createdAt)}</div> 
+                            </Stack>
+                            <br />
+                            <Stack direction={"row"} spacing={1}> 
+                                <div style={{fontSize:"18px",color:"black" ,fontWeight:"bold"   }}>End Date</div> 
+                                {/* <div style={{fontSize:"18px",color:"black" ,fontWeight:"bold"   }}>Location</div>  */}
+                                <div style={{fontSize:"17px",color:"red" }}> {getDateform(auct.enddate) }</div> 
+                            </Stack>
+                            <br></br>
+                            <h3>Decription</h3>
+                            <p>{auct.description}</p>
+                            <br />
+                            
+                            { bidders &&
+                            <div><h3>Bidders</h3>
+                            <table id="report">
+                            <thead >
+                                <th>No</th>
+                                <th>Name</th>
+                                <th>Offer</th>
+                                <th>Date</th>
+                            </thead>
+                                {
+                                    bidders.map((bidder)=>(
+                                        <thead >
+                                            <tr>
+                                            <td>1</td>
+                                            <td>Yohannes Dejene</td>
+                                            <td>5000</td>
+                                            <td>2/12/2020 </td>
+                                        </tr>
+                                        
+                                        </thead>
+                                    ))
+                                }
+                            </table>
+                            <br />  <br />
+                            </div>}
+                            <h4>Final Bid Report </h4> 
+                            <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Soluta, quisquam. Omnis suscipit, maiores, sapiente odio libero nostrum ex corrupti nemo nesciunt repudiandae at mollitia dolore, quaerat excepturi! Illum, vero laudantium.</p>
+                            
+                            <br />  <br /> 
+                            <Button color="error" variant='contained' disabled={dload} onClick={()=>{
+                                handledelete(auct.id)}}> {dload? <p>Deleting...</p>: <p>Delete</p>}</Button>
+                            <br />  <br /> <br />  <br />
+                            
+                            </Box>
+                        </Stack>
+
+                </Box>
+            </Box>}
+        {(!loading && !hasdata) && <center><h2> Page Not found</h2></center>}
+          {loading && <center><h2 sx={{position:"absolute",top:"48%",width:"100px"}}><LinearProgress/> </h2></center>}
+           
+        </div>
+  );}
 export default EditAuction;
