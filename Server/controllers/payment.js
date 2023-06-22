@@ -9,8 +9,8 @@ const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`,
 };
-const paychapa=async (req,res)=>{
-    const bid="d09b7d05ee3ccb43";
+const paychapa=async (aid,req,res)=>{
+    const bid=req.user;
     let user=await Buyer.findOne({where:{
         id:bid
     }})
@@ -28,7 +28,7 @@ const paychapa=async (req,res)=>{
             "phone_number": "0966003807",
             "tx_ref":a,
             "callback_url": "https://webhook.site/077164d6-29cb-40df-ba29-8a00e59a7e60",
-            "return_url": "http://localhost:5173/auctioncontrol",
+            "return_url": `http://localhost:5173/detail/:${aid}`,
             "customization[title]": "Payment for the auction",
             "customization[description]": "I want to participate on Nuchereta Auctions"
         });
@@ -56,7 +56,7 @@ const paychapa=async (req,res)=>{
                         phone:user.phonenumber
                     });
                 console.log("It was successfull")
-                res.status(200).send(result.data.checkout_url)
+                res.status(202).send(result.data.checkout_url)
                 }else{
                 res.status(400).send("The payment has failed")
                 }

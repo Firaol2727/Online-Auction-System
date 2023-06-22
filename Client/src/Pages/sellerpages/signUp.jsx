@@ -8,52 +8,77 @@ import PropTypes from "prop-types";
 import AppBar from "@mui/material/AppBar";
 import {Select} from '@mui/material';
 import {MenuItem} from '@mui/material';
-import Divider from "@mui/material/Divider";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import InputBase from "@mui/material/InputBase";
-import Badge from "@mui/material/Badge";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
-import PersonIcon from "@mui/icons-material/Person";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import LogoutIcon from "@mui/icons-material/Logout";
-import MoreIcon from "@mui/icons-material/MoreVert";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import AlbumIcon from '@mui/icons-material/Album';
+import Checkbox from '@mui/material/Checkbox';
 
-import { NavLink, useLocation } from "react-router-dom";
-import SignupFormBuyer from "../../Components/SignupForm/SignupFormBuyer";
-import SignupFormSeller from "../../Components/SignupForm/SignupFormSeller";
-import SignupForm from "../../Components/SignupForm/SignupForm";
-// import SignupFormBuyer from "../../Components/SignupForm/SignupFormBuyer";
-// import SignupFormSeller from "../../Components/SignupForm/SignupFormBuyer";
-import LoginForm from "../../Components/LoginForm";
-
-import FormControlLabel from "@mui/material/Dialog";
-
-import FormControl from "@mui/material/FormControl";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormLabel from "@mui/material/FormLabel";
-
-import Radio from "@mui/material/Radio";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import CloseIcon from "@mui/icons-material/Close";
-import InputLabel from "@mui/material/InputLabel";
 import CircularProgress from "@mui/material/CircularProgress";
 axios.create({
   baseURL: "http://localhost:5000",
 });
 
-import  "./css/signup.css";
+// import  "./css/signup.css";
 const baseUri=axios.create({
     baseURL:"http://localhost:5000/"
     });
 function BuyerForm() {
-        return (
+    const [fname,setfname]=useState('');
+    const [lname,setlname]=useState('');
+    const [email,setemail]=useState('');
+    const [phonenumber,setphonenumber]=useState('');
+    const [password,setpassword]=useState('');
+    const [confirmpassword,setconfirmpassword]=useState();
+    const [errmessage,seterrmessage]=useState('');
+    const [loading,setloading]=useState(false);
+    const nav=useNavigate();
+    function isValidPhoneNumber(phoneNumber) {
+        const regex = /^(09|07)\d{8}$/;
+        return regex.test(phoneNumber);
+    }
+    function isValidPassword(password) {
+        const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+        return regex.test(password);
+    }
+    
+    const submitFormBuyer=(e)=>{
+        e.preventDefault();
+        setloading(true)
+        let validphone=isValidPhoneNumber(phonenumber);
+        let validpassword=isValidPassword(password);
+        if(!validpassword){
+            seterrmessage("Password length must be greater than 6 and must contain numbers and digits")
+        }
+        if(!validphone){
+            seterrmessage("Enter a valid phonenumber")
+        }
+        if(password!==confirmpassword){
+            seterrmessage("Error in confirm password")
+        }
+        if(validphone  && validpassword && password==confirmpassword){
+            baseUri.post('/custom/register',
+                {
+                    "firstName":fname,
+                    "lastName":lname,
+                    "phoneNumber":phonenumber, 
+                    "email":email, 
+                    "password":password 
+                })
+                .then(res=>{
+                    setloading(false)
+                    if(res.status==200){
+                        nav(-1);
+                    }else{
+                        seterrmessage("It looks like you have already an account, try login")
+                    }
+                })
+                .catch(err=>{
+                    setloading(false)
+                    console.log("The error is ",err);
+                    seterrmessage("Network error ")
+                })
+        }
+
+    }
+    return (
         <Box
         sx={{
             position:"absolute",
@@ -65,150 +90,232 @@ function BuyerForm() {
             sm: "7%",
             xs: "7%",
             },
-            border:"1px gray solid",
+            
             marginRight: "30px",
-            top: "25%",
-            padding:"20px",
+            marginBottom:"-30%",
+            top: "20%",
+            
             width: {
             lg: "50%",
             md: "50%",
-            sm: "82%",
-            xs: "82%",
+            sm: "83%",
+            xs: "83%",
             },
         }}
-          >
-            <form >
-              <center><Typography sx={{ color: "black",fontSize:"25px",fontWeight:"bolder" }}>Sign Up  Buyer</Typography></center>
-              {/* <hr /> */}
-              <Box
+        >
+        <form  onSubmit={ (e)=>{
+            e.preventDefault
+        }
+        }  style={{border:"1px gray solid", borderRadius:"30px", padding:"20px",}}>
+            <center><Typography 
+            sx={{ 
+                color: "black" ,
+                marginTop:"20px",
+                fontSize:{
+                    lg: "30px",
+                    md: "30px",
+                    sm: "25px",
+                    xs: "25px",
+                },
+            
+                fontFamily:"'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif"
+                }}> Sign up to bid boldly and win gracefully.</Typography></center> 
+            <br />
+            <Box
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+            }}
+            >
+            <span style={{ color: "red" }}>{errmessage}</span>
+            <Stack gap={2} direction={{sm:"column",xs:"column",lg:"row",md:"row"}} 
+                sx={{ width:"100%"}} >
+                <TextField
+                    value={fname}
+                    onChange={(e)=>{setfname(e.target.value)}}
+                    name="fname"
+                    label="First Name"
+                    variant="standard"
+                    sx={{ margin: "5px",width:{sm:"47%",xs:"96%",lg:"96%",md:"47%"} }}
+                    required
+                />
+                <TextField
+                       value={lname}
+                       onChange={(e)=>{setlname(e.target.value)}}
+                    name="lname"
+                    label="Last Name"
+                    variant="standard"
+                    sx={{ margin: "5px" ,width:{sm:"47%",xs:"96%",lg:"96%",md:"47%"} }}
+                    required
+                />
+            </Stack>
+            <TextField
+                value={email}
+                onChange={(e)=>{setemail(e.target.value)}}
+                name="email"
+                label="Email"
+                variant="standard"
+                sx={{ margin: "5px" }}
+                required
+                type="email"
+            />
+    
+            <TextField
+                value={phonenumber}
+                onChange={(e)=>{setphonenumber(e.target.value)}}
+                name="phonenumber"
+                label="Phone Number"
+                variant="standard"
+                sx={{ margin: "5px" }}
+                required
+                type="number"
+            />
+    
+            <TextField
+               value={password}
+               onChange={(e)=>{setpassword(e.target.value)}}
+                name="password"
+                label="Password"
+                variant="standard"
+                sx={{ margin: "5px" }}
+                required
+                type="password"
+            />
+            {/* <span style={{ color: "red" }}>{formErrorsSeller.password}</span> */}
+            <TextField
+                value={confirmpassword}
+                onChange={(e)=>{setconfirmpassword(e.target.value)}}
+                name="confirmpassword"
+                label="Confirm Password"
+                variant="standard"
+                sx={{ margin: "5px" }}
+                required
+                type="password"
+            />
+            <span style={{ color: "red" }}>
+                {/* {formErrorsSeller.confirmPassword} */}
+            </span>
+
+            {/* <span style={{ color: "red" }}>{formErrorsSeller.city}</span> */}
+            </Box>
+            <Box>
+            <Typography sx={{ color: "red", marginTop: "30px" }}>
+                {/* {responseSeller} */}
+            </Typography>
+            </Box>
+            <span></span>
+            <Box
+            sx={{
+                alignItems: "center",
+                justify: "center",
+                textAlign: "Center",
+                backgroundColor: "red",
+                marginTop: "30px",
+            }}
+            >
+            <Button
                 sx={{
-                  display: "flex",
-                  flexDirection: "column",
-    
-                  textAlign: "center",
+                fontSize: "20px",
+                textTransform: "unset",
+                color: "white",
                 }}
-              >
-                <TextField
-                //   onChange={handleInputChangeBuyer}
-                //   value={state.buyerData.fname}
-                  name="fname"
-                  label="First Name"
-                  variant="standard"
-                  sx={{ margin: "5px" }}
-                  required
-                />
-    
-                <TextField
-                //   onChange={handleInputChangeBuyer}
-                //   value={state.buyerData.lname}
-                  name="lname"
-                  label="Last Name"
-                  variant="standard"
-                  sx={{ margin: "5px" }}
-                  required
-                />
-    
-                <TextField
-                //   onChange={handleInputChangeBuyer}
-                //   value={state.buyerData.email}
-                  name="email"
-                  label="Email"
-                  variant="standard"
-                  sx={{ margin: "5px" }}
-                  required
-                  type="email"
-                />
-    
-                <TextField
-                //   onChange={handleInputChangeBuyer}
-                //   value={state.buyerData.phonenumber}
-                  name="phonenumber"
-                  label="Phone Number"
-                  variant="standard"
-                  sx={{ margin: "5px" }}
-                  required
-                  type="text"
-                />
-    
-                <TextField
-                //   onChange={handleInputChangeBuyer}
-                //   value={state.buyerData.password}
-                  name="password"
-                  label="Password"
-                  variant="standard"
-                  sx={{ margin: "5px" }}
-                  type="password"
-                  required
-                />
-    
-                <TextField
-                //   onChange={handleInputChangeBuyer}
-                //   value={state.buyerData.confirmpassword}
-                  name="confirmpassword"
-                  label="Confirm Password"
-                  variant="standard"
-                  type="password"
-                  sx={{ margin: "5px" }}
-                  required
-                />
-    
-                <Box>
-                  {/* <Typography sx={{ color: "red" }}>{responseBuyer}</Typography> */}
-                </Box>
-                <Box
-                  sx={{
-                    alignItems: "center",
-                    justify: "center",
-                    textAlign: "Center",
-                    backgroundColor: "red",
-                    marginTop: "30px",
-                  }}
-                >
-                  <Button
-                    sx={{
-                      fontSize: "20px",
-                      textTransform: "unset",
-                      color: "white",
-                    }}
-                    // disabled={savingBuyer}
-                    type="submit"
-                  >
-                    Create Account
-                    {/* {savingBuyer ? (
-                      <>
-                        <CircularProgress size={24} />
-                        Saving...
-                      </>
-                    ) : (
-                      " Create Account"
-                    )} */}
-                  </Button>
-                  {/* <span style={{ color: "red" }}>{responseBuyer}</span> */}
-                </Box>
-              </Box>
-            </form>
-          </Box>
-        );
+            //   disabled={savingSeller}
+                type="submit"
+            >
+               
+                {loading ? (
+                <>
+                    <CircularProgress size={24} />
+                    Signing...
+                </>
+                ) : (
+                "Create my account"
+                )}
+            </Button>
+            </Box>
+            <center><p>Already have an account ?
+                <b>
+                <a href='sel/login'
+                    style={{color:"brown",textDecoration:"none",fontFamily:"serif",marginLeft:"10px"}} underline='none'>Login</a></b></p></center>
+        </form>
+        <br /> <br />
+        </Box> 
+    );
     }
     
 function SellerForm() {
-return (
+    const [fname,setfname]=useState('');
+    const [lname,setlname]=useState('');
+    const [email,setemail]=useState('');
+    const [phonenumber,setphonenumber]=useState('');
+    const [region,setregion]=useState('');
+    const nav=useNavigate();
+    const [city,setcity]=useState('');
+    const [password,setpassword]=useState('');
+    const [confirmpassword,setconfirmpassword]=useState();
+    const [errmessage,seterrmessage]=useState('');
+    const [loading,setloading]=useState(false);
+    function isValidPhoneNumber(phoneNumber) {
+        const regex = /^(09|07)\d{8}$/;
+        return regex.test(phoneNumber);
+    }
+    function isValidPassword(password) {
+        const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+        return regex.test(password);
+    }
+    const submitSeller=(e)=>{
+        e.preventDefault();
+        let validphone=isValidPhoneNumber(phonenumber);
+        let validpassword=isValidPassword(password);
+        if(!validpassword){
+            seterrmessage("Password length must be greater than 6 and must contain numbers and digits")
+        }
+        if(!validphone){
+            seterrmessage("Enter a valid phonenumber")
+        }
+        if(password!==confirmpassword){
+            seterrmessage("Error in confirm password")
+        }
+        if(validphone  && validpassword && password==confirmpassword){
+            baseUri.post('/sel/register',
+                {
+                    "firstName":fname,
+                    "lname":lname,
+                    "phoneNumber":phonenumber, 
+                    "email":email, 
+                    "password":password,
+                    "region":region,
+                    "city":city
+                })
+                .then(res=>{
+                    if(res.status===200){
+                        nav(-1)
+                    }else{
+                        seterrmessage("It looks like you have already an account,try to login")
+                    }
+                })
+                .catch(err=>{
+                    console.log("The error is ",err);
+                    
+                })
+        }
+
+    }
+    return (
     <Box
     sx={{
         position:"absolute",
         backgroundColor:"white",
-        zIndex:"2",
+        zIndex:2,
         marginLeft: {
         lg: "25%",
         md: "25%",
         sm: "7%",
         xs: "7%",
-        },
-        
+        },     
         marginRight: "30px",
         marginBottom:"-30%",
         top: "20%",
-      
         width: {
         lg: "50%",
         md: "50%",
@@ -217,7 +324,7 @@ return (
         },
     }}
     >
-    <form style={{border:"1px gray solid", borderRadius:"30px", padding:"20px",}}>
+    <form  style={{border:"1px gray solid", borderRadius:"30px", padding:"20px",}}>
         <center><Typography 
         sx={{ 
             color: "black" ,
@@ -237,15 +344,12 @@ return (
             flexDirection: "column",
         }}
         >
+        <span style={{ color: "red" }}>{errmessage}</span>
         <Stack gap={2} direction={{sm:"column",xs:"column",lg:"row",md:"row"}} 
             sx={{ width:"100%"}} >
             <TextField
-                // onChange={(e) =>
-                //   dispatchSeller({ type: "firstName", firstName: e.target.value })
-                // }
-                // value={stateSeller.firstName}\
-            //   onChange={handleInputChange}
-            //   value={state.sellerData.fname}
+                onChange={(e) =>setfname(e.target.value)}
+                value={fname}
                 name="fname"
                 label="First Name"
                 variant="standard"
@@ -253,9 +357,8 @@ return (
                 required
             />
             <TextField
-                //
-            //   onChange={handleInputChange}
-                // value={state.sellerData.lname}
+                onChange={(e) =>setlname(e.target.value)}
+                value={lname}
                 name="lname"
                 label="Last Name"
                 variant="standard"
@@ -264,8 +367,8 @@ return (
             />
         </Stack>
         <TextField
-            // onChange={handleInputChange}
-            // value={state.sellerData.email}
+            onChange={(e) =>setemail(e.target.value)}
+            value={email}
             name="email"
             label="Email"
             variant="standard"
@@ -275,8 +378,8 @@ return (
         />
 
         <TextField
-        //   onChange={handleInputChange}
-        //   value={state.sellerData.phonenumber}
+            onChange={(e) =>setphonenumber(e.target.value)}
+            value={phonenumber}
             name="phonenumber"
             label="Phone Number"
             variant="standard"
@@ -286,8 +389,8 @@ return (
         />
 
         <TextField
-        //   onChange={handleInputChange}
-        //   value={state.sellerData.password}
+            onChange={(e) =>setpassword(e.target.value)}
+            value={password}
             name="password"
             label="Password"
             variant="standard"
@@ -295,11 +398,12 @@ return (
             required
             type="password"
         />
-        {/* <span style={{ color: "red" }}>{formErrorsSeller.password}</span> */}
+
         <TextField
-            // onChange={handleInputChange}
-        //   value={state.sellerData.confirmpassword}
+            onChange={(e) =>setconfirmpassword(e.target.value)}
+            value={confirmpassword}
             name="confirmpassword"
+            defaultValue={"Addis Ababa"}
             label="Confirm Password"
             variant="standard"
             sx={{ margin: "5px" }}
@@ -311,19 +415,19 @@ return (
         </span>
 
         <Box sx={{ float: "right", display: "flex", flexWrap: "wrap" }}>
-            <Typography sx={{ float: "left", paddingTop: "17px" }}>
-            Select region:
+            <Typography sx={{ float: "left", paddingTop: "17px",color:"gray" }}>
+            Region:
             </Typography>
             <FormControl sx={{ m: 1, minWidth: 70 }}>
             <Select
                 // value={region}
                 required
-            //   onChange={handleInputChange}
-            //   value={state.sellerData.region}
+                onChange={(e) =>setregion(e.target.value)}
+                value={region}
                 name="region"
                 // displayEmpty
                 inputProps={{ "aria-label": "Without label" }}
-                sx={{ height: "40px" }}
+                sx={{ height: "40px",width:"300px" }}
             >
                 <MenuItem value={"Addis Ababa"}>Addis Ababa</MenuItem>
                 <MenuItem value={"Dire Dawa"}>Dire Dawa</MenuItem>
@@ -344,8 +448,8 @@ return (
         </Box>
 
         <TextField
-        //   onChange={handleInputChange}
-        //   value={state.sellerData.city}
+            onChange={(e) =>setcity(e.target.value)}
+            value={city}
             name="city"
             label="City"
             variant="standard"
@@ -398,12 +502,133 @@ return (
     </Box> 
 );
 }
+const SelectUserType=(props)=>{
+    const [selected,setselected]=useState(0)
+    const [checked, setChecked] = useState(true);
+    const [checked2, setChecked2] = useState(false);
+    const [usertype, setusertype] = useState(1);
+    const handleChange = (event) => {
+        if(!checked){
+            setChecked(event.target.checked);
+            setChecked2(false)
+            setusertype(1)
+        }
+        
+    };
+    const handleChange2 = (event) => {
+        if(!checked2){
+            setChecked2(event.target.checked);
+            setChecked(false)
+            setusertype(2)
+        }
+    };
+    const submiType=() =>{
+        props.settype(usertype)
+    }
+    console.log("Selecting user type",props.type)
+
+    return <>
+        <Box
+    sx={{
+        position:"absolute",
+        backgroundColor:"white",
+        zIndex:2,
+        marginLeft: {
+        lg: "25%",
+        md: "25%",
+        sm: "7%",
+        xs: "7%",
+        },     
+        marginRight: "30px",
+        marginBottom:"-30%",
+        top: "20%",
+        width: {
+        lg: "50%",
+        md: "50%",
+        sm: "83%",
+        xs: "83%",
+        },
+    }}>
+        <Box style={{border:"1px gray solid", borderRadius:"30px", padding:"20px",}}>
+        <center><Typography 
+        sx={{ 
+            color: "black" ,
+            marginTop:"20px",
+            fontSize:{
+                lg: "30px",
+                md: "30px",
+                sm: "25px",
+                xs: "25px",
+            },
+            fontFamily:"'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif"
+            }}>Join as a Buyer or Seller</Typography></center> 
+            <br /><br />
+        
+
+            <Stack  sx={{marginLeft:"7%"}} gap={5} direction={{xs:"column",sm:"row"}}>
+                <Box sx={{
+                    padding:"5px",
+                    width:{xs:"90%",sm:"40%"},
+                    height:"170px",
+                    border:"1px brown solid",
+                    
+
+                }}>
+                    <Checkbox
+                        sx={{left:"84%",top:"0%"}}
+                        checked={checked}
+                        onChange={handleChange}
+                        color="error"
+                        icon={<AlbumIcon />}
+                        checkedIcon={<AlbumIcon />}
+                        inputProps={{ 'aria-label': 'controlled' }}
+                        />
+                    <p style={{marginRight:"10px",marginLeft:"10px"}}>I am a bidder/buyer looking for products</p>
+                </Box>
+                <Box sx={{
+                    
+                    width:{xs:"90%",sm:"40%"},
+                    height:"170px",
+                    border:"1px brown solid",
+                    padding:"5px"
+
+                }}>
+                    <Checkbox
+                        sx={{left:"84%",top:"0%"}}
+                        color="error"
+                        checked={checked2}
+                        onChange={handleChange2}
+                        icon={<AlbumIcon />}
+                        checkedIcon={<AlbumIcon />}
+                        inputProps={{ 'aria-label': 'controlled' }}
+                        />
+                    Seller Section
+                </Box>
+               
+            </Stack>
+            
+            <br /><br /> <br />
+
+            <center> <Button 
+            sx={{
+                backgroundColor:"brown",
+                ":hover":{backgroundColor:"red"},
+                width:"50%", color:"white",
+                borderSize:"10px"}} variant='contained' >{ checked? "Join as Buyer":"Join as Seller"}</Button></center>
+            <br /><br /> <br />
+            <center><p>Already have an account ?
+            <b>
+            <a href='sel/login'
+                style={{color:"brown",textDecoration:"none",fontFamily:"serif",marginLeft:"10px"}} underline='none'>Login</a></b></p></center>
+        </Box>
+    </Box>
+    </>
+}
 const SignUp=()=>{
-    const [message,setmessage]=useState('');
-    const [username,setusername]=useState('');
-    const [password,setpassword]=useState('');
-    const [loading,setloading]=useState(false);
-    const nav=useNavigate();
+    const [type,settype]=useState(0);
+    // 1 type=1 for bidder
+    // 2 type=2 for seller
+    // 3 type=3 for not selected yet
     const login=()=>{
         console.log(username);
         console.log(password); 
@@ -456,92 +681,11 @@ const SignUp=()=>{
                     
                 }}>Nuchereta</h1>
             </div>
-            
-            <div class="slanted-box"></div>
-            <div class="slanted-box2"></div>
-            {/* <Box sx={{
-                position:"absolute",
-                zIndex:2,
-                top:"10%",
-                height:"60%",
-                backgroundColor:"white",
-                left:{
-                    sm:"30%",
-                    xs:"8%",
-                    ms:"30%",
-                    lg:"30%"
-                },
-                width:{
-                    xs:"90%",
-                    sm:"40%",
-                    ms:"40%",
-                    lg:"40%"
-
-                }
-            }}>
-                
-                <h2 style={{position:"absolute",top:"0%",left:'3%', fontFamily:"serif"}}>Welcome,</h2>
-                <p className='write-in'>The thrill of the auction is just a click away!</p>
-                <p style={{
-                position:"absolute",
-                top:"16%",
-                color:"red",
-                left:"25%",
-                width:"72%"
-            }}>{message}</p>
-              { loading && <LinearProgress sx={{
-              position:"absolute",
-                top:"22%",
-                color:"white",
-                left:"30%",
-                width:"20%"
-            }} />
-}
-            <input required placeholder='username' onChange={(e)=>{
-                setusername(e.target.value)
-                setmessage('')
-            }}  type='text' style={{
-                position:"absolute",width:"70%" ,height:"35px",top:"25%",left:"8%",padding:'5px',border:"1px gray solid"
-            }}></input> <br /> <br />
-            <input  required   onChange={(e)=>{
-                setpassword(e.target.value)
-                setmessage('')
-            }} placeholder='password' type='password' style={{
-                position:"absolute",width:"70%" ,height:"35px",top:"39%",left:"8%",padding:'5px',border:"1px gray solid"
-            }}></input>
-            
-            <Link href='/forgotpassword' sx={{
-                position:"absolute",
-                top:"50%",
-                color:"green",
-                left:"8%",
-                width:"40%",
-                textDecoration:"none",
-                ':hover':{color:'red',cursor:"pointer"}
-            }}>forgot password?</Link>
-         
-            <Button  style={{
-                position:"absolute",
-                top:"58%",
-                left:"8%",
-                width:"72%"
-            }} variant="contained" color='error' onClick={login}>Login</Button>
-            <div style={{position:"absolute",
-            bottom:"25%",left:"10%",
-            display:"flex",flexDirection:"row"}}>
-                <Link underline='none' sx={{color:"gray",
-                fontSize:"16px"}}>Do you have an account ?</Link>
-               <Link href='/signup' underline='none'
-                sx={{marginLeft:"10px",color:" #92291C  ",
-                fontSize:"17px",':hover':{color:'green',cursor:"pointer"}
-                }}>Signup Up For Free</Link>
-            </div>
-            <center><p style={{position:"absolute",bottom:"10%",left:"20%"}}>Ⓒ All rights reserved by Nuchereta</p></center>
-            </Box> */}
+      
         
-        
+            <SelectUserType type={type} settype={settype} />
             {/* {<BuyerForm/>} */}
-            {<SellerForm/>}
+            {/* {<SellerForm/>} */}
         </div>
     )
 }

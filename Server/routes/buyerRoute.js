@@ -7,7 +7,7 @@ var jsonParser = bodyParser.json();
 var nodemailer = require("nodemailer");
 
 const { uid } = require("uid");
-const { chapaVerify } = require("../controllers/payment");
+const { chapaVerify ,paychapa} = require("../controllers/payment");
 var transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
@@ -41,7 +41,7 @@ const report=require( '../controllers/buyercontroller/report');
 // });
 const {
   Passcode,
-  ReportAuction,
+  ReportedAuction,
   Auction,
   Banker,
   Bid,
@@ -330,7 +330,7 @@ router.get("/placebid", async (req, res) => {
             },
             { where: { id: aid } }
           );
-          res.sendStatus(200);
+          res.status(200).send("success");
         // Thing to be done after responding  
           if(paidresponse){
             await Notification.create({
@@ -366,7 +366,8 @@ router.get("/placebid", async (req, res) => {
           });
         } else {
           console.log("There is no sufficient balance");
-          res.status(402).send("balance_insufficient")
+          paychapa(aid,req,res);
+          // res.status(402).send("balance_insufficient")
         }
       })
       .catch((err) => {
@@ -405,7 +406,7 @@ router.get("/profile", checkAuthorizationCustomer, (req, res) => {
 router.post("/report", (req, res) => {
   let aid = req.body.aid;
   let type = req.body.type;
-  return ReportAuction.create({
+  return ReportedAuction.create({
     aid: aid,
     type: type,
   })
