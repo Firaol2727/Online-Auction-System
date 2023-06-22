@@ -1,11 +1,10 @@
 require("dotenv");
-const { sequelize } = require("../models");
+const { sequelize } = require("../../models");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const router = require("express").Router();
+
 const fs = require("fs");
 var bodyParser = require("body-parser");
-
 const cors = require("cors");
 const { uid } = require("uid");
 const date = new Date();
@@ -24,20 +23,9 @@ const {
   Seller,
   Transaction,
 } = sequelize.models;
-router.use(
-  cors({
-    origin: [
-      "http://localhost:7494",
-      "http://127.0.0.1:5000",
-      "http://127.0.0.1:5173",
-    ],
-    credentials: true,
-  })
-);
-router.get("/get", (req, res) => {
-  res.send("hello");
-});
-router.post("/login", async (req, res) => {
+var cookieParser = require("cookie-parser");
+
+const authorizecheck = async (req, res) => {
   let { username, password } = req.body;
   console.log(req.body);
   let find = {
@@ -45,6 +33,9 @@ router.post("/login", async (req, res) => {
     uid: null,
     userType: null,
   };
+  let temporayType = "";
+  let responseBuyer = "";
+  let responseSeller = "";
 
   console.log("username", username);
   console.log("password", password);
@@ -64,21 +55,19 @@ router.post("/login", async (req, res) => {
       const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
       console.log("accessToken", accessToken);
       res.cookie("u", accessToken, {
+        maxAge: 720000,
         httpOnly: true,
         sameSite: "none",
         secure: true,
-        maxAge: 7200000,
       });
-      res.status(200).send("BUYER");
-
       // res.cookie("ab","refreshed token",{httpOnly:true,sameSite:"none",secure:"false"});
-      // res.status(200).send(find);
+      res.status(200).send("BUYER");
     } else {
+      responseBuyer = "error";
       console.log("error in buyer pass");
-      res.status(404).send("error in password ");
+      res.status(400).send("error in password ");
     }
-  }
-  if (seller) {
+  } else if (seller) {
     const hashed = seller.password;
     const compared = await bcrypt.compare(password, hashed);
     if (compared) {
@@ -86,27 +75,24 @@ router.post("/login", async (req, res) => {
       find.uid = seller.id;
       find.allow = true;
       find.userType = "seller";
-
       const user = find.uid;
       const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
       console.log("accessToken", accessToken);
+
       res.cookie("u", accessToken, {
+        maxAge: 720000,
         httpOnly: true,
         sameSite: "none",
         secure: true,
-        maxAge: 7200000,
       });
-      res.status(200).send("SELLER");
       // res.cookie("ab","refreshed token",{httpOnly:true,sameSite:"none",secure:"false"});
-      // res.status(200).send(find);
+      res.status(200).send("SELLER");
     } else {
-      responseSeller = "error";
-      console.log("error in seller pass");
-      res.status(404).send("error in password ");
+      console.log("error in buyer pass");
+      res.status(400).send("error in password ");
     }
   } else {
     res.status(400).send("error in password or username");
   }
-});
-
-module.exports = router;
+};
+module.exports = authorizecheck;

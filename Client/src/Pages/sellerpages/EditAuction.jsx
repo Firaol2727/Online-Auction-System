@@ -1,183 +1,210 @@
-import {useState,useEffect} from 'react';
-import { Stack, Box, Button,List, Link, ListItem, IconButton, LinearProgress} from '@mui/material';
-import SellerNavbar from './selnav';
-import SearchIcon from '@mui/icons-material/Search';
-import TextField from '@mui/material/TextField';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import {
+  Stack,
+  Box,
+  Button,
+  List,
+  Link,
+  ListItem,
+  IconButton,
+  LinearProgress,
+} from "@mui/material";
+import SellerNavbar from "./selnav";
+import SearchIcon from "@mui/icons-material/Search";
+import TextField from "@mui/material/TextField";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
-const getDateform=(formdate)=>{
-    const date = new Date(formdate);
-    const options = { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric' };
-    const formattedDate = date.toLocaleDateString('en-US', options);
-    return formattedDate;
-}
-const EditAuction=()=>{
-    let itemid=useParams();
+const getDateform = (formdate) => {
+  const date = new Date(formdate);
+  const options = {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  };
+  const formattedDate = date.toLocaleDateString("en-US", options);
+  return formattedDate;
+};
+const EditAuction = () => {
+  let itemid = useParams();
 
-    const api =axios.create({baseURL:"http://localhost:5000/sel"})
-    const [auct,setauct]=useState();
-    const[pics,setpics]=useState();
-    let auctioner;
-    let picter;
-    let item;
-    const[bidders,setbidders]=useState();
-    const [error,seterror]=useState(false);
-    const [hasdata,sethasdata]=useState(false);
-    const nav=useNavigate()
-    const [id,setid]=useState(0)
-    const [imglength,setimglength]=useState(0)
-    const [loading,setloading]=useState(true);
-    const [imgdisplay,setimgdisplay]=useState('');
-    const [dload,setdload]=useState(false);
-    useEffect(()=>{
-        setloading(true)
-        let id=itemid.id;
-        
-        api.get(`/moreon/${id}`,{withCredentials:true})
-        .then(response=>{
-            console.log("The item id is ",itemid)
-            console.log("response",response.status)
-            if(response.status==200){
-                console.log("response",response.data);
-                let hasdat=response.data;
-                if(hasdat){
-                    setauct(hasdat.detail)
-                    item=hasdat.detail;
-                    picter=hasdat.pictures;
-                    auctioner=hasdat.bidders;
-                    sethasdata(true)
-                    setpics(hasdat.pictures)
-                    setimgdisplay(item.see)
-                    setimglength(hasdat.pictures.length)
-                    setloading(false)
-                }else{
-                    sethasdata(false);
-                    setloading(false)
-                }
-                console.log("auct",auct)
-                console.log("pictures",pics)
+  const api = axios.create({ baseURL: "http://localhost:5000/sel" });
+  const [auct, setauct] = useState();
+  const [pics, setpics] = useState();
+  let auctioner;
+  let picter;
+  let item;
+  const [bidders, setbidders] = useState();
+  const [error, seterror] = useState(false);
+  const [hasdata, sethasdata] = useState(false);
+  const nav = useNavigate();
+  const [id, setid] = useState(0);
+  const [imglength, setimglength] = useState(0);
+  const [loading, setloading] = useState(true);
+  const [imgdisplay, setimgdisplay] = useState("");
+  const [dload, setdload] = useState(false);
+  useEffect(() => {
+    setloading(true);
+    let id = itemid.id;
 
-            }
-            else if(res.status==403){
-                nav('/sel/login')
-            }
-            else{
-                seterror(true)
-                setloading(false)
-                sethasdata(false)
-            }
-        })
-        .catch(err=>{
-            console.log("The item id is err ",itemid)
-            if(err.response!=null){
-                if(err.response.status===403){
-                    nav('/sel/login')
-                }
-                
-            }
-            console.log("Error",err);
-            seterror(true)
-            setloading(false)
-            sethasdata(false)
-        })
-    },[])
-    const handledelete=(id)=>{
-        setdload(true)
-        api.post('/deleteauction',{"aid":id},{withCredentials:true}).then(res=>{
-            if (res.status==200) {
-                setdload(false);
-                nav('/sel/home')
-            }
-        }).catch(err=>{
-            setdload(false);
-            console.log(err)
-        })
-    }
-    function changePictures(type) {
-        if(id==0 && type==0){
-            return;
+    api
+      .get(`/moreon/${id}`, { withCredentials: true })
+      .then((response) => {
+        console.log("The item id is ", itemid);
+        console.log("response", response.status);
+        if (response.status == 200) {
+          console.log("response", response.data);
+          let hasdat = response.data;
+          if (hasdat) {
+            setauct(hasdat.detail);
+            item = hasdat.detail;
+            picter = hasdat.pictures;
+            auctioner = hasdat.bidders;
+            sethasdata(true);
+            setpics(hasdat.pictures);
+            setimgdisplay(item.see);
+            setimglength(hasdat.pictures.length);
+            setloading(false);
+          } else {
+            sethasdata(false);
+            setloading(false);
+          }
+          console.log("auct", auct);
+          console.log("pictures", pics);
+        } else if (res.status == 403) {
+          nav("/sel/login");
+        } else {
+          seterror(true);
+          setloading(false);
+          sethasdata(false);
         }
-        else if( type==1 &&id==imglength-1){
-            return;
-        }else if(id<=imglength){
-            
-            if(type==0){
-                let a=id-1;
-                setid(a)
-                console.log("decrement",a)
-                setimgdisplay(pics[a].id)
-                console.log("new id ",pics[id].id)
-            }else if(type==1){
-                
-                let a=id+1;
-                setid(a)
-                console.log("increment",a)
-                setimgdisplay(pics[a].id)
-                console.log("new id ",pics[id].id)
-            }
-        }else{
-            return;}
+      })
+      .catch((err) => {
+        console.log("The item id is err ", itemid);
+        if (err.response != null) {
+          if (err.response.status === 403) {
+            nav("/sel/login");
+          }
+        }
+        console.log("Error", err);
+        seterror(true);
+        setloading(false);
+        sethasdata(false);
+      });
+  }, []);
+  const handledelete = (id) => {
+    setdload(true);
+    api
+      .post("/delete", { id })
+      .then((res) => {
+        if (res.status == 200) {
+          setdload(false);
+          nav("/sel/selhome");
+        }
+      })
+      .catch((err) => {
+        setdload(false);
+        nav("/sel/selhome");
+        console.log(err);
+      });
+  };
+  function changePictures(type) {
+    if (id == 0 && type == 0) {
+      return;
+    } else if (type == 1 && id == imglength - 1) {
+      return;
+    } else if (id <= imglength) {
+      if (type == 0) {
+        let a = id - 1;
+        setid(a);
+        console.log("decrement", a);
+        setimgdisplay(pics[a].id);
+        console.log("new id ", pics[id].id);
+      } else if (type == 1) {
+        let a = id + 1;
+        setid(a);
+        console.log("increment", a);
+        setimgdisplay(pics[a].id);
+        console.log("new id ", pics[id].id);
+      }
+    } else {
+      return;
     }
-    function onchangepic(index){
-        setimgdisplay(index)
-    }
-    return (
-        <div>
-            <SellerNavbar/>
+  }
+  function onchangepic(index) {
+    setimgdisplay(index);
+  }
+  return (
+    <div>
+      <SellerNavbar />
 
-            { (!loading&& hasdata) &&<Box sx={{
-                position:"absolute",
-                marginTop:"50px",
-                height:"130%",
-                backgroundColor:"white",
-                left:{
-                    sm:"10%",
-                    xs:"0px"
-                },
-                width:{
-                    sm:"80%",
-                    xs:"100%"
-                },
-            }}>
-                <Box sx={{
-                        position:"relative",
-                        marginTop:"50px",
-                        backgroundColor:"white"
-                    }}>
-                        <Stack direction={{sm:"row", xs:"column"} }spacing={3}>
-                            <Box className="picture" style={{
-                                backgroundColor:"white",
-                            }}>
-                                <Stack direction={{sm:"row", xs:"column-reverse"} }spacing={1}>
-                                    <Box  sx={{
-                                        // position:"relative",
-                                        marginTop:"6px", 
-                                        marginRight:"6px",
-                                        
-                                        border:"1px grey solid",
-                                        width:{sm:"82px",xs:"100%"},
-                                        // display:"flex",
-                                        alignItems:"center",
-                                        justifyContent:"center",
-                                        flexDirection:{sm:"column", xs:"row"},
-                                        maxHeight:{sm:"400px",xs:"90px"},
-                                        overflow:"scroll",
-                                        overflowX:"hidden",
-                                        overflowY:"hidden"
-                                        }}>
-                                    {pics.map(pic=>(
-                                        // <Box sx={{
-                                        //     position:"relative",
-                                           
-                                        //     marginTop:"5px",  
-                                        //     backgroundColor:"pink",
-                                        // }
-                                        // }>
+      {!loading && hasdata && (
+        <Box
+          sx={{
+            position: "absolute",
+            marginTop: "50px",
+            height: "130%",
+            backgroundColor: "white",
+            left: {
+              sm: "10%",
+              xs: "0px",
+            },
+            width: {
+              sm: "80%",
+              xs: "100%",
+            },
+          }}
+        >
+          <Box
+            sx={{
+              position: "relative",
+              marginTop: "50px",
+              backgroundColor: "white",
+            }}
+          >
+            <Stack direction={{ sm: "row", xs: "column" }} spacing={3}>
+              <Box
+                className="picture"
+                style={{
+                  backgroundColor: "white",
+                }}
+              >
+                <Stack
+                  direction={{ sm: "row", xs: "column-reverse" }}
+                  spacing={1}
+                >
+                  <Box
+                    sx={{
+                      // position:"relative",
+                      marginTop: "6px",
+                      marginRight: "6px",
+
+                      border: "1px grey solid",
+                      width: { sm: "82px", xs: "100%" },
+                      // display:"flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexDirection: { sm: "column", xs: "row" },
+                      maxHeight: { sm: "400px", xs: "90px" },
+                      overflow: "scroll",
+                      overflowX: "hidden",
+                      overflowY: "hidden",
+                    }}
+                  >
+                    {pics.map((pic) => (
+                      // <Box sx={{
+                      //     position:"relative",
+
+                      //     marginTop:"5px",
+                      //     backgroundColor:"pink",
+                      // }
+                      // }>
 
                                         // </Box>
                                         <img
@@ -265,25 +292,40 @@ const EditAuction=()=>{
                                 { bidders &&
                                 <div><h3>Bidders</h3>
                                 <table id="report">
-                                <thead >
-                                    <th>No</th>
-                                    <th>Name</th>
-                                    <th>Offer</th>
-                                    <th>Date</th>
-                                </thead>
-                                    {
-                                        bidders.map((bidder)=>(
-                                            <thead >
-                                                <tr>
-                                                <td>1</td>
-                                                <td>Yohannes Dejene</td>
-                                                <td>5000</td>
-                                                <td>2/12/2020 </td>
-                                            </tr>
-                                            
-                                            </thead>
-                                        ))
-                                    }
+                    <thead >
+                        <th>No</th>
+                        <th>Name</th>
+                        <th>Offer</th>
+                        <th>Date</th>
+                       
+                    </thead>
+                    <tr>
+                        <td>1</td>
+                        <td>Yohannes Dejene</td>
+                        <td>5000</td>
+                        <td>2/12/2020 </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Liul Girma</td>
+                        <td>6000</td>
+                        <td>2/12/2020 </td>
+
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Kalkidan Tibebu</td>
+                        <td>7000</td>
+                        <td>3/12/2020 </td>
+
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Mariamawit Tsegaye</td>
+                        <td>8000 </td>
+                        <td>4/07/2022 </td>
+
+                    </tr>
                                 </table>
                                 <br />  <br />
                                 </div>}
@@ -291,8 +333,7 @@ const EditAuction=()=>{
                                 <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Soluta, quisquam. Omnis suscipit, maiores, sapiente odio libero nostrum ex corrupti nemo nesciunt repudiandae at mollitia dolore, quaerat excepturi! Illum, vero laudantium.</p>
                                 
                                 <br />  <br /> 
-                                <Button color="error" variant='contained' onClick={()=>{
-                                    handledelete(auct.id)}}> {dload? <p>Deleting...</p>: <p>Delete</p>}</Button>
+                                <Button color="error" variant='contained' onClick={handledelete}> {dload? <p>Deleting...</p>: <p>Delete</p>}</Button>
                                 <br />  <br /> <br />  <br />
                                 
                                 </Box>

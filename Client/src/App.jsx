@@ -17,7 +17,7 @@ import Login from "./Components/LoginForm";
 import BuyerLogout from "./Pages/Buyer/BuyerLogout";
 import BuyerEditProfile from "./Pages/Buyer/BuyerEditProfile";
 import BuyerProfile from "./Pages/Buyer/BuyerProfile";
-import SingleAuction from "./Pages/Buyer/SingleAuction";
+import AuctionDetail from "./Pages/Buyer/AuctionDetail";
 import Payment from "./Pages/Buyer/Payment";
 import PlaceBid from "./Pages/Buyer/PlaceBid";
 import BuyerAuctions from "./Pages/Buyer/BuyerAuctions";
@@ -71,13 +71,13 @@ function App() {
           <Route path="/auctions/:id" element={<Clasify />} />
           <Route path="/signup" element={<SignUp />} />
           {/* ### buyer routes */}
-          <Route path="/singleauction/:id" element={<SingleAuction />} />
+          <Route path="/detail/:id" element={<AuctionDetail />} />
           <Route path="/profile" element={<BuyerProfile />} />
           <Route path="/editprofile" element={<BuyerEditProfile />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/buyerauctions" element={<BuyerAuctions />} />
           <Route path="/placebid" element={<PlaceBid />} />
-          <Route path="/singleauction:id" element={<SingleAuction />} />
+
           <Route path="/logout" element={<BuyerLogout />} />
           {/* ### seller routes */}
           <Route path="/sel/login" element={<LoginTrial />} />
