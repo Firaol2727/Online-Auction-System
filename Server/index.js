@@ -9,9 +9,9 @@ const { json } = require("express");
 const jwt = require("jsonwebtoken");
 const auth = require("./routes/auth");
 
-const pay=require("./controllers/payment")
-const cookie=require("cookie")
-const fetch=require('node-fetch')
+const pay = require("./controllers/payment");
+const cookie = require("cookie");
+const fetch = require("node-fetch");
 
 const adminRoutes = require("./routes/adminRoutes");
 const buyerRoute = require("./routes/buyerRoute");
@@ -36,14 +36,14 @@ const {
   Notifyme,
 } = sequelize.models;
 
-const {paychapa,chapaVerify}=require("./controllers/payment");
-const http = require('http').Server(app);
+const { paychapa, chapaVerify } = require("./controllers/payment");
+const http = require("http").Server(app);
 // const { Server, Socket } = require("socket.io");
-const io = require("socket.io")(http,{
+const io = require("socket.io")(http, {
   cors: {
     origin: "http://localhost:5173",
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['my-custom-header'],
+    methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
 
     credentials: true,
   },
@@ -82,7 +82,7 @@ app.use(
 );
 app.use(
   cors({
-    origin:["http://localhost:5173","http://127.0.0.1:5173"],
+    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
 
     credentials: true,
   })
@@ -102,7 +102,6 @@ async function tableChange() {
   //  a function used to commit database changes just change name of model you want to update and call function
   // await Buyer.sync({ alter: true });
 
-
   await Passcode.sync({ alter: true });
 
   console.log("finished");
@@ -115,13 +114,13 @@ async function addAdmin() {
   // adding  database
   const hash = await bcrypt.hashSync("123", bcrypt.genSaltSync(10));
   console.log(hash);
-  return sequelize.models.Admin.create({
+  return Admin.create({
     id: "",
     email: "fraolgetachew2772@gmail.com",
     phone: "+251966003807",
     password: hash,
   })
-    .on((data) => {
+    .then((data) => {
       console.log(data);
       console.log("finished");
     })
@@ -129,6 +128,8 @@ async function addAdmin() {
       console.log(err);
     });
 }
+//addAdmin();
+
 async function selRegistrationTrial() {
   await Seller.create({
     id: "",
@@ -213,8 +214,6 @@ let reisStart = false;
 let waitingchangeauctions = [];
 // Getting image api
 
-
-
 app.get("/images/:picid", (req, res) => {
   let id = req.params.picid;
   console.log("fetch image - ", id);
@@ -231,7 +230,7 @@ app.get("/images/:picid", (req, res) => {
       if (data) {
         res.sendFile(__dirname + "/dbImages/" + data);
       } else {
-        res.status(404).send("Image not found");
+        res.state(404).send("Image not found");
       }
     })
     .catch((err) => {
@@ -274,9 +273,7 @@ app.get("/", (req, res) => {
       console.log(err);
     });
 });
-
-
-
+app.post("/login", authorizecheck);
 
 // fetching by category price region  date
 app.get("/cat/:cname", async (req, res) => {
@@ -598,7 +595,6 @@ app.get("/cat/:cname", async (req, res) => {
     console.log("Not found");
     res.status(404).send("not found");
   }
-
 });
 /// searching a product
 
@@ -624,7 +620,7 @@ app.get("/category/:cname", async (req, res) => {
       console.log(err);
     });
 });
-app.get("/paychapa",paychapa)
+app.get("/paychapa", paychapa);
 
 app.get("/search", async (req, res) => {
   let item = req.query.item;
@@ -683,7 +679,6 @@ app.post("/hele", (req, res) => {
 
   res.sendStatus(200);
 });
-
 
 app.get("/details/:id", async (req, res) => {
   let id = req.params.id;
@@ -774,15 +769,13 @@ app.post("/chargeaccount", async (req, res) => {
   }
 });
 
-app.get('/checkijg',(req,res)=>{
-  console.log("Function before respond")
+app.get("/checkijg", (req, res) => {
+  console.log("Function before respond");
   res.send("Helloe");
   setTimeout(() => {
-    console.log("Function after respond")
+    console.log("Function after respond");
   }, 3000);
-  
-})
-
+});
 
 http.listen(5000, () => {
   console.log("The server is running on 5000");
@@ -792,15 +785,14 @@ const auctionManage = async () => {
   let auctions = await Auction.findAll({
     attributes: ["id", "startdate", "enddate"],
     where: {
-      [Op.or]: [{ status: "open" }, { status: "waiting" }],
+      [Op.or]: [{ state: "open" }, { state: "waiting" }],
     },
   });
   auctions.map(async (auction) => {
     if (auction.startdate == date) {
       waitingchangeauctions.push(auction);
       await Auction.update({
-
-        status: "open",
+        state: "open",
 
         // include: {
         //   model: Seller,
@@ -836,21 +828,23 @@ const auctionManage = async () => {
           bidprice: auction.hammerprice,
         },
       });
-      let winnerUser=await Buyer/findOne({
-        where:{id:winner.buyerId}
-      })
+      let winnerUser =
+        (await Buyer) /
+        findOne({
+          where: { id: winner.buyerId },
+        });
       await auction.update({
-        status: "closed",
-        winnerId: winner.buyerId1!=null? winner.buyerId1:'',
+        state: "closed",
+        winnerId: winner.buyerId1 != null ? winner.buyerId1 : "",
         where: { id: auction.id },
       });
-      if(winnerUser){
+      if (winnerUser) {
         await Notification.create({
-        id: "",
-        AuctionId: auction.id,
-        uid: winner.BuyerId,
-        message: `Congratulations you have won the auction ${auction.name} you can reach the vendor with phonenumber - ${auction.Seller.phonenumber} `,
-      });
+          id: "",
+          AuctionId: auction.id,
+          uid: winner.BuyerId,
+          message: `Congratulations you have won the auction ${auction.name} you can reach the vendor with phonenumber - ${auction.Seller.phonenumber} `,
+        });
       }
       await Notification.create({
         id: "",
@@ -872,29 +866,28 @@ const auctionManage = async () => {
       });
       await ClosedBid.create({
         id: "",
-        auctionId:auction.id,
-        auctionName:auction.name,
-        startdate:auction.startdate,
-        enddate:auction.enddate,
-        seller:auction.Seller.fname+" "+auction.Seller.lname,
-        sellerId:auction.Seller.id,
-        sphone:auction.Seller.phonenumber,
-        winner:winnerUser.fname+" "+winnerUser.lname,
-        winnerId:winnerUser.id,
-        winningbid:auction.hammerprice,
-        wphone:winnerUser.phonenumber
-      })
+        auctionId: auction.id,
+        auctionName: auction.name,
+        startdate: auction.startdate,
+        enddate: auction.enddate,
+        seller: auction.Seller.fname + " " + auction.Seller.lname,
+        sellerId: auction.Seller.id,
+        sphone: auction.Seller.phonenumber,
+        winner: winnerUser.fname + " " + winnerUser.lname,
+        winnerId: winnerUser.id,
+        winningbid: auction.hammerprice,
+        wphone: winnerUser.phonenumber,
+      });
     }
   });
 };
-
+// auctionManage();
 const addOnlineUser = (userid, socketid) => {
-  console.log("The user id is ",userid);
-  console.log("The user socket id is ",socketid);
+  console.log("The user id is ", userid);
+  console.log("The user socket id is ", socketid);
   !onlineUsers.some((user) => user.userid === userid) &&
     onlineUsers.push({ userid, socketid });
-  console.log("Online users",onlineUsers)
-
+  console.log("Online users", onlineUsers);
 };
 
 const removeonlineUser = (socketid) => {
@@ -904,7 +897,7 @@ const removeonlineUser = (socketid) => {
 io.use((socket, next) => {
   const { headers } = socket.handshake;
 
-  const cookieString=  socket.handshake.headers.cookie;
+  const cookieString = socket.handshake.headers.cookie;
 
   // console.log("socket hand shake ",socket.handshake);
   // console.log("headers",headers);
@@ -924,19 +917,17 @@ io.use((socket, next) => {
       }
     });
   } else {
-    console.log('No cookies found!');
+    console.log("No cookies found!");
     socket.disconnect();
   }
   // verify session ID and associate socket with authenticated user
-  
-
 });
 io.on("connection", (socket) => {
   // console.log("The socket id is ", socket.id);
   // console.log("The socket user is ", socket.user);
   console.log("The number of users are ", io.engine.clientsCount);
 
-  addOnlineUser(socket.user,socket.id)
+  addOnlineUser(socket.user, socket.id);
 
   let data = [];
   // bidplaced notification

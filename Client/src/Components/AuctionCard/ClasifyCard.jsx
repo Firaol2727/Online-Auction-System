@@ -1522,16 +1522,14 @@ function ClasifyCard(props) {
               onChange={handlePage}
               sx={{
                 "& .Mui-selected": {
-                  color: "#fff",
-                  backgroundColor: "#f44336",
+                  color: "red",
+                  fontSize: "20px",
                 },
-                "& .Mui-selected:hover": { backgroundColor: "#ba000d" },
-                "& .MuiPaginationItem-page:hover": {
-                  backgroundColor: "#e0e0e0",
-                },
-                "& .MuiPaginationItem-page.Mui-selected:hover": {
-                  backgroundColor: "#ba000d",
-                },
+                // "& .Mui-selected:hover": { backgroundColor: "#ba000d" },
+                // "& .MuiPaginationItem-page:hover": {},
+                // "& .MuiPaginationItem-page.Mui-selected:hover": {
+                //   backgroundColor: "#ba000d",
+                // },
               }}
             />
           </Box>
