@@ -88,14 +88,13 @@ const EditAuction=()=>{
     },[])
     const handledelete=(id)=>{
         setdload(true)
-        api.post('/delete',{id}).then(res=>{
+        api.post('/deleteauction',{"aid":id},{withCredentials:true}).then(res=>{
             if (res.status==200) {
                 setdload(false);
-                nav('/sel/selhome')
+                nav('/sel/home')
             }
         }).catch(err=>{
             setdload(false);
-            nav('/sel/selhome')
             console.log(err)
         })
     }
@@ -266,40 +265,25 @@ const EditAuction=()=>{
                                 { bidders &&
                                 <div><h3>Bidders</h3>
                                 <table id="report">
-                    <thead >
-                        <th>No</th>
-                        <th>Name</th>
-                        <th>Offer</th>
-                        <th>Date</th>
-                       
-                    </thead>
-                    <tr>
-                        <td>1</td>
-                        <td>Yohannes Dejene</td>
-                        <td>5000</td>
-                        <td>2/12/2020 </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Liul Girma</td>
-                        <td>6000</td>
-                        <td>2/12/2020 </td>
-
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>Kalkidan Tibebu</td>
-                        <td>7000</td>
-                        <td>3/12/2020 </td>
-
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>Mariamawit Tsegaye</td>
-                        <td>8000 </td>
-                        <td>4/07/2022 </td>
-
-                    </tr>
+                                <thead >
+                                    <th>No</th>
+                                    <th>Name</th>
+                                    <th>Offer</th>
+                                    <th>Date</th>
+                                </thead>
+                                    {
+                                        bidders.map((bidder)=>(
+                                            <thead >
+                                                <tr>
+                                                <td>1</td>
+                                                <td>Yohannes Dejene</td>
+                                                <td>5000</td>
+                                                <td>2/12/2020 </td>
+                                            </tr>
+                                            
+                                            </thead>
+                                        ))
+                                    }
                                 </table>
                                 <br />  <br />
                                 </div>}
@@ -307,7 +291,8 @@ const EditAuction=()=>{
                                 <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Soluta, quisquam. Omnis suscipit, maiores, sapiente odio libero nostrum ex corrupti nemo nesciunt repudiandae at mollitia dolore, quaerat excepturi! Illum, vero laudantium.</p>
                                 
                                 <br />  <br /> 
-                                <Button color="error" variant='contained' onClick={handledelete}> {dload? <p>Deleting...</p>: <p>Delete</p>}</Button>
+                                <Button color="error" variant='contained' onClick={()=>{
+                                    handledelete(auct.id)}}> {dload? <p>Deleting...</p>: <p>Delete</p>}</Button>
                                 <br />  <br /> <br />  <br />
                                 
                                 </Box>

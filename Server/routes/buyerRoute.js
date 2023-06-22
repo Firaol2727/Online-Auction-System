@@ -493,6 +493,7 @@ router.post("/forgotpassword", async (req, res) => {
 //     }
 //   });
 // });
+
 router.post("/verifycode", async (req, res) => {
   let { email, verificationcode } = req.body;
   return Passcode.findOne({
@@ -500,6 +501,7 @@ router.post("/verifycode", async (req, res) => {
     code:verificationcode
   }).then( async data=>{
     if(data){
+      console.log("Ther is a sent code ")
       let newpassword = uid(6);
       const hash = await bcrypt.hashSync(newpassword, bcrypt.genSaltSync(10));
       let buyer = await Buyer.findOne({ where: { email: email } });
@@ -526,9 +528,9 @@ router.post("/verifycode", async (req, res) => {
       } else {
         res.send("Invalide user email");
       }
-        }else{
-          res.status(400).send("Invalide Verification code")
-        }
+    }else{
+      res.status(400).send("Invalide Verification code")
+    }
   })
   
 });

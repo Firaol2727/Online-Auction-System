@@ -45,7 +45,10 @@ import SelProfie from "./Pages/sellerpages/selprofile";
 import SelChangePassword from "./Pages/sellerpages/selchangePassord";
 import EditAuction from "./Pages/sellerpages/EditAuction";
 import LoginTrial from "./Pages/sellerpages/loginTrial";
+import SignUp from "./Pages/sellerpages/signUp";
 import AdLogin from "./Pages/adminpages/adLogin";
+
+import ForgotPassword from './Pages/sellerpages/forgotpassword';
 // import FilesUploadComponent from "./Pages/sellerpages/createtry";
 function App() {
   const [count, setCount] = useState(0);
@@ -66,6 +69,7 @@ function App() {
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/about" element={<About />} />
           <Route path="/auctions/:id" element={<Clasify />} />
+          <Route path="/signup" element={<SignUp />} />
           {/* ### buyer routes */}
           <Route path="/singleauction/:id" element={<SingleAuction />} />
           <Route path="/profile" element={<BuyerProfile />} />
@@ -83,6 +87,7 @@ function App() {
           <Route path="/sel/profile" element={<SelProfie />} />
           <Route path="/sel/changepassword" element={<SelChangePassword />} />
           <Route path="/sel/detail/:id" element={<EditAuction />} />
+          <Route path="/forgotpassword" element={<ForgotPassword />} />
           {/* <Route path="/uploadtry" element={<FilesUploadComponent/>}/> */}
           {/* ### admin routes */}
           {/* <<<<<<< HEAD */}
