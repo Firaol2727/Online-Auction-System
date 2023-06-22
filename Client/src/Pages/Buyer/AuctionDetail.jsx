@@ -11,6 +11,17 @@ import {
   Typography,
   Divider,
   InputLabel,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Select,
+  Menu,
+  FormControl,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
 } from "@mui/material";
 
 import NavBuyer from "../../Layouts/NavBar/NavBuyer";
@@ -39,7 +50,7 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import TimerIcon from "@mui/icons-material/Timer";
 import TelegramIcon from "@mui/icons-material/Telegram";
-
+import { ReportProblemOutlined } from "@mui/icons-material";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -220,6 +231,27 @@ const AuctionDetail = () => {
 
   const [loggedin, setLoggedIn] = useState(false);
   const [clicked, setClicked] = useState(false);
+
+  const [openReport, setOpenReport] = useState(false);
+  const [reasonReport, setReasonReport] = useState("");
+
+  const handleClickOpen = () => {
+    setOpenReport(true);
+  };
+
+  const handleClose = () => {
+    setOpenReport(false);
+  };
+
+  const handleReasonChange = (event) => {
+    setReasonReport(event.target.value);
+  };
+
+  const handleReport = () => {
+    // handle report submission here
+    console.log(`Report submitted for reason: ${reason}`);
+    handleClose();
+  };
 
   const handleClick = () => {
     setClicked(true);
@@ -902,6 +934,51 @@ const AuctionDetail = () => {
                       </Box>
                       <Typography></Typography>
                     </Box>
+                  </Box>
+                  <Box>
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      startIcon={<ReportProblemOutlined />}
+                      onClick={handleClickOpen}
+                    >
+                      Report
+                    </Button>
+                    <Dialog open={open} onClose={handleClose}>
+                      <DialogTitle>Choose a reason for reporting</DialogTitle>
+                      <DialogContent>
+                        <FormControl component="fieldset">
+                          <RadioGroup
+                            value={reason}
+                            onChange={handleReasonChange}
+                          >
+                            <FormControlLabel
+                              value="spam"
+                              control={<Radio />}
+                              label="This is spam"
+                            />
+                            <FormControlLabel
+                              value="inappropriate"
+                              control={<Radio />}
+                              label="This is inappropriate"
+                            />
+                            <FormControlLabel
+                              value="other"
+                              control={<Radio />}
+                              label="Other reason"
+                            />
+                          </RadioGroup>
+                        </FormControl>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={handleClose} color="primary">
+                          Cancel
+                        </Button>
+                        <Button onClick={handleReport} color="secondary">
+                          Report
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
                   </Box>
                 </Box>
               </Stack>

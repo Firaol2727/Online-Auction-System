@@ -1,1 +1,2 @@
-D:\javascript\auction project\Online-Auction-System\Server\dbImages
+*.env
+/Server/dbImages
