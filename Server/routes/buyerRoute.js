@@ -14,23 +14,26 @@ var transporter = nodemailer.createTransport({
     user: "nuchereta27@gmail.com",
     pass: "vwckzzzmmmvobjpz",
   },
-}); 
+});
 let userverification = [];
 function ClearVerificationCodes() {
   setInterval(() => {
     userverification = [];
   }, 3000000);
 }
-const {authorizeCustomer,checkAuthorizationCustomer}=require( '../controllers/buyercontroller/authorizeBuyer');
-const changepassword=require( '../controllers/buyercontroller/changepassword');
-const changeProfile=require( '../controllers/buyercontroller/changeprofile');
-const codSent=require( '../controllers/buyercontroller/codesend');
-const forgotPassword=require( '../controllers/buyercontroller/forgotpassword');
-const notification=require( '../controllers/buyercontroller/notification');
-const placeBid=require( '../controllers/buyercontroller/placebid');
-const profile=require( '../controllers/buyercontroller/profile');
-const register=require( '../controllers/buyercontroller/register');
-const report=require( '../controllers/buyercontroller/report');
+const {
+  authorizeCustomer,
+  checkAuthorizationCustomer,
+} = require("../controllers/buyercontroller/authorizeBuyer");
+const changepassword = require("../controllers/buyercontroller/changepassword");
+const changeProfile = require("../controllers/buyercontroller/changeprofile");
+const codSent = require("../controllers/buyercontroller/codesend");
+const forgotPassword = require("../controllers/buyercontroller/forgotpassword");
+const notification = require("../controllers/buyercontroller/notification");
+const placeBid = require("../controllers/buyercontroller/placebid");
+const profile = require("../controllers/buyercontroller/profile");
+const register = require("../controllers/buyercontroller/register");
+const report = require("../controllers/buyercontroller/report");
 // ClearVerificationCodes();
 // transporter.sendMail(mailOptions, function(error, info){
 //   if (error) {
@@ -41,7 +44,7 @@ const report=require( '../controllers/buyercontroller/report');
 // });
 const {
   Passcode,
-  ReportAuction,
+  ReportedAuction,
   Auction,
   Banker,
   Bid,
@@ -54,7 +57,6 @@ const {
   Product,
   Seller,
   Transaction,
-
 } = sequelize.models;
 // const authorizeCustomer = async (req, res, next) => {
 //   let { phonenumber, password } = req.body;
@@ -233,157 +235,148 @@ router.post("/changepassword", checkAuthorizationCustomer, async (req, res) => {
       });
   }
 });
-router.get("/placebid", async (req, res) => {
-  /*
-    id: 
-    bidprice: 
-    biddate:
-    */
+router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
   let account;
   let name;
   let hammerprice;
   let paidresponse;
-  let uid =req.user;
+  let uid = req.user;
   // "d09b7d05ee3ccb43";
-   //req.user;
+  //req.user;
   console.log("The user id is ", uid);
   let { bidprice, aid } = req.body;
   // let bidprice=90000
   // let aid="9b1e259afed2b3bf"
-  try{
-
-  let auction = await Auction.findOne({
-    where: { id: aid,state:"open" },
-    attributes: ["hammerprice", "name"],
-  });
-  if (auction !== null) {
-    console.log("There is auction");
-    name = auction.name;
-    let now = Date();
-    hammerprice = auction.hammerprice;
-    console.log("hammerprice", hammerprice);
-    console.log("bidprice", bidprice);
-    if (bidprice > Number(hammerprice) + 100) {
-      console.log("Valid price")
-      paidresponse=await chapaVerify(uid);
-      return Buyer.findOne({
-        where: { id: uid },
-        attributes: ["account"],
-      })
-      .then(async (data) => {
-        console.log("Buyer account fetched ",data.account)
-        let prevbid = await Bid.findOne({
-          where: {
-            BuyerId: uid,
-            AuctionId: aid,
-          },
-        });
-        
-        if (prevbid !== null ) {
-          console.log("There is previous bid");
-          await Bid.update(
-            {
-              bidprice: bidprice,
-              biddate: now,
-            },
-            { where: { id: prevbid.id } }
-          );
-          return true;
-        } 
-        else if (data.account >= 100 || paidresponse) {
-          console.log("There is no previous bid  has paid onchap");
-          account = data.account>0?Number(data.account ) - 100:0;
-          await Transaction.create({
-            id: "",
-            amount: 100,
-            date: now,
-            AuctionId: aid,
-            BuyerId: uid,
-          });
-          await Buyer.update(
-            {
-              account: account,
-            },
-            {
-              where: { id: uid },
-            }
-          );
-          await Bid.create({
-            id: "",
-            bidprice: bidprice,
-            biddate: now,
-            BuyerId: uid,
-            AuctionId: aid,
-          });
-          return true;
-        }
-        else {
-          return false;
-        }
-      })
-      .then(async (has_bid) => {
-        console.log("the bidder has made succesfull bid ",has_bid);
-        if (has_bid) {
-          await Auction.update(
-            {
-              hammerprice: bidprice,
-            },
-            { where: { id: aid } }
-          );
-          res.sendStatus(200);
-        // Thing to be done after responding  
-          if(paidresponse){
-            await Notification.create({
-              id: "",
-              AuctionId: auction.id,
-              BuyerId: uid,
-              message: `Dear customer you have successfully charged your account`,
+  try {
+    let auction = await Auction.findOne({
+      where: { id: aid, state: "open" },
+      attributes: ["hammerprice", "name"],
+    });
+    if (auction !== null) {
+      console.log("There is auction");
+      name = auction.name;
+      let now = Date();
+      hammerprice = auction.hammerprice;
+      console.log("hammerprice", hammerprice);
+      console.log("bidprice", bidprice);
+      if (bidprice > Number(hammerprice) + 100) {
+        console.log("Valid price");
+        paidresponse = await chapaVerify(uid);
+        return Buyer.findOne({
+          where: { id: uid },
+          attributes: ["account"],
+        })
+          .then(async (data) => {
+            console.log("Buyer account fetched ", data.account);
+            let prevbid = await Bid.findOne({
+              where: {
+                BuyerId: uid,
+                AuctionId: aid,
+              },
             });
-          }
-          let users = await Bid.findAll({
-            where: { AuctionId: aid },
-            attributes: ["BuyerId"],
-          });
-          console.log(users);
-          users.map(async (user) => {
-            console.log("the bidder is ", user);
-            if (user.BuyerId !== uid) {
+
+            if (prevbid !== null) {
+              console.log("There is previous bid");
+              await Bid.update(
+                {
+                  bidprice: bidprice,
+                  biddate: now,
+                },
+                { where: { id: prevbid.id } }
+              );
+              return true;
+            } else if (data.account >= 100 || paidresponse) {
+              console.log("There is no previous bid  has paid onchap");
+              account = data.account > 0 ? Number(data.account) - 100 : 0;
+              await Transaction.create({
+                id: "",
+                amount: 100,
+                date: now,
+                AuctionId: aid,
+                BuyerId: uid,
+              });
+              await Buyer.update(
+                {
+                  account: account,
+                },
+                {
+                  where: { id: uid },
+                }
+              );
+              await Bid.create({
+                id: "",
+                bidprice: bidprice,
+                biddate: now,
+                BuyerId: uid,
+                AuctionId: aid,
+              });
+              return true;
+            } else {
+              return false;
+            }
+          })
+          .then(async (has_bid) => {
+            console.log("the bidder has made succesfull bid ", has_bid);
+            if (has_bid) {
+              await Auction.update(
+                {
+                  hammerprice: bidprice,
+                },
+                { where: { id: aid } }
+              );
+              res.sendStatus(200);
+              // Thing to be done after responding
+              if (paidresponse) {
+                await Notification.create({
+                  id: "",
+                  AuctionId: auction.id,
+                  BuyerId: uid,
+                  message: `Dear customer you have successfully charged your account`,
+                });
+              }
+              let users = await Bid.findAll({
+                where: { AuctionId: aid },
+                attributes: ["BuyerId"],
+              });
+              console.log(users);
+              users.map(async (user) => {
+                console.log("the bidder is ", user);
+                if (user.BuyerId !== uid) {
+                  await Notification.create({
+                    id: "",
+                    AuctionId: aid,
+                    BuyerId: user.BuyerId,
+                    message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
+                    nottype: "bidupdate",
+                  });
+                }
+              });
               await Notification.create({
                 id: "",
                 AuctionId: aid,
-                BuyerId: user.BuyerId,
+                selid: auction.SellerId,
                 message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
                 nottype: "bidupdate",
               });
+            } else {
+              console.log("There is no sufficient balance");
+              res.status(402).send("balance_insufficient");
             }
+          })
+          .catch((err) => {
+            console.log("The error is ", err);
+            res.status(500).send("Internal server error");
           });
-          await Notification.create({
-            id: "",
-            AuctionId: aid,
-            selid: auction.SellerId,
-            message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
-            nottype: "bidupdate",
-          });
-        } else {
-          console.log("There is no sufficient balance");
-          res.status(402).send("balance_insufficient")
-        }
-      })
-      .catch((err) => {
-        console.log("The error is ", err);
-        res.status(500).send("Internal server error");
-      });
+      } else {
+        res.sendStatus(404).send("Invalid bidding price");
+      }
     } else {
-      res.sendStatus(404).send("Invalid bidding price");
+      res.sendStatus(404).send("Auction not found");
     }
-  }else{
-    res.sendStatus(404).send("Auction not found");
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal server error ");
   }
-}catch(err){
-  console.log(err);
-  res.status(500).send("Internal server error ")
-
-}
 });
 router.post("/login", authorizeCustomer, (req, res) => {
   res.sendStatus(200);
@@ -405,8 +398,11 @@ router.get("/profile", checkAuthorizationCustomer, (req, res) => {
 router.post("/report", (req, res) => {
   let aid = req.body.aid;
   let type = req.body.type;
-  return ReportAuction.create({
-    aid: aid,
+  console.log(req.body);
+  console.log(aid);
+  return ReportedAuction.create({
+    id: "",
+    AuctionId: aid,
     type: type,
   })
     .then((data) => {
@@ -440,39 +436,38 @@ router.post("/forgotpassword", async (req, res) => {
   let email = req.body.email;
   let buyer = Buyer.findOne({ where: { email: email } });
   if (buyer) {
-    try{
+    try {
       let verificationcode = uid(5);
-    userverification.push({
-      email: email,
-      verificationcode: verificationcode,
-    });
-    var mailOptions = {
-      from: "nuchereta27@gmail.com",
-      to: email,
-      subject: "User verification",
-      text: `Your Verification code is  ${verificationcode}`,
-    };
-    transporter.sendMail(mailOptions, async function (error, info) {
-      if (error) {
-        console.log(error);
-        res.status(500).send("Error in sending email verification")
-      } else {
-        Passcode.create({
-          id:"",
-          email:email,
-          code:verificationcode
-        })
-        console.log("Email sent: " + info.response);
-        res.status(200).send("Verification has been sent to your Email")
-      }
-    });
-    }catch(err){
-      console.log("Email sending error")
+      userverification.push({
+        email: email,
+        verificationcode: verificationcode,
+      });
+      var mailOptions = {
+        from: "nuchereta27@gmail.com",
+        to: email,
+        subject: "User verification",
+        text: `Your Verification code is  ${verificationcode}`,
+      };
+      transporter.sendMail(mailOptions, async function (error, info) {
+        if (error) {
+          console.log(error);
+          res.status(500).send("Error in sending email verification");
+        } else {
+          Passcode.create({
+            id: "",
+            email: email,
+            code: verificationcode,
+          });
+          console.log("Email sent: " + info.response);
+          res.status(200).send("Verification has been sent to your Email");
+        }
+      });
+    } catch (err) {
+      console.log("Email sending error");
     }
-    }
-    else {
-      res.status(400).send("invalid email")
-    }
+  } else {
+    res.status(400).send("invalid email");
+  }
 });
 
 // router.get('/send-code/:email', (req, res) => {
@@ -497,14 +492,13 @@ router.post("/forgotpassword", async (req, res) => {
 // });
 
 router.post("/verifycode", async (req, res) => {
-
   let { email, verificationcode } = req.body;
   return Passcode.findOne({
-    email:email,
-    code:verificationcode
-  }).then( async data=>{
-    if(data){
-      console.log("Ther is a sent code ")
+    email: email,
+    code: verificationcode,
+  }).then(async (data) => {
+    if (data) {
+      console.log("Ther is a sent code ");
       let newpassword = uid(6);
       const hash = await bcrypt.hashSync(newpassword, bcrypt.genSaltSync(10));
       let buyer = await Buyer.findOne({ where: { email: email } });
@@ -531,10 +525,9 @@ router.post("/verifycode", async (req, res) => {
       } else {
         res.send("Invalide user email");
       }
-    }else{
-      res.status(400).send("Invalide Verification code")
+    } else {
+      res.status(400).send("Invalide Verification code");
     }
-  })
-  
+  });
 });
 module.exports = router;

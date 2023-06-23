@@ -22,6 +22,7 @@ import {
   FormControlLabel,
   Radio,
   RadioGroup,
+  Tooltip,
 } from "@mui/material";
 
 import NavBuyer from "../../Layouts/NavBar/NavBuyer";
@@ -228,13 +229,48 @@ function AuctionCountdown({ startDate }) {
 const AuctionDetail = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [notify, setNotify] = useState(false);
-
+  const [bidPrice, setBidPrice] = useState("");
   const [loggedin, setLoggedIn] = useState(false);
   const [clicked, setClicked] = useState(false);
 
   const [openReport, setOpenReport] = useState(false);
   const [reasonReport, setReasonReport] = useState("");
+  const itemid = useParams();
 
+  const api = axios.create({ baseURL: "http://localhost:5000/" });
+  const [auct, setauct] = useState();
+  const [pics, setpics] = useState();
+
+  const [hasdata, sethasdata] = useState(false);
+
+  const nav = useNavigate();
+  const [id, setid] = useState(0);
+  const [imglength, setimglength] = useState(0);
+  const [loading, setloading] = useState(true);
+  const [imgdisplay, setimgdisplay] = useState("");
+
+  const submitBid = (event) => {
+    event.preventDefault();
+    console.log("submiteded");
+    console.log("bid Price", bidPrice);
+    setauct({ ...auct, hammarprice: 4000 });
+    console.log(auct.hammarprice);
+    axios({
+      method: "POST",
+      url: "http://localhost:5000/custom/placebid",
+      withCredentials: true,
+      data: {
+        aid: itemid.id,
+        bidprice: bidPrice,
+      },
+    })
+      .then((response) => {
+        console.log("response", response);
+      })
+      .catch((error) => {
+        console.log("error", error);
+      });
+  };
   const handleClickOpen = () => {
     setOpenReport(true);
   };
@@ -249,7 +285,25 @@ const AuctionDetail = () => {
 
   const handleReport = () => {
     // handle report submission here
-    console.log(`Report submitted for reason: ${reason}`);
+
+    const data = { aid: itemid.id, type: reasonReport };
+    console.log(`Report submitted for reason: ${reasonReport}`);
+
+    axios({
+      method: "POST",
+      url: "http://localhost:5000/custom/report",
+      withCredentials: true,
+      data: {
+        ...data,
+      },
+    })
+      .then((response) => {
+        console.log("response", response);
+        console.log("id", itemid);
+      })
+      .catch((error) => {
+        console.log("error", error);
+      });
     handleClose();
   };
 
@@ -257,23 +311,6 @@ const AuctionDetail = () => {
     setClicked(true);
     setNotify(!notify);
   };
-  const itemid = useParams();
-
-  const api = axios.create({ baseURL: "http://localhost:5000/" });
-  const [auct, setauct] = useState();
-  const [pics, setpics] = useState();
-  let auctioner;
-  let picter;
-  let item;
-  const [bidders, setbidders] = useState();
-  const [error, seterror] = useState(false);
-  const [hasdata, sethasdata] = useState(false);
-  const nav = useNavigate();
-  const [id, setid] = useState(0);
-  const [imglength, setimglength] = useState(0);
-  const [loading, setloading] = useState(true);
-  const [imgdisplay, setimgdisplay] = useState("");
-  const [dload, setdload] = useState(false);
 
   useEffect(() => {
     console.log("use effect i the auction detail ");
@@ -306,28 +343,22 @@ const AuctionDetail = () => {
         console.log("response", response.status);
         if (response.status == 200) {
           console.log("response", response.data);
-          let hasdat = response.data;
-          if (hasdat) {
-            setauct(hasdat);
-            console.log("my auct", auct);
-            item = hasdat.detail;
-            picter = hasdat.Pictures;
-            auctioner = hasdat.bidders;
+          if (response.data) {
             sethasdata(true);
-            setpics(hasdat.Pictures);
-            setimgdisplay(hasdat.see);
-            setimglength(hasdat.Pictures.length);
+            setauct(response.data);
+            console.log("my auct", auct);
+            setpics(response.data.Pictures);
+            setimgdisplay(response.data.see);
+            setimglength(response.data.Pictures.length);
             setloading(false);
           } else {
             sethasdata(false);
             setloading(false);
           }
-          console.log("auct", auct);
-          console.log("pictures", pics);
         } else if (res.status == 403) {
           nav("/sel/login");
         } else {
-          seterror(true);
+          // seterror(true);
           setloading(false);
           sethasdata(false);
         }
@@ -341,27 +372,12 @@ const AuctionDetail = () => {
           }
         }
         console.log("Error", err);
-        seterror(true);
+        // seterror(true);
         setloading(false);
         sethasdata(false);
       });
-  }, []);
-  const handledelete = (id) => {
-    setdload(true);
-    api
-      .post("/delete", { id })
-      .then((res) => {
-        if (res.status == 200) {
-          setdload(false);
-          nav("/sel/selhome");
-        }
-      })
-      .catch((err) => {
-        setdload(false);
-        nav("/sel/selhome");
-        console.log(err);
-      });
-  };
+  }, [setauct]);
+
   function changePictures(type) {
     if (id == 0 && type == 0) {
       return;
@@ -562,7 +578,79 @@ const AuctionDetail = () => {
                     height: "auto",
                   }}
                 >
-                  <Box>
+                  <Box
+                    sx={{
+                      float: "right",
+                      mt: "-30px",
+                    }}
+                  >
+                    <Button
+                      startIcon={<ReportProblemOutlined />}
+                      onClick={handleClickOpen}
+                      sx={{
+                        color: "grey",
+                        fontWight: "bold",
+                        textTransform: "none",
+                      }}
+                    ></Button>
+                    <Dialog open={openReport} onClose={handleClose}>
+                      <DialogTitle>Reason for report</DialogTitle>
+                      <DialogContent>
+                        <FormControl component="fieldset">
+                          <RadioGroup
+                            value={reasonReport}
+                            onChange={handleReasonChange}
+                          >
+                            <FormControlLabel
+                              value="spam"
+                              control={<Radio />}
+                              label=" spam"
+                            />
+                            <FormControlLabel
+                              value="Violance"
+                              control={<Radio />}
+                              label=" Violance"
+                            />
+                            <FormControlLabel
+                              value="Child Abuse"
+                              control={<Radio />}
+                              label="Child Abuse"
+                            />
+                            <FormControlLabel
+                              value="Pornogaphy"
+                              control={<Radio />}
+                              label="Pornogaphy"
+                            />
+                            <FormControlLabel
+                              value="Copyright"
+                              control={<Radio />}
+                              label=" Copyright"
+                            />
+                            <FormControlLabel
+                              value="Illegal Drug"
+                              control={<Radio />}
+                              label="Illegal Drug"
+                            />
+                            <FormControlLabel
+                              value="other"
+                              control={<Radio />}
+                              label="Other reason"
+                            />
+                          </RadioGroup>
+                        </FormControl>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={handleClose} color="primary">
+                          Cancel
+                        </Button>
+                        <Button onClick={handleReport} sx={{ color: "red" }}>
+                          Report
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
+                  </Box>
+
+                  <Box sx={{ marginTop: "0px" }}>
                     {auct.state == "waiting" && (
                       <>
                         <Box
@@ -610,25 +698,38 @@ const AuctionDetail = () => {
                             </Typography>
                           </Box>
                           <Box>
-                            <StyledButton
-                              variant="contained"
-                              onClick={handleClick}
-                              endIcon={
-                                notify ? (
-                                  <NotificationsActiveIcon />
-                                ) : (
-                                  <NotificationsIcon />
-                                )
+                            <Tooltip
+                              title={
+                                !notify
+                                  ? "Notify me when Open"
+                                  : "you will be notified"
                               }
-                              sx={{
-                                color: "white",
-                                backgroundColor: notify ? "grey" : "#7F1705",
-                              }}
                             >
-                              <Typography sx={{ fontSize: "15px" }}>
-                                {notify ? "Notified !" : "Notify me"}
-                              </Typography>
-                            </StyledButton>
+                              <Button
+                                onClick={handleClick}
+                                endIcon={
+                                  notify ? (
+                                    <NotificationsActiveIcon
+                                      size="large"
+                                      sx={{ color: "red" }}
+                                    />
+                                  ) : (
+                                    <NotificationsIcon
+                                      size="large"
+                                      sx={{ color: "black" }}
+                                    />
+                                  )
+                                }
+                                // sx={{
+                                //   color: "white",
+                                //   // backgroundColor: notify ? "grey" : "#7F1705",
+                                // }}
+                              >
+                                <Typography sx={{ fontSize: "15px" }}>
+                                  {/* {notify ? "Notified !" : "Notify me"} */}
+                                </Typography>
+                              </Button>
+                            </Tooltip>
                           </Box>
                         </Box>
 
@@ -745,6 +846,7 @@ const AuctionDetail = () => {
                               Live Auction
                             </Typography>
                           </Box>
+
                           <Box
                             sx={{
                               marginLeft: "10px",
@@ -806,7 +908,7 @@ const AuctionDetail = () => {
                                 marginLeft: "5px",
                               }}
                             >
-                              ETB 5666
+                              ETB :{auct.hammerprice}
                             </Typography>
                           </Box>
                           <br />
@@ -821,11 +923,13 @@ const AuctionDetail = () => {
                                 marginLeft: "5px",
                               }}
                             >
-                              ETB 5666
+                              ETB :
+                              {/* {auct.hammerprice + (auct.hammarprice * 2) / 100} */}
+                              3000
                             </Typography>
                           </Box>
                           <Box>
-                            {loggedin && (
+                            {!loggedin && (
                               <Box
                                 className="login"
                                 sx={{
@@ -847,12 +951,12 @@ const AuctionDetail = () => {
                                 </Button>
                               </Box>
                             )}
-                            {!loggedin && (
+                            {loggedin && (
                               <Box
                                 className="placeBid"
                                 sx={{ marginTop: "20px", marginBottom: "40px" }}
                               >
-                                <form onSubmit={console.log("hthththh")}>
+                                <form onSubmit={submitBid}>
                                   <InputLabel
                                     htmlFor="placebid"
                                     sx={{ color: "black" }}
@@ -865,6 +969,18 @@ const AuctionDetail = () => {
                                     required
                                     sx={{ width: "80%" }}
                                     type="number"
+                                    // inputProps={{
+                                    //   min:
+                                    //     auct.hammerprice +
+                                    //     (auct.hammarprice * 2) / 100,
+                                    // }}
+                                    inputProps={{
+                                      min: 3000,
+                                    }}
+                                    value={bidPrice}
+                                    onChange={(event) => {
+                                      setBidPrice(event.target.value);
+                                    }}
                                   />
                                   <Box
                                     sx={{
@@ -934,51 +1050,6 @@ const AuctionDetail = () => {
                       </Box>
                       <Typography></Typography>
                     </Box>
-                  </Box>
-                  <Box>
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      startIcon={<ReportProblemOutlined />}
-                      onClick={handleClickOpen}
-                    >
-                      Report
-                    </Button>
-                    <Dialog open={open} onClose={handleClose}>
-                      <DialogTitle>Choose a reason for reporting</DialogTitle>
-                      <DialogContent>
-                        <FormControl component="fieldset">
-                          <RadioGroup
-                            value={reason}
-                            onChange={handleReasonChange}
-                          >
-                            <FormControlLabel
-                              value="spam"
-                              control={<Radio />}
-                              label="This is spam"
-                            />
-                            <FormControlLabel
-                              value="inappropriate"
-                              control={<Radio />}
-                              label="This is inappropriate"
-                            />
-                            <FormControlLabel
-                              value="other"
-                              control={<Radio />}
-                              label="Other reason"
-                            />
-                          </RadioGroup>
-                        </FormControl>
-                      </DialogContent>
-                      <DialogActions>
-                        <Button onClick={handleClose} color="primary">
-                          Cancel
-                        </Button>
-                        <Button onClick={handleReport} color="secondary">
-                          Report
-                        </Button>
-                      </DialogActions>
-                    </Dialog>
                   </Box>
                 </Box>
               </Stack>
