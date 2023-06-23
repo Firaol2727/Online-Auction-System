@@ -233,7 +233,7 @@ router.post("/changepassword", checkAuthorizationCustomer, async (req, res) => {
       });
   }
 });
-router.get("/placebid", async (req, res) => {
+router.post("/placebid",checkAuthorizationCustomer, async (req, res) => {
   /*
     id: 
     bidprice: 

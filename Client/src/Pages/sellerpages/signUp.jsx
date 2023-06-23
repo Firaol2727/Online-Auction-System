@@ -474,11 +474,13 @@ function SellerForm() {
         }}
         >
         <Button
-            sx={{
+        sx={{
             fontSize: "20px",
             textTransform: "unset",
             color: "white",
-            }}
+            backgroundColor:"brown",
+            ":hover":{backgroundColor:"red"},
+            borderSize:"10px"}}
         //   disabled={savingSeller}
             type="submit"
         >
@@ -570,10 +572,10 @@ const SelectUserType=(props)=>{
                     padding:"5px",
                     width:{xs:"90%",sm:"40%"},
                     height:"170px",
-                    border:"1px brown solid",
-                    
+                    border:checked?"3px brown solid":"1px grey solid",
 
                 }}>
+                    
                     <Checkbox
                         sx={{left:"84%",top:"0%"}}
                         checked={checked}
@@ -583,13 +585,24 @@ const SelectUserType=(props)=>{
                         checkedIcon={<AlbumIcon />}
                         inputProps={{ 'aria-label': 'controlled' }}
                         />
-                    <p style={{marginRight:"10px",marginLeft:"10px"}}>I am a bidder/buyer looking for products</p>
+                    <Box sx={{position:"static" ,top:{sm:"25%",xs:"5%"},width:"50px",height:"50px"}} >
+                    <img src='/buyer3.png' alt="" width="50px" height="50px" /></Box>
+                    
+                    <p style={{
+                        marginRight:"10px",
+                        marginLeft:"10px",
+                        
+                        width:"80%",
+                        fontSize:"20px",
+                        fontWeight:"bold",
+                        fontFamily:"serif"
+                        }}>I'm a buyer looking for products</p>
                 </Box>
                 <Box sx={{
                     
                     width:{xs:"90%",sm:"40%"},
                     height:"170px",
-                    border:"1px brown solid",
+                    border:checked2?"3px brown solid":"1px grey solid",
                     padding:"5px"
 
                 }}>
@@ -602,19 +615,31 @@ const SelectUserType=(props)=>{
                         checkedIcon={<AlbumIcon />}
                         inputProps={{ 'aria-label': 'controlled' }}
                         />
-                    Seller Section
+                         <Box sx={{position:"static" ,top:{sm:"25%",xs:"5%"},width:"50px",height:"50px"}} >
+                        <img src='/seller.jpeg' alt="" width="50px" height="50px" />
+                    </Box>
+                    <p style={{
+                        marginRight:"10px",
+                        marginLeft:"10px",
+                        fontSize:"20px",
+                        fontWeight:"bold",
+                        fontFamily:"serif"
+                        }}>I'm a seller looking for products</p>
                 </Box>
                
             </Stack>
             
             <br /><br /> <br />
 
-            <center> <Button 
-            sx={{
-                backgroundColor:"brown",
-                ":hover":{backgroundColor:"red"},
-                width:"50%", color:"white",
-                borderSize:"10px"}} variant='contained' >{ checked? "Join as Buyer":"Join as Seller"}</Button></center>
+            <center> 
+                <Button 
+                    onClick={submiType}
+                    sx={{
+                        backgroundColor:"brown",
+                        ":hover":{backgroundColor:"red"},
+                        width:"50%", color:"white",
+                        borderSize:"10px"}} variant='contained' >
+                    { checked? "Join as Buyer":"Join as Seller"}</Button></center>
             <br /><br /> <br />
             <center><p>Already have an account ?
             <b>
@@ -628,7 +653,7 @@ const SignUp=()=>{
     const [type,settype]=useState(0);
     // 1 type=1 for bidder
     // 2 type=2 for seller
-    // 3 type=3 for not selected yet
+    // 0 type=0for not selected yet
     const login=()=>{
         console.log(username);
         console.log(password); 
@@ -684,8 +709,8 @@ const SignUp=()=>{
       
         
             <SelectUserType type={type} settype={settype} />
-            {/* {<BuyerForm/>} */}
-            {/* {<SellerForm/>} */}
+            {type ==1 &&<BuyerForm/>}
+            {type ==2 && <SellerForm/>}
         </div>
     )
 }
