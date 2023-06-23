@@ -42,6 +42,7 @@ function SellerNavbar(props) {
     const [anchorEl, setAnchorEl] = useState(null);
     const [Notifications,setNotifications]=useState([]);
     const [hasnotification,sethasnotifications]=useState(0); 
+    const [no_of_notification,setNo_of_notification]=useState(0);
     const [hasnext,sethasnext]=useState(false);
     //  0 for loading 1 for hasnotification and 2 for no notification
     function fetchNotifications(params) {
@@ -51,32 +52,29 @@ function SellerNavbar(props) {
             if(response.status===200){
                 let data=response.data;
                 console.log("response data",data)
-                if(data){
+                if(data.length>0){
                     setNotifications([...response.data]);
-                sethasnotifications(1);
+                    sethasnotifications(2);
                 }else{
-                    sethasnotifications(2)
+                    sethasnotifications(1)
                 }
             }
             else if(response.status===403){
                 nav("/login")
             }else{
-                sethasnotifications(2)
+                sethasnotifications(1)
             }
+            console.log("hasnotification",hasnotification)
         })
         .catch(err=>{
             console.log(err);
-            sethasnotifications(2)
+            sethasnotifications(1)
         })
     }
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
-    // socket.on('bidupdate', (data) => {
-    //     console.log("The client is litsening to the port 5000")
-    // // handle event data
-    // });
     const handleClose = () => {
         setAnchorEl(null);
     };
@@ -90,16 +88,31 @@ function SellerNavbar(props) {
             fetchNotifications();
         }
     };
+    
     useEffect(()=>{
-        // socket.on('bidupdate', (data) => {
-        //     console.log("successfully connected to the server socket")
-        // });
+        socket.on('connect', () => {});
+        socket.on('bidupdate', (data) => {
+            console.log("successfully connected to the server socket")
+            setNo_of_notification(no_of_notification+1)
+        });
+        baseapi.get('/newnotification',{withCredentials:true})
+        .then(res=>{
+            console.log(res)
+            if(res.status==200){
+                
+                setNo_of_notification(res.data.nopage)
+            }
+        })
+        .catch(err=>{
+            console.log("The error is ",err);
+
+        })
     },[])
 
 return (
     <Box sx={{ display: 'flex' }}>
         {/* backgroundImage: "linear-gradient(#04519b,  "#B54E47"   #044687 60%, #033769)" */}
-    <AppBar component="nav"  sx={{ backgroundColor: "white", height:"60px" }} >
+    <AppBar component="nav"  sx={{ backgroundColor: "white", height:"70px",paddingTop:"7px" }} >
         <Toolbar >
                 <img src="/logo2.png" href="" width="40px" height={"60px"} 
                 style={{ width: "40px", margin: "6px 10px " }}></img>
@@ -109,28 +122,14 @@ return (
                     sx={{fontFamily:"sans-serif",color:"brown", fontWeight:"bolder",flexGrow: 1, display: {  xs: 'none', sm: 'block' }  }} // xs: 'none',
                 >
                     Nuchereta
+                </Typography>  
+                <Typography
+                    variant="h5"
+                    component="div"
+                    sx={{fontFamily:"sans-serif",color:"brown", fontWeight:"bolder",flexGrow: 1, display: {  xs: 'block', sm: 'none' }  }} // xs: 'none',
+                >
+                    Nu
                 </Typography> 
-                {/* <h1 style={{
-                    position:"absolute",
-                    // backgroundColor:"yellow",
-                    top:"0%",
-                    left:"43px",
-                    fontSize:"40px",
-                    fontFamily:"sans-serif",color:"brown",
-                    
-                }}>Nuchereta</h1> */}
-        {/* <img
-            alt="Home Page"
-            src="https://oaresources.azureedge.net/images/oa-gavel-sm.png"
-            style={{ width: "40px", margin: "6px 10px ",backgroundColor:"brown" }}
-        ></img>
-        <Typography
-            variant="h6"
-            component="div"
-            sx={{color:"black", flexGrow: 1, display: {  xs: 'none', sm: 'block' }  }} // xs: 'none',
-        >
-            NU CHERETA
-        </Typography> */}
         <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
         
         <NavLink
@@ -168,7 +167,8 @@ return (
         
         <Button  color="inherit" onClick={handleClickNotification} >
             <Stack direction={"Column"} spacing={2} sx={{color:"black", alignItems:"center"}}>
-                <NotificationsNoneIcon/>
+                {/* <NotificationsNoneIcon/> */}
+                <Badge badgeContent={no_of_notification} color="error"><NotificationsNoneIcon  sx={{color:"black"}}/></Badge>
                 <p> Notification</p>
                 </Stack>
         </Button>
@@ -241,7 +241,7 @@ return (
             size="small"
             aria-haspopup="true"
             onClick={handleClickNotification} >
-                <Badge badgeContent={4} color="error"><NotificationsNoneIcon  sx={{color:"black"}}/></Badge>
+                <Badge badgeContent={no_of_notification} color="error"><NotificationsNoneIcon  sx={{color:"black"}}/></Badge>
                 
             </IconButton>
             
@@ -312,57 +312,29 @@ return (
     <Popper id={id} open={openNotification} anchorEl={anchorElNotification} sx={{zIndex:"2"}}>
         {
             hasnotification ==0 && <Box sx={{
-                border: 1, p: 1,width:{sm:"400px",xs:"300px",backgroundColor:"whiteS",height:"100px",marginTop:"20px"} }}>
+                border: 1, p: 1,width:{sm:"400px",xs:"300px",backgroundColor:"#FFE4C4",height:"100px",marginTop:"20px"} }}>
                 <center><CircularProgress/></center>
             </Box>
         }
-        { hasnotification == 1 && <Box sx={{ border: 1, p: 1, bgcolor: 'background.paper',height:"600px",overflowY:"scroll",overflowX:"hidden", paddingTop:"22px" }}>
+        { hasnotification == 1 && <div>
+            
             <Box sx={{
-                width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
-            }}
-            ></Box>
-            <Box sx={{
-                width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
-            }}
-            ></Box>
-            <Box sx={{
-                width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
-            }}
-            ></Box>
-            <Box sx={{
-                width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
-            }}
-            ></Box>
-            <Box sx={{
-                width:{sm:"400px",xs:"300px",backgroundColor:"lightblue",height:"100px",marginBottom:"5px"}
-            }}
-            ></Box>
-            <Box sx={{
-                width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
-            }}
-            ></Box>
-            <Box sx={{
-                width:{sm:"400px",xs:"300px",backgroundColor:"lightblue",height:"100px",marginBottom:"5px"}
-            }}
-            ></Box>
-            <Box sx={{
-                width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
-            }}
-            ></Box>
-            <Box sx={{
-                width:{sm:"400px",xs:"300px",backgroundColor:"lightgreen",height:"100px",marginBottom:"5px"}
-            }}
-            ></Box>
-        </Box>}
+                    border: 1, p: 1,width:{sm:"400px",xs:"300px",backgroundColor:"#FFE4C4",height:"80px",marginTop:"2px"} }}>
+                    <center> <Typography sx={{color:"black"}}>No notifications yet. </Typography></center>
+                </Box>
+        </div>}
         {
-            hasnotification ==2 && <div>
+            hasnotification ==2 && <Box sx={{ border: 1, p: 1, bgcolor: 'background.paper',height:"600px",overflowY:"scroll",overflowX:"hidden", paddingTop:"22px" }}>
             {Notifications.map(notification=>(
-                notification.type===1 && <Box sx={{
-                    border: 1, p: 1,width:{sm:"400px",xs:"300px",backgroundColor:"white",height:"100px",marginTop:"20px"} }}>
-                    <center> <Typography sx={{color:"royalblue"}}> No Notification</Typography></center>
+                notification.type==="bidupdate"?<Link href={`/moreon/${notification.AuctionId}`}><Box sx={{
+                    border: 1, p: 1,width:{sm:"400px",xs:"300px",backgroundColor:"#FFE4C4",height:"100px",marginTop:"20px"} }}>
+                    <center> <Typography sx={{color:"black"}}>This is the notification</Typography></center>
+                </Box></Link> :<Box sx={{
+                    border: 1, p: 1,width:{sm:"400px",xs:"300px",backgroundColor:"#FFE4C4",height:"100px",marginTop:"20px"} }}>
+                    <center> <Typography sx={{color:"black"}}>This is the notification</Typography></center>
                 </Box>
             )) 
-            }</div>
+            }</Box>
         }
         
         

@@ -740,8 +740,8 @@ app.post("/login",async (req, res) => {
         sameSite: "none",
         secure: true,
         maxAge: 7200000,
-      });
-      res.status(200).send("BUYER");
+      }).send("BUYER");
+      // res.status(200).send("BUYER");
 
       // res.cookie("ab","refreshed token",{httpOnly:true,sameSite:"none",secure:"false"});
       // res.status(200).send(find);
@@ -750,7 +750,7 @@ app.post("/login",async (req, res) => {
       res.status(404).send("error in password ");
     }
   }
-  if (seller) {
+  else  if (seller) {
     const hashed = seller.password;
     const compared = await bcrypt.compare(password, hashed);
     if (compared) {
@@ -773,7 +773,7 @@ app.post("/login",async (req, res) => {
       // res.status(200).send(find);
     } else {
       responseSeller = "error";
-      console.log("error in seller pass");
+      console.log("error in seller password");
       res.status(404).send("error in password ");
     }
   } else {
@@ -972,7 +972,7 @@ const auctionManage = async () => {
     },
   });
   auctions.map(async (auction) => {
-    if (auction.startdate == date) {
+    if (auction.startdate == date || auction.startdate <date) {
       waitingchangeauctions.push(auction);
       await Auction.update({
         state: "open",
@@ -1003,7 +1003,7 @@ const auctionManage = async () => {
         nottype: "start",
       });
     }
-    if (auction.enddate == date) {
+    if (auction.enddate == date || auction.enddate >date) {
       waitingchangeauctions.push(auction);
       let winner = await Bid.findOne({
         where: {
@@ -1114,18 +1114,18 @@ io.on("connection", (socket) => {
 
   let data = [];
   // bidplaced notification
-  socket.on("bidupdate", async (userid, auctionid) => {
+  socket.on("bidupdate", async (auctionid) => {
     let bidders = await Bid.findAll({
       where: { AuctionId: auctionid },
     });
     onlineUsers.map(async (user) => {
       bidders.map((bid) => {
-        if (user.userid == bid.BuyerId) {
+        if (user.userid == bid.BuyerId && user.userid !=socket.user) {
           socket.to(user.socketid).emit("bidupdate", "new notification");
         }
       });
     });
-    socket.broadcast.emit("message", data);
+    // socket.broadcast.emit("message", data);
   });
   // socket.on("message",(data)=>{
   //     console.log(data);

@@ -1,16 +1,14 @@
 import {useState,useRef,useEffect} from 'react';
 import axios from 'axios';
 import { TextField,Box, Button, LinearProgress,Link, Typography, Stack } from '@mui/material';
-import {  redirect, useNavigate } from "react-router-dom";
+import {   useNavigate } from "react-router-dom";
 import * as React from "react";
-import { styled, alpha } from "@mui/material/styles";
-import PropTypes from "prop-types";
-import AppBar from "@mui/material/AppBar";
+
 import {Select} from '@mui/material';
 import {MenuItem} from '@mui/material';
 import AlbumIcon from '@mui/icons-material/Album';
 import Checkbox from '@mui/material/Checkbox';
-
+import {FormControl} from '@mui/material';
 import CircularProgress from "@mui/material/CircularProgress";
 axios.create({
   baseURL: "http://localhost:5000",
@@ -39,21 +37,36 @@ function BuyerForm() {
         return regex.test(password);
     }
     
-    const submitFormBuyer=(e)=>{
-        e.preventDefault();
+    const submitFormBuyer=()=>{
         setloading(true)
         let validphone=isValidPhoneNumber(phonenumber);
         let validpassword=isValidPassword(password);
         if(!validpassword){
             seterrmessage("Password length must be greater than 6 and must contain numbers and digits")
+            setloading(false)
+            return;
         }
         if(!validphone){
             seterrmessage("Enter a valid phonenumber")
+            setloading(false)
+            return;
+        }
+        if(fname==''){
+            seterrmessage("First name required")
+            setloading(false)
+            return;
+        }
+        if(lname==''){
+            seterrmessage("Last name required")
+            setloading(false)
+            return
         }
         if(password!==confirmpassword){
             seterrmessage("Error in confirm password")
+            setloading(false)
+            return;
         }
-        if(validphone  && validpassword && password==confirmpassword){
+        if(validphone  && validpassword && password==confirmpassword  && lname!=''&&fname!=''){
             baseUri.post('/custom/register',
                 {
                     "firstName":fname,
@@ -65,18 +78,26 @@ function BuyerForm() {
                 .then(res=>{
                     setloading(false)
                     if(res.status==200){
-                        nav(-1);
-                    }else{
+                        nav("/");
+                    }
+                    else if(res.status==500){
+                        seterrmessage("It looks like you have already an account, try login")
+                    }
+                    else{
                         seterrmessage("It looks like you have already an account, try login")
                     }
                 })
                 .catch(err=>{
                     setloading(false)
-                    console.log("The error is ",err);
-                    seterrmessage("Network error ")
+                    if(err.response.status==500){
+                        seterrmessage("It looks like you have already an account, try login")
+                    }else{
+                        console.log("The error is ",err);
+                        seterrmessage("Network error ")
+                    }
+                    
                 })
         }
-
     }
     return (
         <Box
@@ -103,10 +124,7 @@ function BuyerForm() {
             },
         }}
         >
-        <form  onSubmit={ (e)=>{
-            e.preventDefault
-        }
-        }  style={{border:"1px gray solid", borderRadius:"30px", padding:"20px",}}>
+        <div  style={{border:"1px gray solid", borderRadius:"30px", padding:"20px",}}>
             <center><Typography 
             sx={{ 
                 color: "black" ,
@@ -168,7 +186,7 @@ function BuyerForm() {
                 variant="standard"
                 sx={{ margin: "5px" }}
                 required
-                type="number"
+                type="text"
             />
     
             <TextField
@@ -213,21 +231,17 @@ function BuyerForm() {
                 marginTop: "30px",
             }}
             >
-            <Button
+            <Button onClick={submitFormBuyer}
                 sx={{
                 fontSize: "20px",
                 textTransform: "unset",
                 color: "white",
                 }}
             //   disabled={savingSeller}
-                type="submit"
             >
                
                 {loading ? (
-                <>
-                    <CircularProgress size={24} />
-                    Signing...
-                </>
+                    "Saving..."
                 ) : (
                 "Create my account"
                 )}
@@ -237,7 +251,7 @@ function BuyerForm() {
                 <b>
                 <a href='sel/login'
                     style={{color:"brown",textDecoration:"none",fontFamily:"serif",marginLeft:"10px"}} underline='none'>Login</a></b></p></center>
-        </form>
+        </div>
         <br /> <br />
         </Box> 
     );
@@ -263,39 +277,72 @@ function SellerForm() {
         const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
         return regex.test(password);
     }
-    const submitSeller=(e)=>{
-        e.preventDefault();
+    const submitSeller=()=>{
         let validphone=isValidPhoneNumber(phonenumber);
         let validpassword=isValidPassword(password);
         if(!validpassword){
             seterrmessage("Password length must be greater than 6 and must contain numbers and digits")
+            setloading(false)
+            return;
         }
         if(!validphone){
             seterrmessage("Enter a valid phonenumber")
+            setloading(false)
+            return;
         }
         if(password!==confirmpassword){
             seterrmessage("Error in confirm password")
+            setloading(false)
+            return;
         }
-        if(validphone  && validpassword && password==confirmpassword){
+        if(fname==''){
+            seterrmessage('First name required')
+            setloading(false)
+            return;
+        }
+        if(lname==""){
+            seterrmessage("Last name required")
+            setloading(false)
+            return;
+        }
+        if(region==''){
+            seterrmessage("Region is required")
+            setloading(false)
+            return;
+        }
+        if(city==''){
+            seterrmessage("City is required")
+            setloading(false)
+            return;
+        }
+        if(validphone  && validpassword && password==confirmpassword && lname!=''&&fname!=''){
+            setloading(true)
             baseUri.post('/sel/register',
                 {
                     "firstName":fname,
-                    "lname":lname,
+                    "lastName":lname,
                     "phoneNumber":phonenumber, 
                     "email":email, 
                     "password":password,
                     "region":region,
                     "city":city
                 })
-                .then(res=>{
+                .then(res=>{``
+                    setloading(false)
                     if(res.status===200){
-                        nav(-1)
+                        nav("/sel/home")
                     }else{
                         seterrmessage("It looks like you have already an account,try to login")
                     }
                 })
                 .catch(err=>{
-                    console.log("The error is ",err);
+                    setloading(false)
+                    if(err.response.status==500){
+                        seterrmessage("It looks like you have already an account, try login")
+                    }else{
+                        console.log("The error is ",err);
+                        seterrmessage("Network Error")
+                    }
                     
                 })
         }
@@ -324,7 +371,7 @@ function SellerForm() {
         },
     }}
     >
-    <form  style={{border:"1px gray solid", borderRadius:"30px", padding:"20px",}}>
+    <div   style={{border:"1px gray solid", borderRadius:"30px", padding:"20px",}}>
         <center><Typography 
         sx={{ 
             color: "black" ,
@@ -385,7 +432,7 @@ function SellerForm() {
             variant="standard"
             sx={{ margin: "5px" }}
             required
-            type="number"
+            type="text"
         />
 
         <TextField
@@ -411,7 +458,7 @@ function SellerForm() {
             type="password"
         />
         <span style={{ color: "red" }}>
-            {/* {formErrorsSeller.confirmPassword} */}
+            {/* {divErrorsSeller.confirmPassword} */}
         </span>
 
         <Box sx={{ float: "right", display: "flex", flexWrap: "wrap" }}>
@@ -474,32 +521,30 @@ function SellerForm() {
         }}
         >
         <Button
-        sx={{
-            fontSize: "20px",
-            textTransform: "unset",
-            color: "white",
-            backgroundColor:"brown",
-            ":hover":{backgroundColor:"red"},
-            borderSize:"10px"}}
-        //   disabled={savingSeller}
+            onClick={submitSeller}
             type="submit"
-        >
-            Create my account
-            {/* {savingSeller ? (
+            sx={{
+                textTransform: "unset",
+                color: "white",
+                borderRadius:"10px"}}
+              disabled={loading}
+            >
+            
+            {loading ? (
             <>
                 <CircularProgress size={24} />
                 Saving...
             </>
             ) : (
-            " Create Account"
-            )} */}
+            "Create my account"
+            )}
         </Button>
         </Box>
         <center><p>Already have an account ?
             <b>
             <a href='sel/login'
              style={{color:"brown",textDecoration:"none",fontFamily:"serif",marginLeft:"10px"}} underline='none'>Login</a></b></p></center>
-    </form>
+    </div>
     <br /> <br />
     </Box> 
 );
@@ -551,6 +596,7 @@ const SelectUserType=(props)=>{
         xs: "83%",
         },
     }}>
+        
         <Box style={{border:"1px gray solid", borderRadius:"30px", padding:"20px",}}>
         <center><Typography 
         sx={{ 
@@ -571,7 +617,7 @@ const SelectUserType=(props)=>{
                 <Box sx={{
                     padding:"5px",
                     width:{xs:"90%",sm:"40%"},
-                    height:"170px",
+                    height:"180px",
                     border:checked?"3px brown solid":"1px grey solid",
 
                 }}>
@@ -601,7 +647,7 @@ const SelectUserType=(props)=>{
                 <Box sx={{
                     
                     width:{xs:"90%",sm:"40%"},
-                    height:"170px",
+                    height:"180px",
                     border:checked2?"3px brown solid":"1px grey solid",
                     padding:"5px"
 
@@ -624,7 +670,7 @@ const SelectUserType=(props)=>{
                         fontSize:"20px",
                         fontWeight:"bold",
                         fontFamily:"serif"
-                        }}>I'm a seller looking for products</p>
+                        }}>I'm a seller looking for potential buyers</p>
                 </Box>
                
             </Stack>
@@ -646,6 +692,7 @@ const SelectUserType=(props)=>{
             <a href='sel/login'
                 style={{color:"brown",textDecoration:"none",fontFamily:"serif",marginLeft:"10px"}} underline='none'>Login</a></b></p></center>
         </Box>
+        
     </Box>
     </>
 }
@@ -684,6 +731,9 @@ const SignUp=()=>{
             console.log("The error is ",err);
         })
     }
+    useEffect(()=>{
+        settype(0)
+    },[])
     return (
         <div style={{
             position:"absolute",
@@ -707,8 +757,16 @@ const SignUp=()=>{
                 }}>Nuchereta</h1>
             </div>
       
-        
-            <SelectUserType type={type} settype={settype} />
+            {/* <div style={{
+                width: "20px",
+                marginTop:"15%",
+                marginLeft:"50%",
+                height:"60%",
+                transform: "rotate(45deg)",
+                // transformOrigin: "left bottom",
+                backgroundColor: "brown"
+            }}></div> */}
+           { type==0 && <SelectUserType type={type} settype={settype} />}
             {type ==1 &&<BuyerForm/>}
             {type ==2 && <SellerForm/>}
         </div>

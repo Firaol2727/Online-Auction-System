@@ -47,11 +47,11 @@ export default class CreateAuction extends Component {
       inputfilelength: 0,
       categoryvalid: true,
       filevalid: true,
+      loading:false,
       basepricevalid: true,
       startdatevalid: true,
       error: "",
       range: null,
-
       // tooltip controllers //
       nametooltip: false,
       pricetooltip: false,
@@ -99,9 +99,7 @@ export default class CreateAuction extends Component {
         if (fileObj[0][i].size > 2048576) {
           this.state.filevalid = false;
           break;
-        } else {
-          this.state.filevalid = true;
-        }
+        } 
       }
     }
 
@@ -117,6 +115,8 @@ export default class CreateAuction extends Component {
   }
   onSubmit(e) {
     e.preventDefault();
+
+    this.setState({ loading: true });
     var formData = new FormData();
     for (const key of Object.keys(this.state.imgCollection)) {
       formData.append("imgCollection", this.state.imgCollection[key]);
@@ -138,27 +138,41 @@ export default class CreateAuction extends Component {
       const rangeauction = Math.round(
         diffInMilliseconds / (1000 * 60 * 60 * 24)
       );
-      if (sd > now) {
+      if (sd >= now) {
+        console.log("The start date is is greater or equal  to now ")
         if (diffInDays < 90 && rangeauction < 30) {
+          console.log("The start date of the auction is also in less than 3 month days and auction range is less than a month")
           this.state.startdatevalid = true;
           //   this.state.startdate = sd;
           //   this.state.enddate = ed;
         } else {
+          console.log("Difference In days".diffInDays)
+          console.log("Difference In days".rangeauction)
+          console.log("The start date of the auction is no less than 3 month days or auction range is not less than a month")
           this.state.startdatevalid = false;
+          this.setState({ loading: false });
         }
       } else {
         this.state.startdatevalid = false;
+        this.setState({ loading: false });
       }
     }
     if (this.state.baseprice < 3000) {
       this.setState({ basepricevalid: false });
+      this.setState({ loading: false });
     }
     if (this.state.inputfilelength == 0) {
       this.state.filevalid = false;
+      this.setState({ loading: false });
     }
     if (this.state.category == null) {
       this.state.categoryvalid = false;
+      this.setState({ loading: false });
     }
+    if (!this.state.filevalid){
+      this.setState({ loading: false });
+    }
+    
     console.log("starting date ", this.state.startdate);
     console.log("ending date", this.state.enddate);
     console.log("Is the auction date valid ?", this.state.startdatevalid);
@@ -183,12 +197,14 @@ export default class CreateAuction extends Component {
           withCredentials: true,
         })
         .then((res) => {
+          this.setState({ loading: false });
           if (res.status === 200) {
             nav("/myauction");
           }
           console.log(res.data);
         })
         .catch((err) => {
+          this.setState({ loading: false });
           console.log("the error is ", err);
         });
     }
@@ -197,6 +213,7 @@ export default class CreateAuction extends Component {
     return (
       <div>
         <SellerNavbar />
+        <br />
         <Box
           sx={{
             position: "absolute",
@@ -219,7 +236,7 @@ export default class CreateAuction extends Component {
                   marginTop: "15px",
                   width: "200px",
                   height: "60px",
-                  border: "1px green double",
+                  // border: "1px green double",
                   paddingTop: "2px",
                 }}
               >
@@ -233,6 +250,7 @@ export default class CreateAuction extends Component {
                   this.setState({ name: e.target.value });
                 }}
                 label="Name"
+                required
                 variant="standard"
                 sx={{
                   width: { sm: "450px", xs: "300px" },
@@ -254,6 +272,7 @@ export default class CreateAuction extends Component {
                     basepricevalid: true,
                   });
                 }}
+                required
                 label="Base price"
                 variant="standard"
                 sx={{
@@ -262,6 +281,9 @@ export default class CreateAuction extends Component {
                   marginBottom: "20px",
                 }}
               />
+               {!this.state.startdatevalid && (
+                <Typography color={"error"}>Invalid date</Typography>
+              )}
               <Stack
                 direction={"column"}
                 sx={{
@@ -273,6 +295,7 @@ export default class CreateAuction extends Component {
                 <p>Start Date</p>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
+                    required
                     value={this.state.startdate}
                     onChange={(newValue) =>
                       this.setState({ startdate: newValue })
@@ -292,6 +315,7 @@ export default class CreateAuction extends Component {
                 <p>End Date</p>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
+                    required
                     value={this.state.enddate}
                     onChange={(newValue) =>
                       this.setState({ enddate: newValue })
@@ -299,9 +323,7 @@ export default class CreateAuction extends Component {
                   />
                 </LocalizationProvider>
               </Stack>
-              {!this.state.startdatevalid && (
-                <Typography color={"error"}>Invalid date</Typography>
-              )}
+             
               {/* <LocalizationProvider dateAdapter={AdapterDayjs}  >
                             <DemoContainer components={['DateRangePicker']}>
                                 <DateRangePicker sx={{width:{sm:"350px",xs:"300px"}}} onChange={(newValue) => this.setState({range:newValue,startdatevalid:true})}
@@ -316,6 +338,7 @@ export default class CreateAuction extends Component {
                   labelId="demo-simple-select-standard-label"
                   id="demo-simple-select-standard"
                   value={this.state.type}
+                  required
                   onChange={this.handleChange}
                   label="Auctioneer"
                 >
@@ -336,6 +359,7 @@ export default class CreateAuction extends Component {
                   labelId="demo-simple-select-standard-label"
                   id="demo-simple-select-standard"
                   value={this.category}
+                  required
                   onChange={(event) => {
                     this.setState({ category: event.target.value });
                   }}
@@ -360,6 +384,7 @@ export default class CreateAuction extends Component {
                 sx={{ position: "relative", width: "300px", marginTop: "20px" }}
                 options={this.regions}
                 autoHighlight
+                required
                 getOptionLabel={(option) => option}
                 value={this.state.region}
                 onChange={(event, newValue) => {
@@ -375,43 +400,26 @@ export default class CreateAuction extends Component {
                     }}
                   />
                 )}
-              />
-              <Autocomplete
-                id="city-select-demo"
-                sx={{ position: "relative", width: "300px", marginTop: "20px" }}
-                options={this.cities}
-                onChange={(event, newValue) => {
-                  this.setState({ city: newValue });
-                }}
-                autoHighlight
-                value={this.state.city}
-                getOptionLabel={(option) => option}
-                renderOption={(props, option) => (
-                  <Box
-                    component="li"
-                    sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
-                    {...props}
-                  >
-                    {option}
-                  </Box>
-                )}
-                renderInput={(params) => (
+              /> <br />
+             
                   <TextField
-                    {...params}
                     label="City"
-                    inputProps={{
-                      ...params.inputProps,
-                      autoComplete: "new-password", // disable autocomplete and autofill
+                    onChange={(e) => {
+                      this.setState({
+                        city: e.target.value,
+                      });
                     }}
+                    required
+                    value={this.state.city}
+
                   />
-                )}
-              />{" "}
               <br />
               {!this.state.filevalid && (
                 <Typography color={"error"}>
                   please attach described image size and number
                 </Typography>
               )}
+              <br />
               <Button
                 variant="contained"
                 component="label"
@@ -455,23 +463,28 @@ export default class CreateAuction extends Component {
                       width: "92%",
                       height: "200px",
                       border: "1px grey solid",
+                      padding:"10px",
+                      fontSize:"15px"
                     }}
                   />
                 </Box>
               </div>
-              <Button
+              <center>
+                <Button
                 type="submit"
                 variant="contained"
                 sx={{
-                  // width:"300px",
-                  color: "lightblue",
+                  width:"300px",
+                  color: "white",
+
                   marginTop: "50px",
                   left: "1%",
-                  backgroundColor: "blueblacks",
+                  backgroundColor: "brown",
                 }}
-              >
-                Create
+              > Create my auction
               </Button>
+              </center>
+              
             </div>
           </form>
         </Box>
@@ -493,6 +506,7 @@ export default class CreateAuction extends Component {
             style={{ marginLeft: "200px", height: "450px" }}
           />
         </Box>
+        
       </div>
     );
   }
