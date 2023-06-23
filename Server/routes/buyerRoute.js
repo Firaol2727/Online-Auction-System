@@ -155,12 +155,22 @@ router.post("/register", async (req, res) => {
     phonenumber: phoneNumber,
     // type: "buyer",
   })
-    .then(() => {
-      res.send("registeration verified");
+    .then(async (data) => {
+      const user = data.id;
+      console.log(data);
+      const accessToken = await jwt.sign(
+        user,
+        process.env.REFRESH_TOKEN_SECRET
+      );
+      // console.log("accessToken",accessToken);
+      res
+        .cookie("u", accessToken, { httpOnly: true })
+        .send("registeration verified");
     })
     .catch((err) => {
       console.log(err);
-      res.status(404).send("Error username or password ");
+
+      res.status(500).send("It looks like you have already an account");
     });
 });
 router.post("/changeprofile", checkAuthorizationCustomer, async (req, res) => {
@@ -325,14 +335,14 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
                 },
                 { where: { id: aid } }
               );
-
               res.status(200).send("success");
               // Thing to be done after responding
               if (paidresponse) {
                 await Notification.create({
                   id: "",
                   AuctionId: auction.id,
-                  BuyerId: uid,
+                  uid: uid,
+                  type: "account update",
                   message: `Dear customer you have successfully charged your account`,
                 });
               }
@@ -348,21 +358,24 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
                     id: "",
                     AuctionId: aid,
                     selid: auction.SellerId,
+                    uid: user.BuyerId,
                     message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
                     nottype: "bidupdate",
                   });
+                } else {
+                  console.log("There is no sufficient balance");
+                  res.status(402).send("balance_insufficient");
                 }
               });
-
               await Notification.create({
                 id: "",
                 AuctionId: aid,
-                selid: auction.SellerId,
+                uid: auction.SellerId,
                 message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
                 nottype: "bidupdate",
               });
             } else {
-              console.log("There is no sufficient balance ");
+              console.log("There is no sufficient balance");
               paychapa(aid, req, res);
               // res.status(402).send("balance_insufficient")
             }
@@ -372,16 +385,17 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
             res.status(500).send("Internal server error");
           });
       } else {
-        res.status(404).send("invalid bid price");
+        res.status(404).send("Invalid bidding price");
       }
     } else {
-      res.status(404).send("Auction not  found");
+      res.status(404).send("Auction not found");
     }
   } catch (err) {
     console.log(err);
     res.status(500).send("Internal server error ");
   }
 });
+
 router.post("/login", authorizeCustomer, (req, res) => {
   res.sendStatus(200);
 });
@@ -432,11 +446,30 @@ router.get("/notification", checkAuthorizationCustomer, (req, res) => {
       {
         where: {
           read: false,
-          BuyerId: uid,
+          uid: uid,
         },
       }
     );
   });
+});
+router.get("/newnotification", checkAuthorizationCustomer, async (req, res) => {
+  console.log("fetching notification");
+  let uid = req.user;
+  return Notification.findAndCountAll({
+    where: { uid: uid, read: true },
+  })
+    .then(async (data) => {
+      if (data) {
+        console.log(data);
+        let nopage = parseInt(data.count);
+        res.send({ nopage: nopage });
+      } else {
+        res.send(0);
+      }
+    })
+    .catch((err) => {
+      res.sendStatus(500);
+    });
 });
 router.post("/forgotpassword", async (req, res) => {
   let email = req.body.email;

@@ -187,7 +187,7 @@ router.use(cors({
 router.post("/register", async (req, res) => {
   let { firstName, lastName, email, password, phoneNumber, region, city } =
     req.body;
-
+  
   const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
   return Seller.create({
     id: "",
@@ -205,7 +205,7 @@ router.post("/register", async (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(404).send("some thing went wrong ");
+      res.status(500).send("It looks like you have already an account");
     });
 });
 // change profile
@@ -397,7 +397,7 @@ router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
         },{
             where:{
                 read:false,
-                selid:uid
+                uid:uid
             }
         })
     }).catch(err=>{
@@ -405,9 +405,31 @@ router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
     })
 
 }) 
-
+router.get('/newnotification',checkAuthorizationSeller,async(req,res)=>{
+  console.log("fetching notification")
+  let uid=req.user;
+  return Notification.findAndCountAll({
+      where:{uid:uid,read:true
+      }
+  }).then( async data=>{
+    if(data){
+      console.log(data);
+      let nopage = parseInt(data.count);
+      res.send({"nopage":nopage});
+    }else{
+      res.send(0);
+    }
+      
+  }).catch(err=>{
+      res.sendStatus(500)
+  })
+}) 
 // create auction
-router.post("/upload", checkAuthorizationSeller, (req, res) => {
+router.post("/upload", checkAuthorizationSeller,(req,res,next)=>{
+  console.log("Can this be done first",req.body)
+  console.log("Can this be done first")
+  next()
+}, (req, res) => {
   upload(req, res, function (err) {
     if (err instanceof multer.MulterError) {
       console.log("error occured");

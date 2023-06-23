@@ -165,6 +165,25 @@ router.get('/notification',checkAuthorization,async(req,res)=>{
     })
 
 }) 
+router.get('/newnotification',checkAuthorization,async(req,res)=>{
+    console.log("fetching notification")
+    let uid=req.user;
+    return Notification.findAndCountAll({
+        where:{uid:uid,read:true
+        }
+    }).then( async data=>{
+        if(data){
+            console.log(data);
+            let nopage = parseInt(data.count);
+            res.send({"nopage":nopage});
+          }else{
+            res.send(0);
+          }
+    }).catch(err=>{
+        res.sendStatus(500)
+    })
+  
+  }) 
 router.post('/deleteauction',checkAuthorization,async(req,res)=>{
     let aid = req.body.aid;
     try {

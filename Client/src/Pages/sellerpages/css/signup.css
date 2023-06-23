@@ -39,14 +39,11 @@
 }
 }
 .slanted-box {
-    position: absolute;
-    left: 0%;
-    top:70%;
-    z-index: 0;
-    width: 40px;
-    height: 80%;
+    width: 20px;
+    height: 100vh;
+    transform: rotate(45deg);
+    transform-origin: left bottom;
     background-color: brown;
-    transform: skew(-60deg);
 }
 
 input:focus {
