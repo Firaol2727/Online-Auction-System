@@ -155,12 +155,20 @@ router.post("/register", async (req, res) => {
     phonenumber: phoneNumber,
     // type: "buyer",
   })
-    .then(() => {
-      res.send("registeration verified");
+    .then(async (data) => {
+      const user=data.id
+      console.log(data);
+      const accessToken = await jwt.sign(
+        user,
+        process.env.REFRESH_TOKEN_SECRET
+      );
+      // console.log("accessToken",accessToken);
+      res.cookie("u", accessToken, { httpOnly: true }).send("registeration verified");
     })
     .catch((err) => {
       console.log(err);
-      res.status(404).send("Error username or password ");
+
+      res.status(500).send("It looks like you have already an account");
     });
 });
 router.post("/changeprofile", checkAuthorizationCustomer, async (req, res) => {
@@ -237,7 +245,6 @@ router.post("/changepassword", checkAuthorizationCustomer, async (req, res) => {
 });
 
 router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
-
   let account;
   let name;
   let hammerprice;
@@ -249,9 +256,9 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
   let { bidprice, aid } = req.body;
   // let bidprice=90000
   // let aid="9b1e259afed2b3bf"
-  try {
+  try{
     let auction = await Auction.findOne({
-      where: { id: aid, state: "open" },
+      where: { id: aid,state:"open" },
       attributes: ["hammerprice", "name"],
     });
     if (auction !== null) {
@@ -262,146 +269,135 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
       console.log("hammerprice", hammerprice);
       console.log("bidprice", bidprice);
       if (bidprice > Number(hammerprice) + 100) {
-        console.log("Valid price");
-        paidresponse = await chapaVerify(uid);
+        console.log("Valid price")
+        paidresponse=await chapaVerify(uid);
         return Buyer.findOne({
           where: { id: uid },
           attributes: ["account"],
         })
-          .then(async (data) => {
-            console.log("Buyer account fetched ", data.account);
-            let prevbid = await Bid.findOne({
-              where: {
-                BuyerId: uid,
-                AuctionId: aid,
-              },
-            });
-
-            if (prevbid !== null) {
-              console.log("There is previous bid");
-              await Bid.update(
-                {
-                  bidprice: bidprice,
-                  biddate: now,
-                },
-                { where: { id: prevbid.id } }
-              );
-              return true;
-            } else if (data.account >= 100 || paidresponse) {
-              console.log("There is no previous bid  has paid onchap");
-              account = data.account > 0 ? Number(data.account) - 100 : 0;
-              await Transaction.create({
-                id: "",
-                amount: 100,
-                date: now,
-                AuctionId: aid,
-                BuyerId: uid,
-              });
-              await Buyer.update(
-                {
-                  account: account,
-                },
-                {
-                  where: { id: uid },
-                }
-              );
-              await Bid.create({
-                id: "",
+        .then(async (data) => {
+          console.log("Buyer account fetched ",data.account)
+          let prevbid = await Bid.findOne({
+            where: {
+              BuyerId: uid,
+              AuctionId: aid,
+            },
+          });
+          
+          if (prevbid !== null ) {
+            console.log("There is previous bid");
+            await Bid.update(
+              {
                 bidprice: bidprice,
                 biddate: now,
-                BuyerId: uid,
-                AuctionId: aid,
-              });
-              return true;
-            } else {
-              return false;
-            }
-
-          );
-          await Bid.create({
-            id: "",
-            bidprice: bidprice,
-            biddate: now,
-            BuyerId: uid,
-            AuctionId: aid,
-          });
-          return true;
-        }
-        else {
-          return false;
-        }
-      })
-      .then(async (has_bid) => {
-        console.log("the bidder has made succesfull bid ",has_bid);
-        if (has_bid) {
-          await Auction.update(
-            {
-              hammerprice: bidprice,
-            },
-            { where: { id: aid } }
-          );
-          res.status(200).send("success");
-        // Thing to be done after responding  
-          if(paidresponse){
-            await Notification.create({
+              },
+              { where: { id: prevbid.id } }
+            );
+            return true;
+          } 
+          else if (data.account >= 100 || paidresponse) {
+            console.log("There is no previous bid  has paid onchap");
+            account = data.account>0?Number(data.account ) - 100:0;
+            await Transaction.create({
               id: "",
-              AuctionId: auction.id,
+              amount: 100,
+              date: now,
+              AuctionId: aid,
               BuyerId: uid,
-              message: `Dear customer you have successfully charged your account`,
             });
+            await Buyer.update(
+              {
+                account: account,
+              },
+              {
+                where: { id: uid },
+              }
+            );
+            await Bid.create({
+              id: "",
+              bidprice: bidprice,
+              biddate: now,
+              BuyerId: uid,
+              AuctionId: aid,
+            });
+            return true;
           }
-          let users = await Bid.findAll({
-            where: { AuctionId: aid },
-            attributes: ["BuyerId"],
-          });
-          console.log(users);
-          users.map(async (user) => {
-            console.log("the bidder is ", user);
-            if (user.BuyerId !== uid) {
-
+          else {
+            return false;
+          }
+        })
+        .then(async (has_bid) => {
+          console.log("the bidder has made succesfull bid ",has_bid);
+          if (has_bid) {
+            await Auction.update(
+              {
+                hammerprice: bidprice,
+              },
+              { where: { id: aid } }
+            );
+            res.status(200).send("success");
+          // Thing to be done after responding  
+            if(paidresponse){
               await Notification.create({
                 id: "",
-                AuctionId: aid,
-                selid: auction.SellerId,
-                message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
-                nottype: "bidupdate",
+                AuctionId: auction.id,
+                uid: uid,
+                type:"account update",
+                message: `Dear customer you have successfully charged your account`,
               });
-            } else {
-              console.log("There is no sufficient balance");
-              res.status(402).send("balance_insufficient");
             }
-          })
-          .catch((err) => {
-            console.log("The error is ", err);
-            res.status(500).send("Internal server error");
-          });
-
-          await Notification.create({
-            id: "",
-            AuctionId: aid,
-            selid: auction.SellerId,
-            message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
-            nottype: "bidupdate",
-          });
-        } else {
-          console.log("There is no sufficient balance");
-          paychapa(aid,req,res);
-          // res.status(402).send("balance_insufficient")
-        }
-      })
-      .catch((err) => {
-        console.log("The error is ", err);
-        res.status(500).send("Internal server error");
-      });
-
-    } else {
-      res.sendStatus(404).send("Auction not found");
+            let users = await Bid.findAll({
+              where: { AuctionId: aid },
+              attributes: ["BuyerId"],
+            });
+            console.log(users);
+            users.map(async (user) => {
+              console.log("the bidder is ", user);
+              if (user.BuyerId !== uid) {
+                await Notification.create({
+                  id: "",
+                  AuctionId: aid,
+                  selid: auction.SellerId,
+                  uid: user.BuyerId,
+                  message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
+                  nottype: "bidupdate",
+                });
+              } else {
+                console.log("There is no sufficient balance");
+                res.status(402).send("balance_insufficient");
+              }
+            });
+            await Notification.create({
+              id: "",
+              AuctionId: aid,
+              uid: auction.SellerId,
+              message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
+              nottype: "bidupdate",
+            });
+          } else {
+            console.log("There is no sufficient balance");
+            paychapa(aid,req,res);
+            // res.status(402).send("balance_insufficient")
+          }
+        })
+        .catch((err) => {
+          console.log("The error is ", err);
+          res.status(500).send("Internal server error");
+        });
+      } else {
+        res.status(404).send("Invalid bidding price");
+      }
+    }else{
+      res.status(404).send("Auction not found");
     }
-  } catch (err) {
+  }
+  catch(err){
     console.log(err);
-    res.status(500).send("Internal server error ");
+    res.status(500).send("Internal server error ")
+
   }
 });
+
 router.post("/login", authorizeCustomer, (req, res) => {
   res.sendStatus(200);
 });
@@ -452,12 +448,31 @@ router.get("/notification", checkAuthorizationCustomer, (req, res) => {
       {
         where: {
           read: false,
-          BuyerId: uid,
+          uid: uid,
         },
       }
     );
   });
 });
+router.get('/newnotification',checkAuthorizationCustomer,async(req,res)=>{
+  console.log("fetching notification")
+  let uid=req.user;
+  return Notification.findAndCountAll({
+      where:{uid:uid,read:true
+      }
+  }).then( async data=>{
+    if(data){
+      console.log(data);
+      let nopage = parseInt(data.count);
+      res.send({"nopage":nopage});
+    }else{
+      res.send(0);
+    }
+  }).catch(err=>{
+      res.sendStatus(500)
+  })
+
+}) 
 router.post("/forgotpassword", async (req, res) => {
   let email = req.body.email;
   let buyer = Buyer.findOne({ where: { email: email } });

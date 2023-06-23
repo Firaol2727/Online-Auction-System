@@ -30,10 +30,16 @@ const LoginTrial=()=>{
             {withCredentials:true}
         ).then(response=>{
           setloading(false)
+          console.log("response",response)
             if (response.status===200) {
                 console.log("The response is ",response)
                 setmessage("Success")
-                nav('/sel/home');
+                if(response.data=="BUYER"){
+                    nav('/');
+                }else if(response.data=="SELLER"){
+                    nav('/sel/home');
+                }
+                
             }else{
                 setmessage("username or password error")
             }
@@ -66,8 +72,8 @@ const LoginTrial=()=>{
                 }}>Nuchereta</h1>
             </div>
             
-            <div class="slanted-box"></div>
-            <div class="slanted-box2"></div>
+            <div className="slanted-box"></div>
+            <div className="slanted-box2"></div>
             <Box sx={{
                 position:"absolute",
                 zIndex:2,

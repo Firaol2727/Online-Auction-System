@@ -705,6 +705,7 @@ app.get("/cat/:cname", async (req, res) => {
 /// searching a product
 
 app.post("/login", authorizecheck);
+
 app.get("/category/:cname", async (req, res) => {
   console.log(req.params);
   const name = req.params.cname;
@@ -896,7 +897,7 @@ const auctionManage = async () => {
     },
   });
   auctions.map(async (auction) => {
-    if (auction.startdate == date) {
+    if (auction.startdate == date || auction.startdate <date) {
       waitingchangeauctions.push(auction);
       await Auction.update({
         state: "open",
@@ -927,7 +928,7 @@ const auctionManage = async () => {
         nottype: "start",
       });
     }
-    if (auction.enddate == date) {
+    if (auction.enddate == date || auction.enddate >date) {
       waitingchangeauctions.push(auction);
       let winner = await Bid.findOne({
         where: {
@@ -1038,18 +1039,18 @@ io.on("connection", (socket) => {
 
   let data = [];
   // bidplaced notification
-  socket.on("bidupdate", async (userid, auctionid) => {
+  socket.on("bidupdate", async (auctionid) => {
     let bidders = await Bid.findAll({
       where: { AuctionId: auctionid },
     });
     onlineUsers.map(async (user) => {
       bidders.map((bid) => {
-        if (user.userid == bid.BuyerId) {
+        if (user.userid == bid.BuyerId && user.userid !=socket.user) {
           socket.to(user.socketid).emit("bidupdate", "new notification");
         }
       });
     });
-    socket.broadcast.emit("message", data);
+    // socket.broadcast.emit("message", data);
   });
   // socket.on("message",(data)=>{
   //     console.log(data);
