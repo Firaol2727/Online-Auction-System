@@ -54,6 +54,13 @@ import TelegramIcon from "@mui/icons-material/Telegram";
 import { ReportProblemOutlined } from "@mui/icons-material";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import io from "socket.io-client";
+const socket = io("http://localhost:5000", {
+  withCredentials: true,
+  extraHeaders: {
+    "my-custom-header": "my-custom-value",
+  },
+}); // replace with your server URL
 
 const getDateform = (formdate) => {
   const date = new Date(formdate);
@@ -232,9 +239,10 @@ const AuctionDetail = () => {
   const [bidPrice, setBidPrice] = useState("");
   const [loggedin, setLoggedIn] = useState(false);
   const [clicked, setClicked] = useState(false);
-
+  const [leadingPrice, setLeadingPrice] = useState("");
   const [openReport, setOpenReport] = useState(false);
   const [reasonReport, setReasonReport] = useState("");
+  const [reload, setReload] = useState(false);
   const itemid = useParams();
 
   const api = axios.create({ baseURL: "http://localhost:5000/" });
@@ -248,6 +256,9 @@ const AuctionDetail = () => {
   const [imglength, setimglength] = useState(0);
   const [loading, setloading] = useState(true);
   const [imgdisplay, setimgdisplay] = useState("");
+  function roundNumber(number) {
+    return Math.round(Number(number));
+  }
 
   const submitBid = (event) => {
     event.preventDefault();
@@ -266,8 +277,22 @@ const AuctionDetail = () => {
     })
       .then((response) => {
         console.log("response", response);
+        if (response.status == 200) {
+          setLeadingPrice(bidPrice);
+
+          socket.emit("bidupdate", itemid.id);
+        } else if (response.status == 202) {
+          window.location.replace(response.data);
+        } else if (response.status == 403) {
+          nav("/sel/login");
+        } else {
+          console.log("error in chapa", response);
+        }
       })
       .catch((error) => {
+        if (error.response.status == 404) {
+          setReload(!reload);
+        }
         console.log("error", error);
       });
   };
@@ -330,12 +355,14 @@ const AuctionDetail = () => {
           console.log("errr r");
         }
       });
-  }, [loggedin]);
+  }, [loggedin, reload]);
 
   useEffect(() => {
     setloading(true);
     let id = itemid.id;
-
+    socket.on("connect", () => {
+      console.log("the io connected");
+    });
     api
       .get(`/details/${id}`, { withCredentials: true })
       .then((response) => {
@@ -347,6 +374,8 @@ const AuctionDetail = () => {
             sethasdata(true);
             setauct(response.data);
             console.log("my auct", auct);
+
+            setLeadingPrice(response.data.hammerprice);
             setpics(response.data.Pictures);
             setimgdisplay(response.data.see);
             setimglength(response.data.Pictures.length);
@@ -376,7 +405,7 @@ const AuctionDetail = () => {
         setloading(false);
         sethasdata(false);
       });
-  }, [setauct]);
+  }, [reload]);
 
   function changePictures(type) {
     if (id == 0 && type == 0) {
@@ -584,15 +613,23 @@ const AuctionDetail = () => {
                       mt: "-30px",
                     }}
                   >
-                    <Button
-                      startIcon={<ReportProblemOutlined />}
-                      onClick={handleClickOpen}
-                      sx={{
-                        color: "grey",
-                        fontWight: "bold",
-                        textTransform: "none",
-                      }}
-                    ></Button>
+                    <Tooltip
+                      title={
+                        reasonReport
+                          ? "You have reported"
+                          : "Report on this auction"
+                      }
+                    >
+                      <Button
+                        startIcon={<ReportProblemOutlined />}
+                        onClick={handleClickOpen}
+                        sx={{
+                          color: "grey",
+                          fontWight: "bold",
+                          textTransform: "none",
+                        }}
+                      ></Button>
+                    </Tooltip>
                     <Dialog open={openReport} onClose={handleClose}>
                       <DialogTitle>Reason for report</DialogTitle>
                       <DialogContent>
@@ -908,7 +945,8 @@ const AuctionDetail = () => {
                                 marginLeft: "5px",
                               }}
                             >
-                              ETB :{auct.hammerprice}
+                              {/* ETB :{auct.hammerprice} */}
+                              ETB :{leadingPrice}
                             </Typography>
                           </Box>
                           <br />
@@ -923,9 +961,7 @@ const AuctionDetail = () => {
                                 marginLeft: "5px",
                               }}
                             >
-                              ETB :
-                              {/* {auct.hammerprice + (auct.hammarprice * 2) / 100} */}
-                              3000
+                              ETB :{roundNumber(Number(leadingPrice) * 2) / 100}
                             </Typography>
                           </Box>
                           <Box>
@@ -940,9 +976,10 @@ const AuctionDetail = () => {
                               >
                                 <Button sx={{ width: "100%" }}>
                                   <Link
-                                    href="/login"
+                                    href="/sel/login"
                                     sx={{
                                       textDecoration: "none",
+
                                       color: "white",
                                     }}
                                   >
@@ -969,13 +1006,11 @@ const AuctionDetail = () => {
                                     required
                                     sx={{ width: "80%" }}
                                     type="number"
-                                    // inputProps={{
-                                    //   min:
-                                    //     auct.hammerprice +
-                                    //     (auct.hammarprice * 2) / 100,
-                                    // }}
                                     inputProps={{
-                                      min: 3000,
+                                      min: roundNumber(
+                                        Number(leadingPrice) +
+                                          (Number(leadingPrice) * 2) / 100
+                                      ),
                                     }}
                                     value={bidPrice}
                                     onChange={(event) => {
@@ -1039,7 +1074,7 @@ const AuctionDetail = () => {
                           <TelegramIcon
                             sx={{ marginRight: "10px", color: "#1BACF4 " }}
                           />
-                          {auct.Seller.telUsername}@johnabi
+                          {auct.Seller.telUsername}
                         </Box>
                         <Box sx={{ display: "flex" }}>
                           <EmailIcon
