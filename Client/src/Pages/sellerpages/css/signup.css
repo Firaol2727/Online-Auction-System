@@ -1,22 +1,22 @@
 @keyframes write-text {
     from {
-      width: 0;
+        width: 0;
     }
     to {
-      width: 100%;
+        width: 100%;
     }
-  }
-  
-  @keyframes show-text {
+}
+
+@keyframes show-text {
     from {
-      visibility: hidden;
+        visibility: hidden;
     }
     to {
-      visibility: visible;
+        visibility: visible;
     }
-  }
-  
-  .write-in { 
+}
+
+.write-in { 
     overflow: hidden;
     white-space: nowrap;
     animation: write-text 4s steps(40, end)  , show-text 5s ;
@@ -25,40 +25,31 @@
     left:0%;
     font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     /* font-size: 18px; */
-    
-  }
-  @media screen and (min-width: 600px) {
-    .write-in {
-      font-size: 8px;
-    }
-  }
-  
-  @media screen and (min-width: 1024px) {
-    .write-in {
-      font-size: 18px;
-    }
-  }
-  .slanted-box {
-    position: absolute;
-    left: 30%;
-    top:20%;
-    z-index: 0;
-    width: 40px;
-    height: 200px;
-    background-color: brown;
-    transform: skew(-45deg);
-  }
-.slanted-box2 {
-    position: absolute;
-    left: 75%;
-    top:85%;
-    z-index: 0;
-    width: 40px;
-    height: 200px;
-    background-color: brown;
-    transform: skew(-45deg);
+
 }
+@media screen and (min-width: 600px) {
+    .write-in {
+        font-size: 8px;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+.write-in {
+    font-size: 18px;
+}
+}
+.slanted-box {
+    position: absolute;
+    left: 0%;
+    top:70%;
+    z-index: 0;
+    width: 40px;
+    height: 80%;
+    background-color: brown;
+    transform: skew(-60deg);
+}
+
 input:focus {
     background-color: #DDF2F7;
-  
+
 }
