@@ -33,7 +33,9 @@ const {
   Pictures,
   Product,
   Seller,
+  Transaction,
   Notifyme,
+  Bid,
 } = sequelize.models;
 
 const { paychapa, chapaVerify } = require("./controllers/payment");
@@ -89,9 +91,10 @@ async function tableChange() {
   //  a function used to commit database changes just change name of model you want to update and call function
   // await Buyer.sync({ alter: true });
 
-  await Order.sync({ alter: true });
-  await Passcode.sync({ alter: true });
-  console.log("finished");
+  // await Order.sync({ alter: true });
+  await Notification.sync({ alter: true });
+  // await Passcode.sync({ alter: true });
+  // console.log("finished");
 }
 // tableChange();
 // chapaVerify();
@@ -897,11 +900,10 @@ const auctionManage = async () => {
     },
   });
   auctions.map(async (auction) => {
-    if (auction.startdate == date || auction.startdate <date) {
+    if (auction.startdate == date || auction.startdate < date) {
       waitingchangeauctions.push(auction);
       await Auction.update({
         state: "open",
-
         // include: {
         //   model: Seller,
         //   attributes: ["phonenumber"],
@@ -928,7 +930,7 @@ const auctionManage = async () => {
         nottype: "start",
       });
     }
-    if (auction.enddate == date || auction.enddate >date) {
+    if (auction.enddate == date || auction.enddate > date) {
       waitingchangeauctions.push(auction);
       let winner = await Bid.findOne({
         where: {
@@ -989,7 +991,7 @@ const auctionManage = async () => {
     }
   });
 };
-auctionManage();
+// auctionManage();
 const addOnlineUser = (userid, socketid) => {
   console.log("The user id is ", userid);
   console.log("The user socket id is ", socketid);
@@ -1040,12 +1042,26 @@ io.on("connection", (socket) => {
   let data = [];
   // bidplaced notification
   socket.on("bidupdate", async (auctionid) => {
+    console.log("the auction id is", auctionid);
     let bidders = await Bid.findAll({
       where: { AuctionId: auctionid },
     });
-    onlineUsers.map(async (user) => {
+    let seller = await Auction.findOne({
+      attributes: ["id", "SellerId"],
+
+      where: { id: auctionid },
+    });
+    console.log("online users ", onlineUsers);
+    console.log("The seller", seller.SellerId);
+    onlineUsers.map((user) => {
+      if (user.userid == seller.SellerId) {
+        console.log("yess there is a seller");
+        io.to(user.socketid).emit("bidupdate", "new notification");
+        console.log("notified");
+      }
       bidders.map((bid) => {
-        if (user.userid == bid.BuyerId && user.userid !=socket.user) {
+        if (user.userid == bid.BuyerId && user.userid != socket.user) {
+          console.log("yes there is active bidders");
           socket.to(user.socketid).emit("bidupdate", "new notification");
         }
       });

@@ -59,17 +59,18 @@ const upload = multer({
   fileFilter: multerFilter,
 }).fields([{ name: "imgCollection", maxCount: 7 }]);
 
-const {authorizeSeller,checkAuthorizationSeller}=require( '../controllers/sellercontroller/authorizeSeller');
-const changePassword=require( '../controllers/sellercontroller/changepassword');
-const changeProfile=require( '../controllers/sellercontroller/changeprofileS');
-const deleteAuction=require( '../controllers/sellercontroller/deleteauction');
-const moreOn=require( '../controllers/sellercontroller/moreon');
-const myAuction=require( '../controllers/sellercontroller/myauction');
-const notification=require( '../controllers/sellercontroller/notificationS');
-const register=require( '../controllers/sellercontroller/register');
-const uploadAuction=require( '../controllers/sellercontroller/upload');
-
-
+const {
+  authorizeSeller,
+  checkAuthorizationSeller,
+} = require("../controllers/sellercontroller/authorizeSeller");
+const changePassword = require("../controllers/sellercontroller/changepassword");
+const changeProfile = require("../controllers/sellercontroller/changeprofileS");
+const deleteAuction = require("../controllers/sellercontroller/deleteauction");
+const moreOn = require("../controllers/sellercontroller/moreon");
+const myAuction = require("../controllers/sellercontroller/myauction");
+const notification = require("../controllers/sellercontroller/notificationS");
+const register = require("../controllers/sellercontroller/register");
+const uploadAuction = require("../controllers/sellercontroller/upload");
 
 router.use(jsonParser);
 // router.use(express.json());
@@ -88,11 +89,17 @@ router.use(
     credentials: true,
   })
 );
-router.options('*', cors());
-router.use(cors({
-    origin: ['http://localhost:7494','http://127.0.0.1:3000','http://127.0.0.1:5173'],
-    credentials:true,
-}));
+router.options("*", cors());
+router.use(
+  cors({
+    origin: [
+      "http://localhost:7494",
+      "http://127.0.0.1:3000",
+      "http://127.0.0.1:5173",
+    ],
+    credentials: true,
+  })
+);
 
 // const authorizeSeller=async(req,res,next)=>{
 //     console.log(req.body);
@@ -149,7 +156,6 @@ router.use(cors({
 //   // console.log("cookies", req.cookies);
 //   // console.log("headers",req.headers)
 
-
 //   if (req.cookies.u) {
 //     console.log("in the first check");
 //     const token = req.cookies.u;
@@ -187,7 +193,7 @@ router.use(cors({
 router.post("/register", async (req, res) => {
   let { firstName, lastName, email, password, phoneNumber, region, city } =
     req.body;
-  
+
   const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
   return Seller.create({
     id: "",
@@ -219,9 +225,9 @@ router.post("/register", async (req, res) => {
 //     email,
 //     city,
 //     password,
-//     account, 
+//     account,
 //     region
-//      * 
+//      *
 //      */
 //   let uid = req.user;
 //   let = a = req.body;
@@ -253,9 +259,9 @@ router.post("/register", async (req, res) => {
 //     });
 // });
 
-//get profile 
-router.get('/profile', checkAuthorizationSeller, (req,res)=>{
-  let uid=req.user;
+//get profile
+router.get("/profile", checkAuthorizationSeller, (req, res) => {
+  let uid = req.user;
 
   console.log("running get profile ");
   return Seller.findOne({
@@ -268,8 +274,7 @@ router.get('/profile', checkAuthorizationSeller, (req,res)=>{
     .catch((err) => {
       res.sendStatus(500);
     });
-
-}) 
+});
 
 // get detail  of the auction seller perspective
 router.get("/moreon/:id", checkAuthorizationSeller, async (req, res) => {
@@ -286,7 +291,7 @@ router.get("/moreon/:id", checkAuthorizationSeller, async (req, res) => {
         model: Pictures,
       },
     ],
-    where: { id: aid,SellerId:uid },
+    where: { id: aid, SellerId: uid },
   })
     .then(async (data) => {
       if (data) {
@@ -302,9 +307,8 @@ router.get("/moreon/:id", checkAuthorizationSeller, async (req, res) => {
 });
 // change password
 
-router.post('/changepp',checkAuthorizationSeller,async(req,res)=>{
-    let {fname,lname,email,region,city,telUsername}=req.body;
-
+router.post("/changepp", checkAuthorizationSeller, async (req, res) => {
+  let { fname, lname, email, region, city, telUsername } = req.body;
 
   let uid = req.user;
 
@@ -385,152 +389,165 @@ router.post("/login", authorizeSeller, (req, res) => {
   res.sendStatus(200);
 });
 //seller notification
-router.get('/notification',checkAuthorizationSeller,async(req,res)=>{
-    console.log("fetching notification")
-    let uid=req.user;
-    return Notification.findAll({
-        where:{uid:uid}
-    }).then( async data=>{
-        res.send(data);
-        await Notification.update({
-            read:true
-        },{
-            where:{
-                read:false,
-                uid:uid
-            }
-        })
-    }).catch(err=>{
-        res.sendStatus(500)
-    })
-
-}) 
-router.get('/newnotification',checkAuthorizationSeller,async(req,res)=>{
-  console.log("fetching notification")
-  let uid=req.user;
-  return Notification.findAndCountAll({
-      where:{uid:uid,read:true
-      }
-  }).then( async data=>{
-    if(data){
-      console.log(data);
-      let nopage = parseInt(data.count);
-      res.send({"nopage":nopage});
-    }else{
-      res.send(0);
-    }
-      
-  }).catch(err=>{
-      res.sendStatus(500)
+router.get("/notification", checkAuthorizationSeller, async (req, res) => {
+  console.log("fetching notification");
+  let uid = req.user;
+  return Notification.findAll({
+    where: { uid: uid },
   })
-}) 
-// create auction
-router.post("/upload", checkAuthorizationSeller,(req,res,next)=>{
-  console.log("Can this be done first",req.body)
-  console.log("Can this be done first")
-  next()
-}, (req, res) => {
-  upload(req, res, function (err) {
-    if (err instanceof multer.MulterError) {
-      console.log("error occured");
-      console.log(err);
-      res.status(404).send("file uploading error");
-    } else if (err) {
-      console.log("we are in this this shit");
-      res.status(404).send("file uploading error");
-    }
-    const savedfiles = req.files;
-    console.log("body", req.body);
-    // console.log("saved",savedfiles)
-    let userid = req.user;
-    let picturess = [];
-    let {
-      name,
-      baseprice,
-      startdate,
-      enddate,
-      type,
-      category,
-      region,
-      city,
-      description,
-    } = req.body;
-    baseprice = Number(baseprice);
-    let x = uid(16);
-    let aid = uid(16);
-    let letmeSee = savedfiles.imgCollection[0].filename;
-    console.log(picturess);
-    let letid;
-    return Category.findOne({
-      where: { name: category },
-    })
-      .then((data) => {
-        if (data.id) {
-          return Auction.create({
-            id: "",
-            name: name,
-            baseprice: baseprice,
-            startdate: startdate,
-            enddate: enddate,
-            type: type,
-            CategoryCid: data.id,
-            region: region,
-            city: city,
-            description: description,
-            hammerprice: 0,
-            see: x,
-            state: "waiting",
-            SellerId: userid,
-          });
-        } else {
-          res.status(404).send("Invalid category");
+    .then(async (data) => {
+      res.send(data);
+      await Notification.update(
+        {
+          read: true,
+        },
+        {
+          where: {
+            read: false,
+            uid: uid,
+          },
         }
+      );
+    })
+    .catch((err) => {
+      res.sendStatus(500);
+    });
+});
+router.get("/newnotification", checkAuthorizationSeller, async (req, res) => {
+  console.log("fetching notification");
+  let uid = req.user;
+  return Notification.findAndCountAll({
+    where: { uid: uid, read: false },
+  })
+    .then(async (data) => {
+      if (data) {
+        console.log(data);
+        let nopage = parseInt(data.count);
+        res.send({ nopage: nopage });
+      } else {
+        res.send(0);
+      }
+    })
+    .catch((err) => {
+      res.sendStatus(500);
+    });
+});
+// create auction
+router.post(
+  "/upload",
+  checkAuthorizationSeller,
+  (req, res, next) => {
+    console.log("Can this be done first", req.body);
+    console.log("Can this be done first");
+    next();
+  },
+  (req, res) => {
+    upload(req, res, function (err) {
+      if (err instanceof multer.MulterError) {
+        console.log("error occured");
+        console.log(err);
+        res.status(404).send("file uploading error");
+      } else if (err) {
+        console.log("we are in this this shit");
+        res.status(404).send("file uploading error");
+      }
+      const savedfiles = req.files;
+      console.log("body", req.body);
+      // console.log("saved",savedfiles)
+      let userid = req.user;
+      let picturess = [];
+      let {
+        name,
+        baseprice,
+        startdate,
+        enddate,
+        type,
+        category,
+        region,
+        city,
+        description,
+      } = req.body;
+      baseprice = Number(baseprice);
+      let x = uid(16);
+      let aid = uid(16);
+      let letmeSee = savedfiles.imgCollection[0].filename;
+      console.log(picturess);
+      let letid;
+      return Category.findOne({
+        where: { name: category },
       })
-      .then(async (data) => {
-        let aid = data.id;
-        letid = aid;
-        let picturess = [];
-        for (let index = 0; index < savedfiles.imgCollection.length; index++) {
-          if (index == 0) {
-            picturess.push({
-              id: x,
-              picpath: savedfiles.imgCollection[0].filename,
-              type: "image",
-              AuctionId: aid,
+        .then((data) => {
+          if (data.id) {
+            return Auction.create({
+              id: "",
+              name: name,
+              baseprice: baseprice,
+              startdate: startdate,
+              enddate: enddate,
+              type: type,
+              CategoryCid: data.id,
+              region: region,
+              city: city,
+              description: description,
+              hammerprice: 0,
+              see: x,
+              state: "waiting",
+              SellerId: userid,
             });
           } else {
-            picturess.push({
-              id: "",
-              picpath: savedfiles.imgCollection[index].filename,
-              type: "image",
-              AuctionId: aid,
-            });
+            res.status(404).send("Invalid category");
           }
-        }
-        // savedfiles.imgCollection.map((item)=>{
-        //     picturess.push({
-        //         'id':"",
-        //         "picpath":item.filename,
-        //         "type":"image",
-        //         "ProductPid":pid
-        //     })
-        // })
-        await Pictures.bulkCreate(picturess);
-      })
-      .then(async (data) => {
-        // await Auction.update({
-        //     see:data[0].id
-        // },{where:{
-        //     pid:letid
-        // }})
-        res.sendStatus(200);
-      })
-      .catch((err) => {
-        console.log(err);
-        res.sendStatus(500);
-      });
-  });
-});
+        })
+        .then(async (data) => {
+          let aid = data.id;
+          letid = aid;
+          let picturess = [];
+          for (
+            let index = 0;
+            index < savedfiles.imgCollection.length;
+            index++
+          ) {
+            if (index == 0) {
+              picturess.push({
+                id: x,
+                picpath: savedfiles.imgCollection[0].filename,
+                type: "image",
+                AuctionId: aid,
+              });
+            } else {
+              picturess.push({
+                id: "",
+                picpath: savedfiles.imgCollection[index].filename,
+                type: "image",
+                AuctionId: aid,
+              });
+            }
+          }
+          // savedfiles.imgCollection.map((item)=>{
+          //     picturess.push({
+          //         'id':"",
+          //         "picpath":item.filename,
+          //         "type":"image",
+          //         "ProductPid":pid
+          //     })
+          // })
+          await Pictures.bulkCreate(picturess);
+        })
+        .then(async (data) => {
+          // await Auction.update({
+          //     see:data[0].id
+          // },{where:{
+          //     pid:letid
+          // }})
+          res.sendStatus(200);
+        })
+        .catch((err) => {
+          console.log(err);
+          res.sendStatus(500);
+        });
+    });
+  }
+);
 // delete auction
 router.post("/deleteauction", async (req, res) => {
   let aid = req.body.aid;
