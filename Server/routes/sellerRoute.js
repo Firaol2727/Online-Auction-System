@@ -409,7 +409,7 @@ router.get('/newnotification',checkAuthorizationSeller,async(req,res)=>{
   console.log("fetching notification")
   let uid=req.user;
   return Notification.findAndCountAll({
-      where:{uid:uid,read:true
+      where:{uid:uid,read:false
       }
   }).then( async data=>{
     if(data){
@@ -425,9 +425,15 @@ router.get('/newnotification',checkAuthorizationSeller,async(req,res)=>{
   })
 }) 
 // create auction
-router.post("/upload", checkAuthorizationSeller,(req,res,next)=>{
+router.post("/upload", checkAuthorizationSeller,async(req,res,next)=>{
   console.log("Can this be done first",req.body)
   console.log("Can this be done first")
+  let uid=req.user;
+  let user= Seller.findOne({
+    attributes:["account"]
+  })
+  if(data.account>100){}
+
   next()
 }, (req, res) => {
   upload(req, res, function (err) {
