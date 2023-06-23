@@ -54,6 +54,13 @@ import TelegramIcon from "@mui/icons-material/Telegram";
 import { ReportProblemOutlined } from "@mui/icons-material";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import io from "socket.io-client";
+const socket = io("http://localhost:5000", {
+  withCredentials: true,
+  extraHeaders: {
+    "my-custom-header": "my-custom-value",
+  },
+}); // replace with your server URL
 
 const getDateform = (formdate) => {
   const date = new Date(formdate);
@@ -235,6 +242,7 @@ const AuctionDetail = () => {
   const [leadingPrice, setLeadingPrice] = useState("");
   const [openReport, setOpenReport] = useState(false);
   const [reasonReport, setReasonReport] = useState("");
+  const [reload, setReload] = useState(false);
   const itemid = useParams();
 
   const api = axios.create({ baseURL: "http://localhost:5000/" });
@@ -271,6 +279,8 @@ const AuctionDetail = () => {
         console.log("response", response);
         if (response.status == 200) {
           setLeadingPrice(bidPrice);
+
+          socket.emit("bidupdate", itemid.id);
         } else if (response.status == 202) {
           window.location.replace(response.data);
         } else if (response.status == 403) {
@@ -280,6 +290,9 @@ const AuctionDetail = () => {
         }
       })
       .catch((error) => {
+        if (error.response.status == 404) {
+          setReload(!reload);
+        }
         console.log("error", error);
       });
   };
@@ -342,12 +355,14 @@ const AuctionDetail = () => {
           console.log("errr r");
         }
       });
-  }, [loggedin]);
+  }, [loggedin, reload]);
 
   useEffect(() => {
     setloading(true);
     let id = itemid.id;
-
+    socket.on("connect", () => {
+      console.log("the io connected");
+    });
     api
       .get(`/details/${id}`, { withCredentials: true })
       .then((response) => {
@@ -390,7 +405,7 @@ const AuctionDetail = () => {
         setloading(false);
         sethasdata(false);
       });
-  }, []);
+  }, [reload]);
 
   function changePictures(type) {
     if (id == 0 && type == 0) {
@@ -946,7 +961,7 @@ const AuctionDetail = () => {
                                 marginLeft: "5px",
                               }}
                             >
-                              ETB :{roundNumber((leadingPrice * 2) / 100)}
+                              ETB :{roundNumber(Number(leadingPrice) * 2) / 100}
                             </Typography>
                           </Box>
                           <Box>
@@ -993,7 +1008,8 @@ const AuctionDetail = () => {
                                     type="number"
                                     inputProps={{
                                       min: roundNumber(
-                                        leadingPrice + (leadingPrice * 2) / 100
+                                        Number(leadingPrice) +
+                                          (Number(leadingPrice) * 2) / 100
                                       ),
                                     }}
                                     value={bidPrice}
@@ -1058,7 +1074,7 @@ const AuctionDetail = () => {
                           <TelegramIcon
                             sx={{ marginRight: "10px", color: "#1BACF4 " }}
                           />
-                          {auct.Seller.telUsername}@johnabi
+                          {auct.Seller.telUsername}
                         </Box>
                         <Box sx={{ display: "flex" }}>
                           <EmailIcon

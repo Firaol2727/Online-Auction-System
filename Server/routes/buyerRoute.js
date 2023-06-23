@@ -261,7 +261,6 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
   try {
     let auction = await Auction.findOne({
       where: { id: aid, state: "open" },
-      attributes: ["hammerprice", "name"],
     });
     if (auction !== null) {
       console.log("There is auction");
@@ -357,21 +356,18 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
                   await Notification.create({
                     id: "",
                     AuctionId: aid,
-                    selid: auction.SellerId,
                     uid: user.BuyerId,
                     message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
                     nottype: "bidupdate",
                   });
-                } else {
-                  console.log("There is no sufficient balance");
-                  res.status(402).send("balance_insufficient");
                 }
               });
+              console.log("The auctioner id is ", auction.SellerId);
               await Notification.create({
                 id: "",
                 AuctionId: aid,
                 uid: auction.SellerId,
-                message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
+                message: `Your auction ${name} has got an offer of ${bidprice}`,
                 nottype: "bidupdate",
               });
             } else {

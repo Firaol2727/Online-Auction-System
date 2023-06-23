@@ -134,7 +134,6 @@ const paychapa = async (aid, req, res) => {
     res.status(400).send("User not found ");
   }
 };
-
 const verifyOrders = async (order) => {
   let verify_success = false;
   try {
@@ -269,7 +268,6 @@ const verifyOrdersSeller = async (order) => {
     return verify_success;
   }
 };
-
 const chapaVerify = async (userid) => {
   let haspaid = false;
   let unverifiedorders = await Order.findOne({

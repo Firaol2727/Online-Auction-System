@@ -55,7 +55,7 @@ const authorizecheck = async (req, res) => {
       const accessToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
       console.log("accessToken", accessToken);
       res.cookie("u", accessToken, {
-        maxAge: 720000,
+        maxAge: 3000000,
         httpOnly: true,
         sameSite: "none",
         secure: true,
@@ -80,7 +80,7 @@ const authorizecheck = async (req, res) => {
       console.log("accessToken", accessToken);
 
       res.cookie("u", accessToken, {
-        maxAge: 720000,
+        maxAge: 3000000,
         httpOnly: true,
         sameSite: "none",
         secure: true,
