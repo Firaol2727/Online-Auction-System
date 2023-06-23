@@ -33,6 +33,7 @@ const {
   Pictures,
   Product,
   Seller,
+  Transaction,
   Notifyme,
 } = sequelize.models;
 
@@ -89,8 +90,9 @@ async function tableChange() {
   //  a function used to commit database changes just change name of model you want to update and call function
   // await Buyer.sync({ alter: true });
 
-  await Order.sync({ alter: true });
-  await Passcode.sync({ alter: true });
+  // await Order.sync({ alter: true });
+  await Transaction.sync({ alter: true });
+  // await Passcode.sync({ alter: true });
   console.log("finished");
 }
 // tableChange();

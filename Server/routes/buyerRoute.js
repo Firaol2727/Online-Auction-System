@@ -7,7 +7,7 @@ var jsonParser = bodyParser.json();
 var nodemailer = require("nodemailer");
 
 const { uid } = require("uid");
-const { chapaVerify ,paychapa} = require("../controllers/payment");
+const { chapaVerify, paychapa } = require("../controllers/payment");
 var transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
@@ -237,7 +237,6 @@ router.post("/changepassword", checkAuthorizationCustomer, async (req, res) => {
 });
 
 router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
-
   let account;
   let name;
   let hammerprice;
@@ -316,48 +315,44 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
             } else {
               return false;
             }
+          })
+          .then(async (has_bid) => {
+            console.log("the bidder has made succesfull bid ", has_bid);
+            if (has_bid) {
+              await Auction.update(
+                {
+                  hammerprice: bidprice,
+                },
+                { where: { id: aid } }
+              );
 
-          );
-          await Bid.create({
-            id: "",
-            bidprice: bidprice,
-            biddate: now,
-            BuyerId: uid,
-            AuctionId: aid,
-          });
-          return true;
-        }
-        else {
-          return false;
-        }
-      })
-      .then(async (has_bid) => {
-        console.log("the bidder has made succesfull bid ",has_bid);
-        if (has_bid) {
-          await Auction.update(
-            {
-              hammerprice: bidprice,
-            },
-            { where: { id: aid } }
-          );
-          res.status(200).send("success");
-        // Thing to be done after responding  
-          if(paidresponse){
-            await Notification.create({
-              id: "",
-              AuctionId: auction.id,
-              BuyerId: uid,
-              message: `Dear customer you have successfully charged your account`,
-            });
-          }
-          let users = await Bid.findAll({
-            where: { AuctionId: aid },
-            attributes: ["BuyerId"],
-          });
-          console.log(users);
-          users.map(async (user) => {
-            console.log("the bidder is ", user);
-            if (user.BuyerId !== uid) {
+              res.status(200).send("success");
+              // Thing to be done after responding
+              if (paidresponse) {
+                await Notification.create({
+                  id: "",
+                  AuctionId: auction.id,
+                  BuyerId: uid,
+                  message: `Dear customer you have successfully charged your account`,
+                });
+              }
+              let users = await Bid.findAll({
+                where: { AuctionId: aid },
+                attributes: ["BuyerId"],
+              });
+              console.log(users);
+              users.map(async (user) => {
+                console.log("the bidder is ", user);
+                if (user.BuyerId !== uid) {
+                  await Notification.create({
+                    id: "",
+                    AuctionId: aid,
+                    selid: auction.SellerId,
+                    message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
+                    nottype: "bidupdate",
+                  });
+                }
+              });
 
               await Notification.create({
                 id: "",
@@ -367,35 +362,20 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
                 nottype: "bidupdate",
               });
             } else {
-              console.log("There is no sufficient balance");
-              res.status(402).send("balance_insufficient");
+              console.log("There is no sufficient balance ");
+              paychapa(aid, req, res);
+              // res.status(402).send("balance_insufficient")
             }
           })
           .catch((err) => {
             console.log("The error is ", err);
             res.status(500).send("Internal server error");
           });
-
-          await Notification.create({
-            id: "",
-            AuctionId: aid,
-            selid: auction.SellerId,
-            message: `The auction ${name} you are participating has got an offer of ${bidprice}`,
-            nottype: "bidupdate",
-          });
-        } else {
-          console.log("There is no sufficient balance");
-          paychapa(aid,req,res);
-          // res.status(402).send("balance_insufficient")
-        }
-      })
-      .catch((err) => {
-        console.log("The error is ", err);
-        res.status(500).send("Internal server error");
-      });
-
+      } else {
+        res.status(404).send("invalid bid price");
+      }
     } else {
-      res.sendStatus(404).send("Auction not found");
+      res.status(404).send("Auction not  found");
     }
   } catch (err) {
     console.log(err);
