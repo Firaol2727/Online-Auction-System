@@ -392,11 +392,22 @@ router.post("/login", authorizeSeller, (req, res) => {
 //seller notification
 router.get("/notification", checkAuthorizationSeller, async (req, res) => {
   console.log("fetching notification");
+  let page = req.query.page == null ? 1 : req.query.page;
+  console.log("The page is ",page)
+  // let type=req.query.subname==null?"electronics":req.query.subname;
+  let no_response = 10;
+  let limit = 1;
+  let jumpingSet = (page - 1) * no_response;
   let uid = req.user;
+
   return Notification.findAll({
     where: { uid: uid },
+    order: [["createdAt", "DESC"]],
+    offset: jumpingSet,
+    limit: no_response,
   })
     .then(async (data) => {
+      // console.log("data",data)
       res.send(data);
       await Notification.update(
         {
@@ -411,6 +422,7 @@ router.get("/notification", checkAuthorizationSeller, async (req, res) => {
       );
     })
     .catch((err) => {
+      console.log("Error fetching",err)
       res.sendStatus(500);
     });
 });
@@ -434,33 +446,42 @@ router.get("/newnotification", checkAuthorizationSeller, async (req, res) => {
     });
 });
 // create auction
+router .get('/checkcanupload',checkAuthorizationSeller,async(req,res)=>{
+    console.log("The user id  is ",req.user);
+    const uid=req.user;
+    const sel=await Seller.findOne({where:{id:uid}});
+    if(sel){
+      if(sel.account>=100){
+        res.status(200).send("Can  Upload")
+      }
+      else {
+        let haspaid= await chapaVerifySeller(uid);
+        if(haspaid){
+          console.log("Has paid",haspaid)
+          res.status(200).send("Can  Upload")
+        }else{
+          console.log("Can't pay");
+          res.status(202).send("Uploading not permitted")
+        }
+      }
+      // await Seller.update({
+      //     account:Number(account)-100
+      // },{
+      //   where:{id:uid}
+      // })
+ 
+    }else{
+      res.status(404).send("User not found")
+    }
+
+})
+router.get('/paychapa',checkAuthorizationSeller,(req,res)=>{
+  paychapa("",req,res)
+})
+// paychapa("",req,res)
 router.post(
   "/upload",
   checkAuthorizationSeller,
-  async(req, res, next) => {
-    console.log("Can this be done first", req.body);
-    console.log("Can this be done first");
-    const uid=req.user;
-    const sel=await Seller.findOne({where:{id:uid}});
-    if(sel.account<100){
-        let haspaid= chapaVerifySeller;
-        if(haspaid){
-          console.log("Has paid",haspaid)
-          next();
-        }else{
-          paychapa("",req,res)
-        }
-        
-    }else{
-      await Seller.update({
-          account:Number(account)-100
-      },{
-        where:{id:uid}
-      })
-      next();
-    }
-    
-  },
   (req, res) => {
     upload(req, res, function (err) {
       if (err instanceof multer.MulterError) {
@@ -491,80 +512,103 @@ router.post(
       let x = uid(16);
       let aid = uid(16);
       let letmeSee = savedfiles.imgCollection[0].filename;
+      let account;
       console.log(picturess);
       let letid;
-      return Category.findOne({
-        where: { name: category },
-      })
-        .then((data) => {
-          if (data.id) {
-            return Auction.create({
-              id: "",
-              name: name,
-              baseprice: baseprice,
-              startdate: startdate,
-              enddate: enddate,
-              type: type,
-              CategoryCid: data.id,
-              region: region,
-              city: city,
-              description: description,
-              hammerprice: 0,
-              see: x,
-              state: "waiting",
-              SellerId: userid,
-            });
-          } else {
-            res.status(404).send("Invalid category");
-          }
-        })
-        .then(async (data) => {
-          let aid = data.id;
-          letid = aid;
-          let picturess = [];
-          for (
-            let index = 0;
-            index < savedfiles.imgCollection.length;
-            index++
-          ) {
-            if (index == 0) {
-              picturess.push({
-                id: x,
-                picpath: savedfiles.imgCollection[0].filename,
-                type: "image",
-                AuctionId: aid,
-              });
-            } else {
-              picturess.push({
-                id: "",
-                picpath: savedfiles.imgCollection[index].filename,
-                type: "image",
-                AuctionId: aid,
-              });
+
+      return Seller.findOne({where:{id:userid}})
+        .then((data)=>{
+          console.log("Data",data.account)
+          account=data.account;
+            if(Number(data.account)>=100){
+              console.log("Data account is valid")
+              return Category.findOne({
+                where: { name: category },
+                  })
+                .then((data) => {
+                  if (data.id) {
+                    return Auction.create({
+                      id: "",
+                      name: name,
+                      baseprice: baseprice,
+                      startdate: startdate,
+                      enddate: enddate,
+                      type: type,
+                      CategoryCid: data.id,
+                      region: region,
+                      city: city,
+                      description: description,
+                      hammerprice: 0,
+                      see: x,
+                      state: "waiting",
+                      SellerId: userid,
+                    });
+                  } else {
+                    res.status(404).send("Invalid category");
+                    return;
+                  }
+                })
+                .then(async (data) => {
+                  let aid = data.id;
+                  letid = aid;
+                  let picturess = [];
+                  for (
+                    let index = 0;
+                    index < savedfiles.imgCollection.length;
+                    index++
+                  ) {
+                    if (index == 0) {
+                      picturess.push({
+                        id: x,
+                        picpath: savedfiles.imgCollection[0].filename,
+                        type: "image",
+                        AuctionId: aid,
+                      });
+                    } else {
+                      picturess.push({
+                        id: "",
+                        picpath: savedfiles.imgCollection[index].filename,
+                        type: "image",
+                        AuctionId: aid,
+                      });
+                    }
+                  }
+                  // savedfiles.imgCollection.map((item)=>{
+                  //     picturess.push({
+                  //         'id':"",
+                  //         "picpath":item.filename,
+                  //         "type":"image",
+                  //         "ProductPid":pid
+                  //     })
+                  // })
+                  await Pictures.bulkCreate(picturess);
+                })
+                .then(async (data) => {
+                  let newaccount=Number(account)-100;
+                  console.log("The account is ",account)
+                  console.log("The new account is ",newaccount)
+                  await Seller.update({
+                    account:newaccount
+                },{
+                  where:{id:userid}
+                })
+                  res.sendStatus(200);
+                })
+                .catch((err) => {
+                  console.log(err);
+                  res.sendStatus(500);
+                });
+            }else{
+              res.status(400).send("Account error")
             }
-          }
-          // savedfiles.imgCollection.map((item)=>{
-          //     picturess.push({
-          //         'id':"",
-          //         "picpath":item.filename,
-          //         "type":"image",
-          //         "ProductPid":pid
-          //     })
-          // })
-          await Pictures.bulkCreate(picturess);
         })
-        .then(async (data) => {
-          // await Auction.update({
-          //     see:data[0].id
-          // },{where:{
-          //     pid:letid
-          // }})
-          res.sendStatus(200);
+        .catch(err=>{
+          console.log(
+            "Some unknown error",err
+          )
+          res.status(500)
         })
-        .catch((err) => {
-          console.log(err);
-          res.sendStatus(500);
-        });
+      
     });
   }
 );

@@ -50,12 +50,12 @@ const selHome = () => {
           setMy_auc(datas);
           setloading(false);
         }
-        if (response.status === 403) {
+        if (response.status == 403) {
           nav("/sel/login");
         }
       })
       .catch((err) => {
-        if (err.response.status === 403) {
+        if (err.response.status == 403) {
           nav("/sel/login");
         }
         setloading(false);

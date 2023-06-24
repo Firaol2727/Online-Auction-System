@@ -145,25 +145,40 @@ router.post('/auction',checkAuthorization,(req,res)=>{
     });
 })
 router.get('/notification',checkAuthorization,async(req,res)=>{
-    console.log("fetching notification")
-    let uid=req.user;
-    return Notification.findAll({
-        where:{uid:uid}
-    }).then( async data=>{
-        res.send(data);
-        await Notification.update({
-            read:true
-        },{
-            where:{
-                read:false,
-                selid:uid
-            }
-        })
-    }).catch(err=>{
-        console.log("The error is ",err)
-        res.sendStatus(500)
-    })
+    console.log("fetching notification");
+  let page = req.query.page == null ? 1 : req.query.page;
+  console.log("The page is ",page)
+  // let type=req.query.subname==null?"electronics":req.query.subname;
+  let no_response = 10;
+  let limit = 1;
+  let jumpingSet = (page - 1) * no_response;
+  let uid = req.user;
 
+  return Notification.findAll({
+    where: { uid: uid },
+    order: [["createdAt", "DESC"]],
+    offset: jumpingSet,
+    limit: no_response,
+  })
+    .then(async (data) => {
+      // console.log("data",data)
+      res.send(data);
+      await Notification.update(
+        {
+          read: true,
+        },
+        {
+          where: {
+            read: false,
+            uid: uid,
+          },
+        }
+      );
+    })
+    .catch((err) => {
+      console.log("Error fetching",err)
+      res.sendStatus(500);
+    });
 }) 
 router.get('/newnotification',checkAuthorization,async(req,res)=>{
     console.log("fetching notification")
