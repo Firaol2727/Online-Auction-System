@@ -331,7 +331,7 @@ function AuctionCard() {
           <Grid container spacing={2}>
             {state.productData.map((products) => {
               return (
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={12} sm={12} md={6} lg={6} key={products.id}>
                   <Box
                     sx={{
                       borderRadius: "30px",

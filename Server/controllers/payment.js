@@ -38,7 +38,7 @@ const paychapa = async (aid, req, res) => {
       phone_number: "0966003807",
       tx_ref: a,
       callback_url: "https://webhook.site/077164d6-29cb-40df-ba29-8a00e59a7e60",
-      return_url: `http://localhost:5173/detail/:${aid}`,
+      return_url: `http://localhost:5173/detail/${aid}`,
       "customization[title]": "Payment for the auction",
       "customization[description]":
         "I want to participate on Nuchereta Auctions",
@@ -316,4 +316,4 @@ const ServerCheckChapa = async () => {
   });
   let result = await verifyOrders(uvorder);
 };
-module.exports = { paychapa, chapaVerify, verifyOrders };
+module.exports = { paychapa, chapaVerify, verifyOrders,verifyOrdersSeller,chapaVerifySeller};

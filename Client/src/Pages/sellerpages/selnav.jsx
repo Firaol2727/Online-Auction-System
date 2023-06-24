@@ -87,15 +87,16 @@ function SellerNavbar(props) {
     setAnchorElNotification(anchorElNotification ? null : event.currentTarget);
     if (!openNotification) {
       fetchNotifications();
-    }
+    } 
   };
   socket.on("connect", () => {
     console.log("successfully connected to the server socket to connect");
   });
   socket.on("bidupdate", (data) => {
-    console.log("successfully connected to the server socket");
+    console.log("New server",data);
     setNo_of_notification(no_of_notification + 1);
   });
+
   useEffect(() => {
     baseapi
       .get("/newnotification", { withCredentials: true })

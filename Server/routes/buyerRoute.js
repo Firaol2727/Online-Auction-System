@@ -277,7 +277,7 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
           attributes: ["account"],
         })
           .then(async (data) => {
-            console.log("Buyer account fetched ", data.account);
+            console.log("Account",data)
             let prevbid = await Bid.findOne({
               where: {
                 BuyerId: uid,

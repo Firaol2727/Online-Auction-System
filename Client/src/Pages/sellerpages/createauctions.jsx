@@ -122,23 +122,23 @@ export default class CreateAuction extends Component {
       formData.append("imgCollection", this.state.imgCollection[key]);
     }
     if (this.state.startdate != null && this.state.enddate != null) {
-      let now = new Date();
+      
       //   let sd = new Date(this.state.range[0]);
       //   let ed = new Date(this.state.range[0]);
-      let sd = new Date(this.state.startdate);
-      let ed = new Date(this.state.enddate);
-      this.state.startdate = sd;
-      this.state.enddate = ed;
-      console.log("sd", sd);
-      console.log("ed", ed);
-
-      const diffInMilliseconds = Math.abs(sd - now);
+      // let sd = new Date(this.state.startdate);
+      // let ed = new Date(this.state.enddate);
+      // this.state.startdate = sd;
+      // this.state.enddate = ed;
+      // console.log("sd", sd);
+      // console.log("ed", ed);
+      const now = new Date();
+      const diffInMilliseconds = Math.abs(this.state.startdate - now);
       const diffInDays = Math.round(diffInMilliseconds / (1000 * 60 * 60 * 24));
-      const rangeInsec = Math.abs(ed - sd);
+      const rangeInsec = Math.abs(this.state.enddate - this.state.startdate);
       const rangeauction = Math.round(
         diffInMilliseconds / (1000 * 60 * 60 * 24)
       );
-      if (sd >= now) {
+      if (this.state.startdate >= now) {
         console.log("The start date is is greater or equal  to now ")
         if (diffInDays < 90 && rangeauction < 30) {
           console.log("The start date of the auction is also in less than 3 month days and auction range is less than a month")
