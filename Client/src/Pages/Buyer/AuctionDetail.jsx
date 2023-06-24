@@ -25,8 +25,8 @@ import {
   Tooltip,
 } from "@mui/material";
 
-import NavBuyer from "../../Layouts/NavBar/NavBuyer";
-import Footer from "../../Layouts/Footer/Footer";
+import NavBuyer from "../../Layouts/NavBuyer";
+import Footer from "../../Layouts/Footer";
 
 import SearchIcon from "@mui/icons-material/Search";
 import TextField from "@mui/material/TextField";
@@ -236,6 +236,8 @@ function AuctionCountdown({ startDate }) {
 }
 const AuctionDetail = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [error, setError] = useState(null);
+
   const [notify, setNotify] = useState(false);
   const [bidPrice, setBidPrice] = useState("");
   const [loggedin, setLoggedIn] = useState(false);
@@ -420,6 +422,20 @@ const AuctionDetail = () => {
       });
   }, []);
 
+  useEffect(() => {
+    // This function will run whenever an error occurs in the component tree
+    const handleError = (error) => {
+      setError(error);
+    };
+
+    // Register the error handler
+    window.addEventListener("error", handleError);
+
+    // Cleanup function to remove the error handler when the component unmounts
+    return () => {
+      window.removeEventListener("error", handleError);
+    };
+  }, []);
   function changePictures(type) {
     if (id == 0 && type == 0) {
       return;
@@ -452,7 +468,12 @@ const AuctionDetail = () => {
         ? Math.round(minIncrease + (minIncrease * 2) / 100)
         : Math.round(leadingPrice + (Number(leadingPrice) * 2) / 100),
   };
+  if (error) {
+    // Render an error message if an error occurred
+    return <div>Something went wrong: {error.message}</div>;
+  }
 
+  // Render the component as normal if no error occurred
   return (
     <div>
       <NavBuyer data={loggedin} />

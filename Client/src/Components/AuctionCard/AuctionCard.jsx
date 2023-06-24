@@ -4,9 +4,6 @@ import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import Link from "@mui/material/Link";
-import data from "../../data.json";
-
-import ProductCard from "./ProductCard";
 
 import Category from "../Category/Category";
 import { Button, Typography } from "@mui/material";
@@ -20,7 +17,8 @@ import RssFeedIcon from "@mui/icons-material/RssFeed";
 import TimelapseIcon from "@mui/icons-material/Timelapse";
 import ClosedCaptionDisabledIcon from "@mui/icons-material/ClosedCaptionDisabled";
 import GppBadIcon from "@mui/icons-material/GppBad";
-import "./AuctionCard";
+import { useNavigate } from "react-router-dom";
+
 import axios from "axios";
 const initialState = {
   productData: [{}],
@@ -40,11 +38,7 @@ function reducer(state, action) {
         ...state,
         searchData: action.payload,
       };
-    case "SET_PRODUCT_IMAGES":
-      return {
-        ...state,
-        productImages: action.payload,
-      };
+
     default:
       throw new Error();
   }
@@ -53,7 +47,7 @@ function reducer(state, action) {
 function AuctionCard() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [indexs, setIndexs] = useState(1);
-
+  const navigate = useNavigate();
   const [currentProductIndex, setCurrentProductIndex] = useState(0);
 
   const handlePrevClick = () => {
@@ -72,18 +66,13 @@ function AuctionCard() {
 
   const submitSearch = (event) => {
     event.preventDefault();
-    console.log("search submitted");
-    console.log(state.searchData.search);
+    console.log("search submitted", state.searchData.search);
+    let x = state.searchData.search;
+    // let url = `/search?page=1&item=bed`;
+    let url = `/search?item=${x}&page=1`;
+    navigate(url);
   };
-
-  const handleSearch = (event) => {
-    const { name, value } = event.target;
-
-    dispatch({
-      type: "SET_SEARCH",
-      payload: { ...state.editedPassword, [name]: value },
-    });
-  };
+  console.log("my search", state.searchData.search);
   function formatDate(dateString) {
     const date = new Date(dateString);
     const day = date.getDate();
@@ -92,7 +81,7 @@ function AuctionCard() {
 
     return `${day}/${month}/${year}`;
   }
-
+  console.log("state data", state.productData);
   useEffect(() => {
     axios
       .get("http://localhost:5000")
@@ -100,7 +89,6 @@ function AuctionCard() {
         dispatch({ type: "SET_PRODUCTS", payload: response.data.data });
 
         console.log("fetched data", response.data);
-        console.log("state", state.productData);
       })
       .catch((err) => {
         console.log("errrr", err);
@@ -130,7 +118,12 @@ function AuctionCard() {
             name="search"
             placeholder="Search for auctions"
             value={state.searchData.search}
-            onChange={handleSearch}
+            onChange={(event) => {
+              dispatch({
+                type: "SET_SEARCH",
+                payload: { ...state.searchData, search: event.target.value },
+              });
+            }}
             // onChange={(e) => dispatch({ type: "search", search: e.target.value })}
           />
           <Button
@@ -213,7 +206,7 @@ function AuctionCard() {
                   src={`http://localhost:5000/images/${state.productData[currentProductIndex].see}`}
                   className="advertImage"
                   alt="advertImage"
-                  style={{ height: "40vh", width: "100%" }}
+                  style={{ height: "40vh", width: "130%" }}
                 />
               </Link>
             </Box>
@@ -331,7 +324,7 @@ function AuctionCard() {
           <Grid container spacing={2}>
             {state.productData.map((products) => {
               return (
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={12} sm={12} md={6} lg={6} key={products.id}>
                   <Box
                     sx={{
                       borderRadius: "30px",
@@ -356,10 +349,10 @@ function AuctionCard() {
                         className="imageBox"
                         sx={{
                           width: {
-                            lg: "20%",
-                            md: "30%",
+                            lg: "40%",
+                            md: "40%",
                             sm: "30%",
-                            xs: "40%",
+                            xs: "45%",
                           },
                           marginRight: "10px",
                         }}

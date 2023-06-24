@@ -23,12 +23,6 @@ import MoreIcon from "@mui/icons-material/MoreVert";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import SignupFormBuyer from "../../Components/SignupForm/SignupFormBuyer";
-import SignupFormSeller from "../../Components/SignupForm/SignupFormSeller";
-import SignupForm from "../../Components/SignupForm/SignupForm";
-// import SignupFormBuyer from "../../Components/SignupForm/SignupFormBuyer";
-// import SignupFormSeller from "../../Components/SignupForm/SignupFormBuyer";
-import LoginForm from "../../Components/LoginForm";
 
 import FormControlLabel from "@mui/material/Dialog";
 
@@ -249,9 +243,6 @@ const initialState = {
 
 export default function NavBuyer(props) {
   const [state, dispatch] = useReducer(reducer, initialState);
-  if (props) {
-    console.log("props", props);
-  }
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [notify, setNotify] = React.useState(null);
@@ -1077,7 +1068,20 @@ export default function NavBuyer(props) {
   );
 
   useEffect(() => {
-    setLoggedin(props.data);
+    axios
+      .get("http://localhost:5000/custom/profile", {
+        withCredentials: true,
+      })
+      .then((response) => {
+        setLoggedin(true);
+        dispatch({ type: "SET_PROFILE_DATA", payload: response.data });
+        console.log("fetched data", response.data);
+        console.log("profileData", state.profileData);
+      })
+      //
+      .catch((err) => {
+        setLoggedin(false);
+      });
   }, []);
   return (
     <Box sx={{ flexGrow: 1 }}>

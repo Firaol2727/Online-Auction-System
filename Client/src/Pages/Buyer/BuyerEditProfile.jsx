@@ -1,5 +1,5 @@
-import NavBuyer from "../../Layouts/NavBar/NavBuyer";
-import Footer from "../../Layouts/Footer/Footer";
+import NavBuyer from "../../Layouts/NavBuyer";
+import Footer from "../../Layouts/Footer";
 import { useParams } from "react-router-dom";
 import { styled, alpha } from "@mui/material/styles";
 import PropTypes from "prop-types";
@@ -490,7 +490,7 @@ function BuyerEditProfile() {
               variant="outlined"
               onClick={handleOpenChangePass}
               sx={{
-                 border: "none",
+                border: "none",
                 backgroundColor: "red",
                 textTransform: "unset",
                 color: "white",
