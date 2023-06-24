@@ -2,7 +2,7 @@ import React ,{useEffect,useState}from "react";
 import {Link,Icon, Stack, Divider} from '@mui/material';
 import { CircularProgress, } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
-import { Box} from "@mui/material";
+import { Box,Typography} from "@mui/material";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PersonIcon from '@mui/icons-material/Person';
@@ -25,8 +25,8 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
 
 import WestIcon from '@mui/icons-material/West';
-const api=axios.create({
-  baseURL:"http://localhost:5000"
+const baseapi=axios.create({
+  baseURL:"http://localhost:5000/special"
 })
 // let sub=[
 //   "Closed Auctions",
@@ -84,10 +84,12 @@ const Sidebar=()=>{
   const handleClickNotification = () => {
     setOp(op==0?1:0)
     if (op==1) {
+      setNotifications([])
       fetchNotifications(1);
     }else{
       setNotifications([])
       setpage(1)
+      
       setseemore(false)
     }
   };
@@ -256,9 +258,7 @@ const Sidebar=()=>{
         </Box>
         </Box>
         {op==1 && <div id="mySidenav" className="sidenav">
-            <IconButton onClick={()=>{
-                    open==0?setopen(1): setopen(0)
-                }} sx={{position:"relative",marginLeft:"350px"}}
+            <IconButton onClick={handleClickNotification} sx={{position:"relative",marginLeft:"350px"}}
                 ><WestIcon color="primary"/>
             </IconButton>
              {hasnotification == 0 && (
@@ -282,21 +282,23 @@ const Sidebar=()=>{
         {hasnotification == 1 && (
           <ListItem alignItems="flex-start">
               <ListItemAvatar>
-              <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
+              <Avatar sx={{ bgcolor: "brown" }}>N</Avatar>
               </ListItemAvatar>
               <ListItemText
-                primary="Oui Oui"
+                primary="Nuchereta"
                 secondary={
                   <React.Fragment>
                     <Typography
-                      sx={{ display: 'inline' }}
+                      sx={{ display: 'inline',marginRight:"5px" }}
                       component="span"
                       variant="body2"
                       color="text.primary"
                     >
-                      Sandra Adams
+                      About us -
                     </Typography>
-                    {' — Do you have Paris recommendations? Have you ever…'}
+                    A committed graduate student team consisting of Firaol, Yohannes, Mercy,
+                     and Liul developed the Nuchereta online auctioning system, which allows buyers to bid on items from 
+                    the comfort of their homes and enables sellers to obtain the best price for their products.
                   </React.Fragment>
                 }
               />
