@@ -30,7 +30,7 @@ import Footer from "../../Layouts/Footer/Footer";
 
 import SearchIcon from "@mui/icons-material/Search";
 import TextField from "@mui/material/TextField";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
+
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -51,6 +51,7 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import TimerIcon from "@mui/icons-material/Timer";
 import TelegramIcon from "@mui/icons-material/Telegram";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { ReportProblemOutlined } from "@mui/icons-material";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
@@ -239,10 +240,11 @@ const AuctionDetail = () => {
   const [bidPrice, setBidPrice] = useState("");
   const [loggedin, setLoggedIn] = useState(false);
   const [clicked, setClicked] = useState(false);
-  const [leadingPrice, setLeadingPrice] = useState("");
+  const [leadingPrice, setLeadingPrice] = useState(0);
   const [openReport, setOpenReport] = useState(false);
   const [reasonReport, setReasonReport] = useState("");
   const [reload, setReload] = useState(false);
+  const [minIncrease, setMinIncrease] = useState(0);
   const itemid = useParams();
 
   const api = axios.create({ baseURL: "http://localhost:5000/" });
@@ -250,6 +252,10 @@ const AuctionDetail = () => {
   const [pics, setpics] = useState();
 
   const [hasdata, sethasdata] = useState(false);
+
+  let auctioner;
+  let picter;
+  let item;
 
   const nav = useNavigate();
   const [id, setid] = useState(0);
@@ -356,7 +362,8 @@ const AuctionDetail = () => {
         }
       });
   }, [loggedin, reload]);
-
+  console.log("the auct is", auct);
+  console.log("th has data", hasdata);
   useEffect(() => {
     setloading(true);
     let id = itemid.id;
@@ -370,24 +377,30 @@ const AuctionDetail = () => {
         console.log("response", response.status);
         if (response.status == 200) {
           console.log("response", response.data);
-          if (response.data) {
-            sethasdata(true);
-            setauct(response.data);
-            console.log("my auct", auct);
+          let data = response.data;
 
-            setLeadingPrice(response.data.hammerprice);
-            setpics(response.data.Pictures);
-            setimgdisplay(response.data.see);
-            setimglength(response.data.Pictures.length);
+          if (data) {
+            console.log("in the has ", data);
+            setauct(data);
+
+            sethasdata(true);
+            console.log("hasdata", hasdata);
+            setpics(data.Pictures);
+
+            setimgdisplay(data.see);
+            setimglength(data.length);
             setloading(false);
+            setLeadingPrice(data.hammerprice);
           } else {
             sethasdata(false);
             setloading(false);
           }
+          console.log("auct", auct);
+          console.log("pictures", pics);
         } else if (res.status == 403) {
           nav("/sel/login");
         } else {
-          // seterror(true);
+          seterror(true);
           setloading(false);
           sethasdata(false);
         }
@@ -405,7 +418,7 @@ const AuctionDetail = () => {
         setloading(false);
         sethasdata(false);
       });
-  }, [reload]);
+  }, []);
 
   function changePictures(type) {
     if (id == 0 && type == 0) {
@@ -433,16 +446,26 @@ const AuctionDetail = () => {
   function onchangepic(index) {
     setimgdisplay(index);
   }
+  const inputProps = {
+    min:
+      leadingPrice == 0
+        ? Math.round(minIncrease + (minIncrease * 2) / 100)
+        : Math.round(leadingPrice + (Number(leadingPrice) * 2) / 100),
+  };
+
   return (
     <div>
-      <NavBuyer />
+      <NavBuyer data={loggedin} />
 
       {!loading && hasdata && (
         <>
+          <Box>
+            <Link href="/">Back to Home</Link>
+          </Box>
           <Box
             sx={{
               // position: "relative",
-              marginTop: "50px",
+              // marginTop: "50px",
               height: "130%",
               backgroundColor: "white",
               width: {
@@ -786,11 +809,13 @@ const AuctionDetail = () => {
                             {auct.name}
                           </Typography>
                         </Box>
+
                         <Box
-                          className="price"
+                          className="name"
                           display="flex"
                           justifyContent="center"
                         >
+                          <LocationOnIcon sx={{ marginTop: "12px" }} />
                           <Typography
                             sx={{
                               fontWeight: "bold",
@@ -799,9 +824,35 @@ const AuctionDetail = () => {
                             }}
                           >
                             {" "}
-                            ETB : {auct.baseprice}
+                            {auct.city}
                           </Typography>
                         </Box>
+
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            marginTop: "20px",
+                          }}
+                        >
+                          <Typography
+                            sx={{ fontWeight: "bold", fontSize: "20px" }}
+                          >
+                            Base Price :{" "}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              color: "black",
+                              fontWeight: "bold",
+                              marginLeft: "5px",
+                              fontSize: "20px",
+                            }}
+                          >
+                            {/* ETB :{auct.hammerprice} */}
+                            ETB :{auct.baseprice}
+                          </Typography>
+                        </Box>
+
                         <Box
                           sx={{
                             // marginTop: "10px",
@@ -925,6 +976,23 @@ const AuctionDetail = () => {
                           </Typography>
                         </Box>
                         <Box
+                          className="name"
+                          display="flex"
+                          justifyContent="center"
+                        >
+                          <LocationOnIcon sx={{ marginTop: "12px" }} />
+                          <Typography
+                            sx={{
+                              fontWeight: "bold",
+                              fontSize: "20px",
+                              marginTop: "10px",
+                            }}
+                          >
+                            {" "}
+                            {auct.city}
+                          </Typography>
+                        </Box>
+                        <Box
                           display="block"
                           justifyContent="center"
                           sx={{
@@ -935,6 +1003,21 @@ const AuctionDetail = () => {
                           }}
                         >
                           <Box sx={{ display: "flex" }}>
+                            <Typography sx={{ fontWeight: "bold" }}>
+                              Base Price :{" "}
+                            </Typography>
+                            <Typography
+                              sx={{
+                                color: "black",
+                                fontWeight: "bold",
+                                marginLeft: "5px",
+                              }}
+                            >
+                              {/* ETB :{auct.hammerprice} */}
+                              ETB :{auct.baseprice}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: "flex", marginTop: "10px" }}>
                             <Typography sx={{ fontWeight: "bold" }}>
                               Leading price :{" "}
                             </Typography>
@@ -961,7 +1044,21 @@ const AuctionDetail = () => {
                                 marginLeft: "5px",
                               }}
                             >
-                              ETB :{roundNumber(Number(leadingPrice) * 2) / 100}
+                              {leadingPrice == 0 && (
+                                <div>
+                                  {" "}
+                                  ETB :
+                                  {roundNumber(Number(auct.baseprice) * 2) /
+                                    100}
+                                </div>
+                              )}
+                              {leadingPrice != 0 && (
+                                <div>
+                                  {" "}
+                                  ETB :
+                                  {roundNumber(Number(leadingPrice) * 2) / 100}
+                                </div>
+                              )}
                             </Typography>
                           </Box>
                           <Box>
@@ -1006,12 +1103,7 @@ const AuctionDetail = () => {
                                     required
                                     sx={{ width: "80%" }}
                                     type="number"
-                                    inputProps={{
-                                      min: roundNumber(
-                                        Number(leadingPrice) +
-                                          (Number(leadingPrice) * 2) / 100
-                                      ),
-                                    }}
+                                    inputProps={inputProps}
                                     value={bidPrice}
                                     onChange={(event) => {
                                       setBidPrice(event.target.value);

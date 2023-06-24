@@ -249,6 +249,9 @@ const initialState = {
 
 export default function NavBuyer(props) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  if (props) {
+    console.log("props", props);
+  }
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [notify, setNotify] = React.useState(null);
@@ -983,18 +986,35 @@ export default function NavBuyer(props) {
     >
       <MenuItem onClose={accountClose}>
         <Box className="account" sx={{ display: "block" }}>
-          <Box sx={{ display: "flex", margin: "10px" }}>
-            <PersonIcon size="large" />
-            <Typography className="account name">Yohannes dejene</Typography>
-          </Box>
-          <Box sx={{ margin: "20px" }}>
-            <Typography className="balance">Balance :$500</Typography>
-          </Box>
-          <Box sx={{ margin: "20px" }}>
-            <Link href="/payment">
-              <Typography sx={{ color: "red" }}>Deposite</Typography>
-            </Link>
-          </Box>
+          {loggedin && (
+            <>
+              {" "}
+              <Box sx={{ display: "flex", margin: "10px" }}>
+                <PersonIcon size="large" />
+
+                <Typography className="account name">
+                  {state.profileData.fname} {state.profileData.lname}
+                </Typography>
+              </Box>
+              <Box sx={{ margin: "20px" }}>
+                <Typography className="balance">
+                  Balance :ETB {state.profileData.account}
+                </Typography>
+              </Box>
+              <Box sx={{ margin: "20px" }}>
+                <Link href="/payment">
+                  <Typography sx={{ color: "red" }}>Deposite</Typography>
+                </Link>
+              </Box>
+            </>
+          )}
+          {!loggedin && (
+            <>
+              <Link href="/login">
+                <Typography sx={{ color: "red" }}>Login First</Typography>
+              </Link>
+            </>
+          )}
         </Box>
       </MenuItem>
     </Menu>
@@ -1057,19 +1077,7 @@ export default function NavBuyer(props) {
   );
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/custom/profile", {
-        withCredentials: true,
-      })
-      .then((response) => {
-        setLoggedin(true);
-
-        console.log("fetched data", response.data);
-      })
-      //
-      .catch((err) => {
-        setLoggedin(false);
-      });
+    setLoggedin(props.data);
   }, []);
   return (
     <Box sx={{ flexGrow: 1 }}>
