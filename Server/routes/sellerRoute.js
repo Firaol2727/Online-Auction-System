@@ -71,6 +71,7 @@ const myAuction = require("../controllers/sellercontroller/myauction");
 const notification = require("../controllers/sellercontroller/notificationS");
 const register = require("../controllers/sellercontroller/register");
 const uploadAuction = require("../controllers/sellercontroller/upload");
+const { paychapa,verifyOrdersSeller,chapaVerifySeller } = require("../controllers/payment");
 
 router.use(jsonParser);
 // router.use(express.json());
@@ -436,10 +437,29 @@ router.get("/newnotification", checkAuthorizationSeller, async (req, res) => {
 router.post(
   "/upload",
   checkAuthorizationSeller,
-  (req, res, next) => {
+  async(req, res, next) => {
     console.log("Can this be done first", req.body);
     console.log("Can this be done first");
-    next();
+    const uid=req.user;
+    const sel=await Seller.findOne({where:{id:uid}});
+    if(sel.account<100){
+        let haspaid= chapaVerifySeller;
+        if(haspaid){
+          console.log("Has paid",haspaid)
+          next();
+        }else{
+          paychapa("",req,res)
+        }
+        
+    }else{
+      await Seller.update({
+          account:Number(account)-100
+      },{
+        where:{id:uid}
+      })
+      next();
+    }
+    
   },
   (req, res) => {
     upload(req, res, function (err) {

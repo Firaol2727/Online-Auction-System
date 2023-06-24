@@ -23,7 +23,7 @@ const {
   Admin,
   Auction,
   Banker,
-  ReportedAuction,
+  Bid,
   Order,
   Buyer,
   Category,
@@ -35,7 +35,6 @@ const {
   Seller,
   Transaction,
   Notifyme,
-  Bid,
 } = sequelize.models;
 
 const { paychapa, chapaVerify } = require("./controllers/payment");
@@ -90,7 +89,6 @@ async function CreateDatabase() {
 async function tableChange() {
   //  a function used to commit database changes just change name of model you want to update and call function
   // await Buyer.sync({ alter: true });
-
   // await Order.sync({ alter: true });
   await Notification.sync({ alter: true });
   // await Passcode.sync({ alter: true });
@@ -899,17 +897,18 @@ const auctionManage = async () => {
       [Op.or]: [{ state: "open" }, { state: "waiting" }],
     },
   });
-  auctions.map(async (auction) => {
-    if (auction.startdate == date || auction.startdate < date) {
-      waitingchangeauctions.push(auction);
-      await Auction.update({
+  let i=0;
+  auctions.map(async (auction)=>{
+    if (auction.startdate == date || auction.startdate <date) {
+      console.log("There is an auction waiting ",auction.id)
+      i++;
+      await Auction.update(
+        {
         state: "open",
-        // include: {
-        //   model: Seller,
-        //   attributes: ["phonenumber"],
-        // },
-        where: { id: auction.id },
+      },
+      { where: { id: auction.id }
       });
+      console.log(" auction updated ")
       let notifimies = await Notifyme.findAll({
         aid: auction.id,
       });
@@ -935,19 +934,20 @@ const auctionManage = async () => {
       let winner = await Bid.findOne({
         where: {
           AuctionId: auction.id,
-          bidprice: auction.hammerprice,
+          bidprice: auction.hammerprice?auction.hammerprice:0,
         },
       });
-      let winnerUser =
-        (await Buyer) /
-        findOne({
+      let winnerUser
+      if(winner){
+        winnerUser=await Buyer.findOne({
           where: { id: winner.buyerId },
         });
-      await auction.update({
+        await auction.update({
         state: "closed",
-        winnerId: winner.buyerId1 != null ? winner.buyerId1 : "",
-        where: { id: auction.id },
-      });
+        winnerId: winner.buyerId != null ? winner.buyerId : "",
+      },{where: { id: auction.id }});
+      }
+      
       if (winnerUser) {
         await Notification.create({
           id: "",
@@ -959,14 +959,16 @@ const auctionManage = async () => {
       await Notification.create({
         id: "",
         AuctionId: auction.id,
-        uid: auction.Seller.id,
+        uid: auction.SellerId,
         message: `Your auction has been ${auction.name} completed  with winning bid ${auction.hammerprice}`,
       });
-      let bidders = Bid.findAll({
+      let bidders = await Bid.findAll({
         where: { AuctionId: auction.id },
         attributes: ["BuyerId"],
       });
-      bidders.map(async (bid) => {
+      console.log("bidders",bidders)
+      if(bidders){
+        bidders.map(async (bid) => {
         await Notification.create({
           id: "",
           AuctionId: auction.id,
@@ -974,20 +976,8 @@ const auctionManage = async () => {
           message: `The auction ${auction.name} you were participating on has been closed with winning price ${auction.hammerprice}`,
         });
       });
-      await ClosedBid.create({
-        id: "",
-        auctionId: auction.id,
-        auctionName: auction.name,
-        startdate: auction.startdate,
-        enddate: auction.enddate,
-        seller: auction.Seller.fname + " " + auction.Seller.lname,
-        sellerId: auction.Seller.id,
-        sphone: auction.Seller.phonenumber,
-        winner: winnerUser.fname + " " + winnerUser.lname,
-        winnerId: winnerUser.id,
-        winningbid: auction.hammerprice,
-        wphone: winnerUser.phonenumber,
-      });
+      }
+      console.log("Finished")
     }
   });
 };
@@ -1056,13 +1046,18 @@ io.on("connection", (socket) => {
     onlineUsers.map((user) => {
       if (user.userid == seller.SellerId) {
         console.log("yess there is a seller");
-        io.to(user.socketid).emit("bidupdate", "new notification");
+        let a=user.socketid;
+
+        io.to(a).emit("bidupdate", "new notification");
+        // socket.broadcast.emit('bidupdate',data);
+        // socket.emit('bidupdate',"new notification");
         console.log("notified");
       }
       bidders.map((bid) => {
         if (user.userid == bid.BuyerId && user.userid != socket.user) {
           console.log("yes there is active bidders");
-          socket.to(user.socketid).emit("bidupdate", "new notification");
+          // socket.to(user.socketid).emit("bidupdate", "new notification");
+          io.to(a).emit("bidupdate", "new notification");
         }
       });
     });
@@ -1070,10 +1065,15 @@ io.on("connection", (socket) => {
   });
   // socket.on("message",(data)=>{
   //     console.log(data);
-  //     socket.broadcast.emit('message',data);
+  //     socket.emit('message',data);
 
   // })
   // var i=0;
+  // setInterval(() => {
+  //     socket.emit('bidupdate', {
+  //         message: i++
+  //       });
+  // }, 3000);
   // setInterval(() => {
   //     socket.emit('message', {
   //         message: i++
