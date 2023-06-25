@@ -90,7 +90,7 @@ async function tableChange() {
   //  a function used to commit database changes just change name of model you want to update and call function
   // await Buyer.sync({ alter: true });
   // await Order.sync({ alter: true });
-  await Seller.sync({ alter: true });
+  await Payment.sync({ alter: true });
   // await Passcode.sync({ alter: true });
   console.log("finished");
 }
@@ -195,7 +195,7 @@ app.get("/images/:picid", (req, res) => {
       if (data) {
         res.sendFile(__dirname + "/dbImages/" + data);
       } else {
-        res.state(404).send("Image not found");
+        res.status(404).send("Image not found");
       }
     })
     .catch((err) => {
@@ -703,6 +703,25 @@ app.get("/cat/:cname", async (req, res) => {
 /// searching a product
 
 app.post("/login", authorizecheck);
+app.post("/logout", (req, res) => {
+  console.log("loggin out");
+  // Clear the session data and delete the session cookie
+  // req.session.destroy((err) => {
+  //   if (err) {
+  //     console.error(err);
+  //   } else {
+  //     res.clearCookie("u"); // Delete the "session" cookie
+  //     res.redirect("/login");
+  //   }
+  // });
+  res.clearCookie("u", {
+    path: "/login",
+    domain: "http://localhost:5173/sel/login",
+    secure: true,
+    httpOnly: true,
+  });
+  res.redirect("/sel/login");
+});
 
 app.get("/category/:cname", async (req, res) => {
   console.log(req.params);
@@ -887,25 +906,25 @@ http.listen(5000, () => {
   console.log("The server is running on 5000");
 });
 const auctionManage = async () => {
+  console.log("auction manage");
   const date = new Date();
   let auctions = await Auction.findAll({
-    attributes: ["id", "startdate", "enddate"],
     where: {
       [Op.or]: [{ state: "open" }, { state: "waiting" }],
     },
   });
-  let i=0;
-  auctions.map(async (auction)=>{
-    if (auction.startdate == date || auction.startdate <date) {
-      console.log("There is an auction waiting ",auction.id)
+  let i = 0;
+  auctions.map(async (auction) => {
+    if (auction.startdate == date || auction.startdate < date) {
+      console.log("There is an auction waiting ", auction.id);
       i++;
       await Auction.update(
         {
-        state: "open",
-      },
-      { where: { id: auction.id }
-      });
-      console.log(" auction updated ")
+          state: "open",
+        },
+        { where: { id: auction.id } }
+      );
+      console.log(" auction updated ");
       let notifimies = await Notifyme.findAll({
         aid: auction.id,
       });
@@ -913,7 +932,7 @@ const auctionManage = async () => {
         await Notification.create({
           id: "",
           AuctionId: auction.id,
-          uid: winner.BuyerId,
+          uid: notifime.BuyerId,
           message: `The auction  ${auction.name} you want to participate on has been opened }`,
           nottype: "start",
         });
@@ -931,20 +950,23 @@ const auctionManage = async () => {
       let winner = await Bid.findOne({
         where: {
           AuctionId: auction.id,
-          bidprice: auction.hammerprice?auction.hammerprice:0,
+          bidprice: auction.hammerprice ? auction.hammerprice : 0,
         },
       });
-      let winnerUser
-      if(winner){
-        winnerUser=await Buyer.findOne({
+      let winnerUser;
+      if (winner) {
+        winnerUser = await Buyer.findOne({
           where: { id: winner.buyerId },
         });
-        await auction.update({
-        state: "closed",
-        winnerId: winner.buyerId != null ? winner.buyerId : "",
-      },{where: { id: auction.id }});
+        await auction.update(
+          {
+            state: "closed",
+            winnerId: winner.buyerId != null ? winner.buyerId : "",
+          },
+          { where: { id: auction.id } }
+        );
       }
-      
+
       if (winnerUser) {
         await Notification.create({
           id: "",
@@ -963,22 +985,26 @@ const auctionManage = async () => {
         where: { AuctionId: auction.id },
         attributes: ["BuyerId"],
       });
-      console.log("bidders",bidders)
-      if(bidders){
+      console.log("bidders", bidders);
+      if (bidders) {
         bidders.map(async (bid) => {
-        await Notification.create({
-          id: "",
-          AuctionId: auction.id,
-          uid: bid.BuyerId,
-          nottype:"close",
-          message: `The auction ${auction.name} you were participating on has been closed with winning price ${auction.hammerprice}`,
+          await Notification.create({
+            id: "",
+            AuctionId: auction.id,
+            uid: bid.BuyerId,
+            nottype: "close",
+            message: `The auction ${auction.name} you were participating on has been closed with winning price ${auction.hammerprice}`,
+          });
         });
-      });
       }
-      console.log("Finished")
+      console.log("Finished");
     }
   });
 };
+// setInterval(() => {
+//   console.log("seting time");
+//   // auctionManage();
+// }, [20000]);
 // auctionManage();
 const addOnlineUser = (userid, socketid) => {
   console.log("The user id is ", userid);
@@ -1044,7 +1070,7 @@ io.on("connection", (socket) => {
     onlineUsers.map((user) => {
       if (user.userid == seller.SellerId) {
         console.log("yess there is a seller");
-        let a=user.socketid;
+        let a = user.socketid;
 
         io.to(a).emit("bidupdate", "new notification");
         // socket.broadcast.emit('bidupdate',data);
@@ -1053,6 +1079,7 @@ io.on("connection", (socket) => {
       }
       bidders.map((bid) => {
         if (user.userid == bid.BuyerId && user.userid != socket.user) {
+          let a = user.socketid;
           console.log("yes there is active bidders");
           // socket.to(user.socketid).emit("bidupdate", "new notification");
           io.to(a).emit("bidupdate", "new notification");

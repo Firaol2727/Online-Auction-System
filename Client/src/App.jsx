@@ -4,7 +4,6 @@ import "./App.css";
 import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
 
 import ContactUs from "./Pages/Public/ContactUs";
-import About from "./Pages/Public/About";
 
 import Auctions from "./Pages/Auctions/Auctions";
 import Clasify from "./Pages/Auctions/Clasify";
@@ -20,7 +19,7 @@ import AuctionDetail from "./Pages/Buyer/AuctionDetail";
 import Payment from "./Pages/Buyer/Payment";
 import PlaceBid from "./Pages/Buyer/PlaceBid";
 import BuyerAuctions from "./Pages/Buyer/BuyerAuctions";
-
+import About from "./Pages/Buyer/About";
 // import Notification from "./Pages/Notification/Notification";
 // import Payment from "./Pages/Payment/Payment";
 // import Profile from "./Pages/Profile/Profile";
@@ -65,6 +64,8 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/auctions/:id" element={<Clasify />} />
           <Route path="/search" element={<Search />} />
+
+          <Route path="/about" element={<About />} />
 
           <Route path="/signup" element={<SignUp />} />
           {/* ### buyer routes */}

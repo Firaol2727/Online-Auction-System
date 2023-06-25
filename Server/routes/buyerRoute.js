@@ -274,10 +274,9 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
         paidresponse = await chapaVerify(uid);
         return Buyer.findOne({
           where: { id: uid },
-          attributes: ["account"],
         })
           .then(async (data) => {
-            console.log("Account",data)
+            console.log("Account", data);
             let prevbid = await Bid.findOne({
               where: {
                 BuyerId: uid,
@@ -432,7 +431,7 @@ router.post("/report", (req, res) => {
 router.get("/notification", checkAuthorizationCustomer, (req, res) => {
   console.log("fetching notification");
   let page = req.query.page == null ? 1 : req.query.page;
-  console.log("The page is ",page)
+  console.log("The page is ", page);
   // let type=req.query.subname==null?"electronics":req.query.subname;
   let no_response = 10;
   let limit = 1;
@@ -461,7 +460,7 @@ router.get("/notification", checkAuthorizationCustomer, (req, res) => {
       );
     })
     .catch((err) => {
-      console.log("Error fetching",err)
+      console.log("Error fetching", err);
       res.sendStatus(500);
     });
 });
@@ -469,7 +468,7 @@ router.get("/newnotification", checkAuthorizationCustomer, async (req, res) => {
   console.log("fetching notification");
   let uid = req.user;
   return Notification.findAndCountAll({
-    where: { uid: uid, read: true },
+    where: { uid: uid, read: false },
   })
     .then(async (data) => {
       if (data) {

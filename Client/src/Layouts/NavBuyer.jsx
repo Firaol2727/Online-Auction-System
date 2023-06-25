@@ -15,9 +15,11 @@ import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import Link from "@mui/material/Link";
 import MenuIcon from "@mui/icons-material/Menu";
+
 import PersonIcon from "@mui/icons-material/Person";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
@@ -44,6 +46,13 @@ import io from "socket.io-client";
 import Select from "@mui/material/Select";
 import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
+
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import Avatar from "@mui/material/Avatar";
+
 axios.create({
   baseURL: "http://localhost:5000",
 });
@@ -247,8 +256,19 @@ const initialState = {
     account: "",
   },
 };
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const month = date.toLocaleString("default", { month: "short" });
+  const day = date.getDate();
+  const time = date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return `${month}/${day} ${time}`;
+}
 
 export default function NavBuyer(props) {
+  const navigate = useNavigate();
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -256,7 +276,6 @@ export default function NavBuyer(props) {
   const [account, setAccount] = React.useState(null);
   const [loggedin, setLoggedin] = React.useState(false);
 
-  const navigate = useNavigate();
   const [openRegister, setOpenRegister] = React.useState(false);
   const [openLogin, setOpenLogin] = React.useState(false);
   const [personType, setPersonType] = useState("Seller");
@@ -292,8 +311,10 @@ export default function NavBuyer(props) {
 
   //////notifications
   const [Notifications, setNotifications] = useState([]);
+  const [seemore, setseemore] = useState(false);
   const [hasnotification, sethasnotifications] = useState(0);
   const [no_of_notification, setNo_of_notification] = useState(0);
+  let [page, setpage] = useState(1);
 
   ////login Functions
   const handleUsernameChange = (e) => {
@@ -592,6 +613,13 @@ export default function NavBuyer(props) {
   };
   const handleNotification = (event) => {
     setNotify(event.currentTarget);
+    if (!notifyOpen) {
+      fetchNotifications(1);
+    } else {
+      setNotifications([]);
+      setpage(1);
+      setseemore(false);
+    }
   };
   const accountClose = (event) => {
     setAccount(null);
@@ -938,7 +966,19 @@ export default function NavBuyer(props) {
       </Box>
     );
   }
-
+  const handleLogout = () => {
+    console.log("in the logout");
+    axios
+      .post("http://localhost:5000/logout")
+      .then((reponse) => {
+        console.log("logout response", reponse);
+        navigate("/sel/login");
+      })
+      .catch((err) => {
+        navigate("/sel/login");
+        console.log("logout errrio ", err);
+      });
+  };
   const menuId = "primary-search-account-menu";
   socket.on("connect", () => {
     console.log("successfully connected to the server socket to connect");
@@ -963,27 +1003,38 @@ export default function NavBuyer(props) {
         console.log("The error is ", err);
       });
   }, []);
-  useEffect(() => {
-    if (notifyOpen) {
-      fetchNotifications();
-      console.log("fetching notifiation");
-    } else {
-      console.log("not fetching");
+
+  // useEffect(() => {
+  //   if (!notifyOpen) {
+  //     fetchNotifications(1);
+  //   } else {
+  //     setNotifications([]);
+  //     setpage(1);
+  //     setseemore(false);
+  //   }
+  // }, [notifyOpen]);
+  function fetchNotifications(page) {
+    if (page == 1) {
+      sethasnotifications(0);
     }
-  }, [notifyOpen]);
-  function fetchNotifications(params) {
-    sethasnotifications(0);
+    setseemore(true);
 
     axios
-      .get("http://localhost:5000/custom/notification", {
+      .get(`http://localhost:5000/custom/notification?page=${page}`, {
         withCredentials: true,
       })
       .then((response) => {
         if (response.status === 200) {
+          setNo_of_notification(0);
+          setseemore(false);
           let data = response.data;
           console.log("response data", data);
           if (data.length > 0) {
-            setNotifications([...response.data]);
+            let tempnotification = [];
+            let tempdata = response.data;
+            tempnotification.push(...Notifications);
+            tempnotification.push(...tempdata);
+            setNotifications([...tempnotification]);
             sethasnotifications(2);
           } else {
             sethasnotifications(1);
@@ -991,15 +1042,18 @@ export default function NavBuyer(props) {
         } else if (response.status === 403) {
           nav("/login");
         } else {
+          setseemore(false);
           sethasnotifications(1);
         }
         console.log("hasnotification", hasnotification);
       })
       .catch((err) => {
         console.log(err);
+        setseemore(false);
         sethasnotifications(1);
       });
   }
+  console.log("Notifications", Notifications[0]);
   const Notification = (
     <Menu
       // notify={notify}
@@ -1014,11 +1068,17 @@ export default function NavBuyer(props) {
       }}
       open={notifyOpen}
       onClose={notifyClose}
-      sx={{ marginTop: "50px" }}
+      sx={{
+        marginTop: "50px",
+        // width: {
+        //   xs: "80%",
+        //   sm: "80%",
+        //   md: "100%",
+        //   lg: "1500px",
+        //   xl: "100%",
+        // },
+      }}
     >
-      {/* {NotoficationText.map((option, index) => (
-        <MenuItem key={option}>{option}</MenuItem>
-      ))} */}
       {hasnotification == 0 && (
         <Box
           sx={{
@@ -1027,7 +1087,7 @@ export default function NavBuyer(props) {
             width: {
               sm: "400px",
               xs: "300px",
-              backgroundColor: "#FFE4C4",
+              backgroundColor: "white",
               height: "100px",
               marginTop: "20px",
             },
@@ -1039,89 +1099,252 @@ export default function NavBuyer(props) {
         </Box>
       )}
       {hasnotification == 1 && (
-        <div>
-          <Box
-            sx={{
-              border: 1,
-              p: 1,
-              width: {
-                sm: "400px",
-                xs: "300px",
-                backgroundColor: "#FFE4C4",
-                height: "80px",
-                marginTop: "2px",
-              },
-            }}
-          >
-            <center>
-              {" "}
-              <Typography sx={{ color: "black" }}>
-                No notifications yet.{" "}
+        <ListItem alignItems="flex-start" sx={{ backgroundColor: "white" }}>
+          <ListItemAvatar>
+            <Avatar sx={{ bgcolor: "brown" }}>W</Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            color="brown"
+            primary={
+              <Typography
+                sx={{ display: "inline" }}
+                component="span"
+                variant="body2"
+                color="#061746 "
+                fontSize={"15px"}
+              >
+                Welcome
               </Typography>
-            </center>
-          </Box>
-        </div>
+            }
+            secondary={
+              <React.Fragment>
+                <Typography
+                  sx={{ display: "inline" }}
+                  component="span"
+                  variant="body2"
+                  color="brown"
+                >
+                  Welcome to our auction web system!
+                </Typography>
+                With our platform, you can sell a variety of items to interested
+                buyers from all over the world.
+              </React.Fragment>
+            }
+          />
+        </ListItem>
       )}
       {hasnotification == 2 && (
-        <Box
+        <List
           sx={{
-            border: 1,
-            p: 1,
+            width: "100%",
+            maxWidth: 360,
+            maxHeight: "80%",
             bgcolor: "background.paper",
-            height: "600px",
-            overflowY: "scroll",
-            overflowX: "hidden",
-            paddingTop: "22px",
+            overflow: "scroll",
           }}
         >
           {Notifications.map((notification) =>
-            notification.type === "bidupdate" ? (
-              <Link href={`/moreon/${notification.AuctionId}`}>
-                <Box
-                  sx={{
-                    border: 1,
-                    p: 1,
-                    width: {
-                      sm: "400px",
-                      xs: "300px",
-                      backgroundColor: "#FFE4C4",
-                      height: "100px",
-                      marginTop: "20px",
-                    },
-                  }}
-                >
-                  <center>
-                    {" "}
-                    <Typography sx={{ color: "black" }}>
-                      This is the notification
-                    </Typography>
-                  </center>
-                </Box>
-              </Link>
-            ) : (
-              <Box
-                sx={{
-                  border: 1,
-                  p: 1,
-                  width: {
-                    sm: "400px",
-                    xs: "300px",
-                    backgroundColor: "#FFE4C4",
-                    height: "100px",
-                    marginTop: "20px",
-                  },
-                }}
+            notification.nottype === "bidupdate" ? (
+              <Link
+                underline="none"
+                href={`/detail/${notification.AuctionId}`}
+                key={notification.id}
               >
-                <center>
-                  {" "}
-                  <Typography sx={{ color: "black" }}>
-                    This is the notification
-                  </Typography>
-                </center>
-              </Box>
+                <ListItem alignItems="flex-start">
+                  <ListItemAvatar>
+                    <Avatar sx={{ bgcolor: "brown" }}>B</Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    color="brown"
+                    primary={
+                      <Typography
+                        sx={{ display: "inline" }}
+                        component="span"
+                        variant="body2"
+                        color="#061746 "
+                        fontSize={"15px"}
+                      >
+                        Bid update
+                      </Typography>
+                    }
+                    secondary={
+                      <React.Fragment>
+                        <Typography
+                          sx={{ display: "inline" }}
+                          component="span"
+                          variant="body2"
+                          color="brown"
+                        >
+                          New offer -
+                        </Typography>
+                        {notification.message}
+                        <Typography
+                          sx={{
+                            marginRigth: "5px",
+                            float: "right",
+                            fontSize: "10px",
+                            mt: "7px",
+                            color: "blue",
+                          }}
+                        >
+                          {formatDate(notification.createdAt)}
+                        </Typography>
+                      </React.Fragment>
+                    }
+                  />
+                </ListItem>
+                <Divider variant="inset" component="li" />
+              </Link>
+            ) : notification.nottype === "accountupdate" ? (
+              <>
+                <ListItem alignItems="flex-start">
+                  <ListItemAvatar>
+                    <Avatar sx={{ bgcolor: "brown" }}>A</Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    color="brown"
+                    primary={
+                      <Typography
+                        sx={{ display: "inline" }}
+                        component="span"
+                        variant="body2"
+                        color="#061746 "
+                        fontSize={"15px"}
+                      >
+                        Account update
+                      </Typography>
+                    }
+                    secondary={
+                      <React.Fragment>{notification.message}</React.Fragment>
+                    }
+                  />
+                </ListItem>
+                <Divider variant="inset" component="li" />
+              </>
+            ) : notification.nottype === "start" ? (
+              <>
+                <ListItem alignItems="flex-start">
+                  <ListItemAvatar>
+                    <Avatar sx={{ bgcolor: "brown" }}>S</Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    color="brown"
+                    primary={
+                      <Typography
+                        sx={{ display: "inline" }}
+                        component="span"
+                        variant="body2"
+                        color="#061746 "
+                        fontSize={"15px"}
+                      >
+                        Auction update
+                      </Typography>
+                    }
+                    secondary={
+                      <React.Fragment>
+                        <Typography
+                          sx={{ display: "inline" }}
+                          component="span"
+                          variant="body2"
+                          color="brown"
+                        >
+                          Auction started -
+                        </Typography>
+                        {notification.message}
+                      </React.Fragment>
+                    }
+                  />
+                </ListItem>
+                <Divider variant="inset" component="li" />
+              </>
+            ) : notification.nottype === "close" ? (
+              <>
+                <ListItem alignItems="flex-start">
+                  <ListItemAvatar>
+                    <Avatar sx={{ bgcolor: "brown" }}>C</Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    color="brown"
+                    primary={
+                      <Typography
+                        sx={{ display: "inline" }}
+                        component="span"
+                        variant="body2"
+                        color="#061746 "
+                        fontSize={"15px"}
+                      >
+                        Auction update
+                      </Typography>
+                    }
+                    secondary={
+                      <React.Fragment>
+                        <Typography
+                          sx={{ display: "inline" }}
+                          component="span"
+                          variant="body2"
+                          color="brown"
+                        >
+                          Auction closed -
+                        </Typography>
+                        {notification.message}
+                      </React.Fragment>
+                    }
+                  />
+                </ListItem>
+                <Divider variant="inset" component="li" />
+              </>
+            ) : (
+              <>
+                <ListItem alignItems="flex-start">
+                  <ListItemAvatar>
+                    <Avatar sx={{ bgcolor: "brown" }}>N</Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    color="brown"
+                    primary={
+                      <Typography
+                        sx={{ display: "inline" }}
+                        component="span"
+                        variant="body2"
+                        color="#061746 "
+                        fontSize={"15px"}
+                      >
+                        Nuchereta
+                      </Typography>
+                    }
+                    secondary={
+                      <React.Fragment>{notification.message}</React.Fragment>
+                    }
+                  />
+                </ListItem>
+                <Divider variant="inset" component="li" />
+              </>
             )
           )}
-        </Box>
+          <center>
+            <button
+              onClick={async () => {
+                let nextpage = page + 1;
+                setpage(nextpage);
+                setseemore(true);
+                console.log("Fetching another one ", nextpage);
+                await fetchNotifications(nextpage);
+                setseemore(false);
+              }}
+              sx={{
+                color: "black",
+                borderRadius: "12px",
+                border: "0.5px gray solid",
+                ":hover": { backgroundColor: "lightblue" },
+                width: "60%",
+                height: "25px",
+                backgroundColor: "white",
+              }}
+            >
+              {seemore ? "...loading" : "See more Results"}
+            </button>
+          </center>
+        </List>
       )}
     </Menu>
   );
@@ -1212,13 +1435,6 @@ export default function NavBuyer(props) {
 
       <MenuItem onClick={handleMenuClose}>
         <Box>
-          <NavLink to="/buyerauctions">
-            <Typography>My auctions</Typography>
-          </NavLink>
-        </Box>
-      </MenuItem>
-      <MenuItem onClick={handleMenuClose}>
-        <Box>
           <NavLink to="/payment">
             <Typography>Deposite</Typography>
           </NavLink>
@@ -1228,7 +1444,7 @@ export default function NavBuyer(props) {
       <Divider />
 
       <MenuItem onClick={handleMenuClose}>
-        <NavLink to="/logout" sx={{ display: "flex" }}>
+        <Button onClick={handleLogout}>
           <IconButton
             // color="inherit"
             sx={{ color: "#081263 " }}
@@ -1236,7 +1452,7 @@ export default function NavBuyer(props) {
             <LogoutIcon sx={{ color: "black" }} />
             <Typography sx={{ margin: "8px" }}>Logout</Typography>
           </IconButton>
-        </NavLink>
+        </Button>
       </MenuItem>
     </Menu>
   );
@@ -1286,18 +1502,16 @@ export default function NavBuyer(props) {
                   lg: "block",
                   md: "block",
                   sm: "block",
-                  xs: "none",
+                  xs: "block",
                 },
               }}
             >
               <img
-                alt="Home Page"
-                src="https://oaresources.azureedge.net/images/oa-gavel-sm.png"
-                style={{
-                  width: "40px",
-                  margin: "10px 15px ",
-                  backgroundColor: "black",
-                }}
+                src="/logo2.png"
+                href=""
+                width="40px"
+                height={"60px"}
+                style={{ width: "40px", margin: "6px 10px " }}
               ></img>
             </Box>
             <Typography
@@ -1309,23 +1523,18 @@ export default function NavBuyer(props) {
                   xs: "0px",
                 },
                 fontWeight: "800",
-                color: "black",
+                color: "brown",
               }}
             >
               {" "}
-              NU CHARETA
+              NUCHARETA
             </Typography>
           </Box>
 
           <Box sx={{ flexGrow: 1 }} />
 
           <Box sx={{ display: "flex" }}>
-            <IconButton
-              size="large"
-              aria-label="show 17 new notifications"
-              color="inherit"
-              onClick={handleAccount}
-            >
+            <IconButton size="large" color="inherit" onClick={handleAccount}>
               <AccountBalanceWalletIcon sx={{ color: "black" }} />
 
               <Typography
@@ -1341,12 +1550,15 @@ export default function NavBuyer(props) {
             </IconButton>
             <IconButton
               size="large"
-              aria-label="show 17 new notifications"
               color="inherit"
               onClick={handleNotification}
             >
-              <Badge badgeContent={16} color="error" sx={{}}>
-                <NotificationsIcon sx={{ color: "black" }} />
+              <Badge badgeContent={no_of_notification} color="error">
+                {notifyOpen ? (
+                  <NotificationsIcon sx={{ color: "brown" }} />
+                ) : (
+                  <NotificationsNoneIcon sx={{ color: "black" }} />
+                )}
               </Badge>
               <Typography
                 sx={{

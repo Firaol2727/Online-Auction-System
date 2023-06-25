@@ -400,10 +400,12 @@ function BuyerEditProfile() {
             },
           }}
         >
+          <Box display="flex"></Box>
           <Typography my={2} sx={{ marginLeft: "10px" }}>
             {" "}
             Account info
           </Typography>
+
           <Divider />
           <Box
             className="name"
@@ -485,26 +487,6 @@ function BuyerEditProfile() {
             />
           </Box>
 
-          <Box className="popUp" sx={{ marginLeft: "20px", marginTop: "20px" }}>
-            <Button
-              variant="outlined"
-              onClick={handleOpenChangePass}
-              sx={{
-                border: "none",
-                backgroundColor: "red",
-                textTransform: "unset",
-                color: "white",
-                "&:hover": {
-                  backgroundColor: "red",
-                  color: "white",
-                },
-              }}
-            >
-              Change Password
-            </Button>
-
-            {passwordDialoge()}
-          </Box>
           <Box className="phone">
             <TextField
               sx={{
@@ -608,23 +590,44 @@ function BuyerEditProfile() {
             </FormControl>
           </Box>
           <Typography sx={{ margin: "20px" }}>{responseEdit}</Typography>
-          <Button
-            variant="contained"
-            sx={{ color: "white", backgroundColor: "red" }}
-            onClick={handleSaveEditProfile}
-            disabled={saving}
-            type="submit"
-          >
-            {saving ? (
-              <>
-                <CircularProgress size={24} />
-                Cheking...
-              </>
-            ) : (
-              "Save Changes"
-            )}
-          </Button>
+          <Box display="flex">
+            <Button
+              variant="contained"
+              sx={{ color: "white", backgroundColor: "red" }}
+              onClick={handleSaveEditProfile}
+              disabled={saving}
+              type="submit"
+            >
+              {saving ? (
+                <>
+                  <CircularProgress size={24} />
+                  Cheking...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+            <Box className="popUp" sx={{ marginLeft: "100px" }}>
+              <Button
+                variant="outlined"
+                onClick={handleOpenChangePass}
+                sx={{
+                  border: "none",
+                  backgroundColor: "red",
+                  textTransform: "unset",
+                  color: "white",
+                  "&:hover": {
+                    backgroundColor: "red",
+                    color: "white",
+                  },
+                }}
+              >
+                Change Password
+              </Button>
 
+              {passwordDialoge()}
+            </Box>
+          </Box>
           <Divider />
         </Box>
       </Box>

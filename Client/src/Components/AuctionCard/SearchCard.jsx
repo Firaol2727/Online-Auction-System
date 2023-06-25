@@ -1336,7 +1336,7 @@ function SearchCard(props) {
                             },
                           }}
                         >
-                          Base price : $ {products.baseprice}
+                          Base price :ETB {products.baseprice}
                         </Typography>
                         <Typography
                           className="Date"
