@@ -12,6 +12,8 @@ import Clasify from "./Pages/Auctions/Clasify";
 import Loading from "./Pages/Loading/Loading";
 import NotFound from "./Pages/NotFound/NotFound";
 // <<<<<<< Updated upstream
+
+import TermsPolicy from './terms_and_policy/TermsPolicy';
 ////buyer
 import Login from "./Components/LoginForm";
 import BuyerLogout from "./Pages/Buyer/BuyerLogout";
@@ -101,6 +103,8 @@ function App() {
           <Route path="/adlogin" element={<AdLogin />} />
 
           {/* >>>>>>> main */}
+
+          <Route path="/termsandpolicy" element={<TermsPolicy/>} />
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

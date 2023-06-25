@@ -213,6 +213,11 @@ export default class CreateAuction extends Component {
   handleClickOpen() {
     this.setState({ open: true });
   }
+  addDays(date, days) {
+    var result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
   //  nav=useNavigate()
   onFileChange(e) {
     this.setState({ imgCollection: e.target.files, filevalid: true });
@@ -296,7 +301,7 @@ export default class CreateAuction extends Component {
       const rangeauction = Math.round(
         diffInMilliseconds / (1000 * 60 * 60 * 24)
       );
-      if (this.state.startdate >= now) {
+      if (this.state.startdate >= this.addDays(now,1) ) {
         console.log("The start date is is greater or equal  to now ")
         if (diffInDays < 90 && rangeauction < 30) {
           console.log("The start date of the auction is also in less than 3 month days and auction range is less than a month")
