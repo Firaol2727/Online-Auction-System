@@ -3,16 +3,17 @@ import AuctionCard from "../../Components/AuctionCard/AuctionCard";
 import NavBuyer from "../../Layouts/NavBuyer";
 import Footer from "../../Layouts/Footer";
 import "./Auctions.css";
-
+import Divider from "@mui/material/Divider";
 export default function Auctions() {
-  const [loggedin, setLogedin] = useState(0);
   return (
     <div>
-      {/* {loggedin && <NavBar />} */}
       <NavBuyer />
 
       <AuctionCard />
-      <Footer />
+      <div sx={{ mt: "100px" }}>
+        <Divider />
+        <Footer />
+      </div>
     </div>
   );
 }

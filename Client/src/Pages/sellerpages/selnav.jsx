@@ -16,20 +16,20 @@ import ReceiptIcon from "@mui/icons-material/Receipt";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import PersonIcon from "@mui/icons-material/Person";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
-import NotificationsIcon from '@mui/icons-material/Notifications';
+import NotificationsIcon from "@mui/icons-material/Notifications";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import { NavLink, useNavigate } from "react-router-dom";
 import Badge from "@mui/material/Badge";
-import * as React from 'react';
+import * as React from "react";
 import Popper from "@mui/material/Popper";
 import io from "socket.io-client";
 import axios from "axios";
 
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import Avatar from '@mui/material/Avatar';
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import Avatar from "@mui/material/Avatar";
 const socket = io("http://localhost:5000", {
   withCredentials: true,
   extraHeaders: {
@@ -54,22 +54,22 @@ function SellerNavbar(props) {
   let [page, setpage] = useState(1);
   //  0 for loading 1 for hasnotification and 2 for no notification
   function fetchNotifications(page) {
-    if(page==1){
+    if (page == 1) {
       sethasnotifications(0);
     }
-    setseemore(true)
+    setseemore(true);
     baseapi
       .get(`/notification?page=${page}`, { withCredentials: true })
       .then((response) => {
         if (response.status === 200) {
-          setseemore(false)
+          setseemore(false);
           let data = response.data;
           console.log("response data", data);
           if (data.length > 0) {
-            let tempnotification=[];
-            let tempdata=response.data;
+            let tempnotification = [];
+            let tempdata = response.data;
             tempnotification.push(...Notifications);
-            tempnotification.push(...tempdata)
+            tempnotification.push(...tempdata);
             setNotifications([...tempnotification]);
             sethasnotifications(2);
           } else {
@@ -78,14 +78,14 @@ function SellerNavbar(props) {
         } else if (response.status === 403) {
           nav("/login");
         } else {
-          setseemore(false)
+          setseemore(false);
           sethasnotifications(1);
         }
         console.log("hasnotification", hasnotification);
       })
       .catch((err) => {
         console.log(err);
-        setseemore(false)
+        setseemore(false);
         sethasnotifications(1);
       });
   }
@@ -96,6 +96,7 @@ function SellerNavbar(props) {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
   const container =
     window !== undefined ? () => window().document.body : undefined;
   const [anchorElNotification, setAnchorElNotification] = useState(null);
@@ -104,13 +105,11 @@ function SellerNavbar(props) {
   const handleClickNotification = (event) => {
     setAnchorElNotification(anchorElNotification ? null : event.currentTarget);
     if (!openNotification) {
-
       fetchNotifications(1);
-    }else{
-      setNotifications([])
-      setpage(1)
-      setseemore(false)
-
+    } else {
+      setNotifications([]);
+      setpage(1);
+      setseemore(false);
     }
     setNo_of_notification(0);
   };
@@ -129,14 +128,14 @@ function SellerNavbar(props) {
         console.log(res);
         if (res.status == 200) {
           setNo_of_notification(res.data.nopage);
-        }else if(res.status==403){
-          nav('/sel/login')
+        } else if (res.status == 403) {
+          nav("/sel/login");
         }
       })
       .catch((err) => {
         console.log("The error is ", err);
-        if(err.response.status==403){
-          nav('/sel/login')
+        if (err.response.status == 403) {
+          nav("/sel/login");
         }
       });
   }, []);
@@ -189,7 +188,6 @@ function SellerNavbar(props) {
                 return {
                   // fontWeight: isPending ? "bold" : "",
                   color: isActive ? "#DF1B03" : "black",
-                  
                 };
               }}
             >
@@ -202,9 +200,7 @@ function SellerNavbar(props) {
                   <ReceiptIcon />
                   <p>My Auctions</p>
                 </Stack>
-                
               </Button>
-              
             </NavLink>
 
             <NavLink
@@ -223,23 +219,29 @@ function SellerNavbar(props) {
                   sx={{ color: "inherit", alignItems: "center" }}
                 >
                   <AddCircleIcon sx={{ color: "inherit" }} />
-                  <p style={{color:"inherit"}}>New</p>
+                  <p style={{ color: "inherit" }}>New</p>
                 </Stack>
               </Button>
             </NavLink>
 
-            <Button color="inherit" onClick={handleClickNotification} >
+            <Button color="inherit" onClick={handleClickNotification}>
               <Stack
                 direction={"Column"}
                 spacing={2}
-                sx={{ color: "black", alignItems: "center"}}
+                sx={{ color: "black", alignItems: "center" }}
               >
                 {/* <NotificationsNoneIcon/> */}
                 <Badge badgeContent={no_of_notification} color="error">
-                  
-                  {openNotification?<NotificationsIcon sx={{color:"brown"}} />:<NotificationsNoneIcon sx={{ color:"black" }} />}
+                  {openNotification ? (
+                    <NotificationsIcon sx={{ color: "brown" }} />
+                  ) : (
+                    <NotificationsNoneIcon sx={{ color: "black" }} />
+                  )}
                 </Badge>
-                <p style={{color:openNotification ? "#D0340E":"black"}}> Notification</p>
+                <p style={{ color: openNotification ? "#D0340E" : "black" }}>
+                  {" "}
+                  Notification
+                </p>
               </Stack>
             </Button>
 
@@ -329,7 +331,11 @@ function SellerNavbar(props) {
               onClick={handleClickNotification}
             >
               <Badge badgeContent={no_of_notification} color="error">
-              {openNotification?<NotificationsIcon sx={{color:"brown"}} />:<NotificationsNoneIcon sx={{ color:"black" }} />}
+                {openNotification ? (
+                  <NotificationsIcon sx={{ color: "brown" }} />
+                ) : (
+                  <NotificationsNoneIcon sx={{ color: "black" }} />
+                )}
               </Badge>
             </IconButton>
 
@@ -406,8 +412,7 @@ function SellerNavbar(props) {
         id={id}
         open={openNotification}
         anchorEl={anchorElNotification}
-        sx={{ zIndex: 2,height:"100%"}}
-
+        sx={{ zIndex: 2, height: "100%" }}
       >
         {hasnotification == 0 && (
           <Box
@@ -429,62 +434,78 @@ function SellerNavbar(props) {
           </Box>
         )}
         {hasnotification == 1 && (
-          <ListItem alignItems="flex-start" sx={{backgroundColor:"white"}}>
-          <ListItemAvatar>
-            <Avatar sx={{ bgcolor: "brown" }}>W</Avatar>
-          </ListItemAvatar>
-          <ListItemText color="brown"
-            primary={
-              <Typography
-                  sx={{ display: 'inline' }}
+          <ListItem alignItems="flex-start" sx={{ backgroundColor: "white" }}>
+            <ListItemAvatar>
+              <Avatar sx={{ bgcolor: "brown" }}>W</Avatar>
+            </ListItemAvatar>
+            <ListItemText
+              color="brown"
+              primary={
+                <Typography
+                  sx={{ display: "inline" }}
                   component="span"
                   variant="body2"
                   color="#061746 "
                   fontSize={"15px"}
                 >
                   Welcome
-                </Typography>}
-            secondary={
-              <React.Fragment>
-                <Typography
-                  sx={{ display: 'inline' }}
-                  component="span"
-                  variant="body2"
-                  color="brown"
-                >
-                  Welcome to our auction web system!
                 </Typography>
-                With our platform, you can sell a variety of items to interested buyers from all over the world.
-              </React.Fragment>
-            }
-          />
-        </ListItem>
+              }
+              secondary={
+                <React.Fragment>
+                  <Typography
+                    sx={{ display: "inline" }}
+                    component="span"
+                    variant="body2"
+                    color="brown"
+                  >
+                    Welcome to our auction web system!
+                  </Typography>
+                  With our platform, you can sell a variety of items to
+                  interested buyers from all over the world.
+                </React.Fragment>
+              }
+            />
+          </ListItem>
         )}
         {hasnotification == 2 && (
-          <List sx={{ width: '100%', maxWidth: 360,maxHeight:"80%", bgcolor: 'background.paper',overflow:"scroll" }}>
-            {Notifications.map(notification =>
-              (
-                notification.nottype === "bidupdate" ?
-                (<Link underline="none" href={`/sel/detail/${notification.AuctionId}`} key={notification.id}>
+          <List
+            sx={{
+              width: "100%",
+              maxWidth: 360,
+              maxHeight: "80%",
+              bgcolor: "background.paper",
+              overflow: "scroll",
+            }}
+          >
+            {Notifications.map((notification) =>
+              notification.nottype === "bidupdate" ? (
+                <Link
+                  underline="none"
+                  href={`/sel/detail/${notification.AuctionId}`}
+                  key={notification.id}
+                >
                   <ListItem alignItems="flex-start">
                     <ListItemAvatar>
                       <Avatar sx={{ bgcolor: "brown" }}>B</Avatar>
                     </ListItemAvatar>
-                    <ListItemText color="brown"
+                    <ListItemText
+                      color="brown"
                       primary={
                         <Typography
-                            sx={{ display: 'inline' }}
-                            component="span"
-                            variant="body2"
-                            color="#061746 "
-                            fontSize={"15px"}
-                          >
-                            Bid update
-                          </Typography>}
+                          sx={{ display: "inline" }}
+                          component="span"
+                          variant="body2"
+                          color="#061746 "
+                          fontSize={"15px"}
+                        >
+                          Bid update
+                        </Typography>
+                      }
                       secondary={
                         <React.Fragment>
                           <Typography
-                            sx={{ display: 'inline' }}
+                            sx={{ display: "inline" }}
                             component="span"
                             variant="body2"
                             color="brown"
@@ -497,54 +518,56 @@ function SellerNavbar(props) {
                     />
                   </ListItem>
                   <Divider variant="inset" component="li" />
-                </Link> ):
-                notification.nottype === "accountupdate" ?
-                (<>
-                <ListItem alignItems="flex-start">
-                  <ListItemAvatar>
-                    <Avatar sx={{ bgcolor: "brown" }}>A</Avatar>
-                  </ListItemAvatar>
-                  <ListItemText color="brown"
-                    primary={
-                      <Typography
-                          sx={{ display: 'inline' }}
+                </Link>
+              ) : notification.nottype === "accountupdate" ? (
+                <>
+                  <ListItem alignItems="flex-start">
+                    <ListItemAvatar>
+                      <Avatar sx={{ bgcolor: "brown" }}>A</Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      color="brown"
+                      primary={
+                        <Typography
+                          sx={{ display: "inline" }}
                           component="span"
                           variant="body2"
                           color="#061746 "
                           fontSize={"15px"}
                         >
                           Account update
-                        </Typography>}
-                    secondary={
-                      <React.Fragment>
-                        {notification.message}
-                      </React.Fragment>
-                    }
-                  />
-                </ListItem>
-                <Divider variant="inset" component="li" />
-                </>):
-                notification.nottype === "start" ?
-                (<>
+                        </Typography>
+                      }
+                      secondary={
+                        <React.Fragment>{notification.message}</React.Fragment>
+                      }
+                    />
+                  </ListItem>
+                  <Divider variant="inset" component="li" />
+                </>
+              ) : notification.nottype === "start" ? (
+                <>
                   <ListItem alignItems="flex-start">
                     <ListItemAvatar>
                       <Avatar sx={{ bgcolor: "brown" }}>S</Avatar>
                     </ListItemAvatar>
-                    <ListItemText color="brown"
+                    <ListItemText
+                      color="brown"
                       primary={
                         <Typography
-                            sx={{ display: 'inline' }}
-                            component="span"
-                            variant="body2"
-                            color="#061746 "
-                            fontSize={"15px"}
-                          >
-                            Auction update
-                          </Typography>}
+                          sx={{ display: "inline" }}
+                          component="span"
+                          variant="body2"
+                          color="#061746 "
+                          fontSize={"15px"}
+                        >
+                          Auction update
+                        </Typography>
+                      }
                       secondary={
                         <React.Fragment>
                           <Typography
-                            sx={{ display: 'inline' }}
+                            sx={{ display: "inline" }}
                             component="span"
                             variant="body2"
                             color="brown"
@@ -557,27 +580,30 @@ function SellerNavbar(props) {
                     />
                   </ListItem>
                   <Divider variant="inset" component="li" />
-                  </>): notification.nottype === "close" ?
-                (<>
+                </>
+              ) : notification.nottype === "close" ? (
+                <>
                   <ListItem alignItems="flex-start">
                     <ListItemAvatar>
                       <Avatar sx={{ bgcolor: "brown" }}>C</Avatar>
                     </ListItemAvatar>
-                    <ListItemText color="brown"
+                    <ListItemText
+                      color="brown"
                       primary={
                         <Typography
-                            sx={{ display: 'inline' }}
-                            component="span"
-                            variant="body2"
-                            color="#061746 "
-                            fontSize={"15px"}
-                          >
-                            Auction update
-                          </Typography>}
+                          sx={{ display: "inline" }}
+                          component="span"
+                          variant="body2"
+                          color="#061746 "
+                          fontSize={"15px"}
+                        >
+                          Auction update
+                        </Typography>
+                      }
                       secondary={
                         <React.Fragment>
                           <Typography
-                            sx={{ display: 'inline' }}
+                            sx={{ display: "inline" }}
                             component="span"
                             variant="body2"
                             color="brown"
@@ -590,51 +616,60 @@ function SellerNavbar(props) {
                     />
                   </ListItem>
                   <Divider variant="inset" component="li" />
-                  </>):
-                  (<>
-                    <ListItem alignItems="flex-start">
-                      <ListItemAvatar>
-                        <Avatar sx={{ bgcolor: "brown" }}>N</Avatar>
-                      </ListItemAvatar>
-                      <ListItemText color="brown"
-                        primary={
-                          <Typography
-                              sx={{ display: 'inline' }}
-                              component="span"
-                              variant="body2"
-                              color="#061746 "
-                              fontSize={"15px"}
-                            >
-                              Nuchereta
-                            </Typography>}
-                        secondary={
-                          <React.Fragment>
-                
-                            {notification.message}
-                          </React.Fragment>
-                        }
-                      />
-                    </ListItem>
-                    <Divider variant="inset" component="li" />
-                    </>)
-                    ))}
+                </>
+              ) : (
+                <>
+                  <ListItem alignItems="flex-start">
+                    <ListItemAvatar>
+                      <Avatar sx={{ bgcolor: "brown" }}>N</Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      color="brown"
+                      primary={
+                        <Typography
+                          sx={{ display: "inline" }}
+                          component="span"
+                          variant="body2"
+                          color="#061746 "
+                          fontSize={"15px"}
+                        >
+                          Nuchereta
+                        </Typography>
+                      }
+                      secondary={
+                        <React.Fragment>{notification.message}</React.Fragment>
+                      }
+                    />
+                  </ListItem>
+                  <Divider variant="inset" component="li" />
+                </>
+              )
+            )}
             <center>
-              <button 
-                  onClick={async()=>{
-                      let nextpage=page+1;
-                      setpage(nextpage)
-                      setseemore(true)
-                      console.log("Fetching another one ",nextpage);
-                      await fetchNotifications(nextpage)
-                      setseemore(false)
-                  }}
-                    sx={{color:"black",borderRadius:"12px",border:"0.5px gray solid",
-                    ":hover":{backgroundColor:"lightblue"},
-                  width:"60%", height:"25px",backgroundColor:"white"}} > 
-                  {seemore? "...loading":"See more Results"}</button></center>
+              <button
+                onClick={async () => {
+                  let nextpage = page + 1;
+                  setpage(nextpage);
+                  setseemore(true);
+                  console.log("Fetching another one ", nextpage);
+                  await fetchNotifications(nextpage);
+                  setseemore(false);
+                }}
+                sx={{
+                  color: "black",
+                  borderRadius: "12px",
+                  border: "0.5px gray solid",
+                  ":hover": { backgroundColor: "lightblue" },
+                  width: "60%",
+                  height: "25px",
+                  backgroundColor: "white",
+                }}
+              >
+                {seemore ? "...loading" : "See more Results"}
+              </button>
+            </center>
           </List>
-        )
-        }
+        )}
       </Popper>
     </Box>
   );
