@@ -80,7 +80,7 @@ function BuyerForm() {
                     if(res.status==200){
                         nav("/");
                     }
-                    else if(res.status==500){
+                    else if(res.status==400){
                         seterrmessage("It looks like you have already an account, try login")
                     }
                     else{
@@ -89,7 +89,10 @@ function BuyerForm() {
                 })
                 .catch(err=>{
                     setloading(false)
-                    if(err.response.status==500){
+                    if(err.response.status==400){
+                        seterrmessage("It looks like you have already an account, try login")
+                    }
+                    else if(err.response.status==500){
                         seterrmessage("It looks like you have already an account, try login")
                     }else{
                         console.log("The error is ",err);
@@ -331,13 +334,18 @@ function SellerForm() {
                     setloading(false)
                     if(res.status===200){
                         nav("/sel/home")
-                    }else{
+                    }else if(res.status==405){
                         seterrmessage("It looks like you have already an account,try to login")
+                    }else{
+                        seterrmessage("Network error")
                     }
                 })
                 .catch(err=>{
                     setloading(false)
-                    if(err.response.status==500){
+                    if(err.response.status==400){
+                        seterrmessage("It looks like you have already an account, try login")
+                    }
+                    else if(err.response.status==500){
                         seterrmessage("It looks like you have already an account, try login")
                     }else{
                         console.log("The error is ",err);

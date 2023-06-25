@@ -7,6 +7,7 @@ const fs = require("fs");
 var bodyParser = require("body-parser");
 const cors = require("cors");
 const { uid } = require("uid");
+const { Op } =require("sequelize") ;
 const date = new Date();
 const {
   Admin,
@@ -194,36 +195,52 @@ router.use(
 router.post("/register", async (req, res) => {
   let { firstName, lastName, email, password, phoneNumber, region, city } =
     req.body;
+    let buyer=await Buyer.findOne({
+      where:{
+       [Op.or]:
+           [ { phonenumber: phoneNumber } ,{email: email } 
+           ]
+  }});
+    let seller=await Seller.findOne({
+      where:{
+       [Op.or]:
+           [ { phonenumber: phoneNumber } ,{email: email } 
+           ]
+  }});
+    if(buyer || seller){
+      console.log("Ther is a user");
+      res.status(400).send("Their is a defined user previously")
+    }else{
+        const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+        return Seller.create({
+          id: "",
+          fname: firstName,
+          lname: lastName,
+          password: hash,
+          email: email,
+          phonenumber: phoneNumber,
+          city: city,
+          region: region,
+          account: 0,
+        })
+        .then(async (data) => {
+          const user = data.id;
+          console.log(data);
+          const accessToken = await jwt.sign(
+            user,
+            process.env.REFRESH_TOKEN_SECRET
+          );
+          // console.log("accessToken",accessToken);
+          res
+            .cookie("u", accessToken, { httpOnly: true })
+            .send("registeration verified");
+        })
+        .catch((err) => {
+          console.log(err);
 
-  const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-  return Seller.create({
-    id: "",
-    fname: firstName,
-    lname: lastName,
-    password: hash,
-    email: email,
-    phonenumber: phoneNumber,
-    city: city,
-    region: region,
-    account: 0,
-  })
-  .then(async (data) => {
-    const user = data.id;
-    console.log(data);
-    const accessToken = await jwt.sign(
-      user,
-      process.env.REFRESH_TOKEN_SECRET
-    );
-    // console.log("accessToken",accessToken);
-    res
-      .cookie("u", accessToken, { httpOnly: true })
-      .send("registeration verified");
-  })
-  .catch((err) => {
-    console.log(err);
-
-    res.status(500).send("It looks like you have already an account");
-  });
+          res.status(500).send("It looks like you have already an account");
+        });
+      }
 });
 // change profile
 
@@ -325,6 +342,7 @@ router.get("/moreon/:id", checkAuthorizationSeller, async (req, res) => {
 router.get("/graphdetail/:aid",async(req,res)=>{
   let aid=req.params.aid;
   let dataPoints=[]
+  console.log("id is",aid)
   let xy={x:"",y:""}
   try{
     if(aid){

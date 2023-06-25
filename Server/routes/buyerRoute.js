@@ -34,14 +34,7 @@ const placeBid = require("../controllers/buyercontroller/placebid");
 const profile = require("../controllers/buyercontroller/profile");
 const register = require("../controllers/buyercontroller/register");
 const report = require("../controllers/buyercontroller/report");
-// ClearVerificationCodes();
-// transporter.sendMail(mailOptions, function(error, info){
-//   if (error) {
-//     console.log(error);
-//   } else {
-//     console.log('Email sent: ' + info.response);
-//   }
-// });
+const { Op } = require("sequelize");
 const {
   Passcode,
   ReportedAuction,
@@ -143,35 +136,55 @@ router.use(jsonParser);
 router.post("/register", async (req, res) => {
   let { firstName, lastName, phoneNumber, email, password } = req.body;
   console.log(req.body);
+
+  let buyer=await Buyer.findOne({
+    where:{
+     [Op.or]:
+         [ { phonenumber: phoneNumber } ,{email: email } 
+         ]
+}});
+  let seller=await Seller.findOne({
+    where:{
+     [Op.or]:
+         [ { phonenumber: phoneNumber } ,{email: email } 
+         ]
+}});
+  if(buyer || seller){
+    console.log("Ther is a user");
+    res.status(400).send("Their is a defined user previously")
+  }
+  else{
+      const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+    return Buyer.create({
+      id: "",
+      fname: firstName,
+      lname: lastName,
+      password: hash,
+      email: email,
+      phonenumber: phoneNumber,
+      // type: "buyer",
+    })
+      .then(async (data) => {
+        const user = data.id;
+        console.log(data);
+        const accessToken = await jwt.sign(
+          user,
+          process.env.REFRESH_TOKEN_SECRET
+        );
+        // console.log("accessToken",accessToken);
+        res
+          .cookie("u", accessToken, { httpOnly: true })
+          .send("registeration verified");
+      })
+      .catch((err) => {
+        console.log(err);
+
+        res.status(500).send("It looks like you have already an account");
+      });
+  }
   // res.status(200).send("ok")
   //   res.send("data from the back end");
-  const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-  return Buyer.create({
-    id: "",
-    fname: firstName,
-    lname: lastName,
-    password: hash,
-    email: email,
-    phonenumber: phoneNumber,
-    // type: "buyer",
-  })
-    .then(async (data) => {
-      const user = data.id;
-      console.log(data);
-      const accessToken = await jwt.sign(
-        user,
-        process.env.REFRESH_TOKEN_SECRET
-      );
-      // console.log("accessToken",accessToken);
-      res
-        .cookie("u", accessToken, { httpOnly: true })
-        .send("registeration verified");
-    })
-    .catch((err) => {
-      console.log(err);
-
-      res.status(500).send("It looks like you have already an account");
-    });
+  
 });
 router.post("/changeprofile", checkAuthorizationCustomer, async (req, res) => {
   let { fname, lname, phonenumber, email, region, city } = req.body;
@@ -294,7 +307,7 @@ router.post("/placebid", checkAuthorizationCustomer, async (req, res) => {
                 { where: { id: prevbid.id } }
               );
               return true;
-            } else if (data.account >= 100 || paidresponse) {
+            } else if (Number(data.account) >= 100 || paidresponse) {
               console.log("There is no previous bid  has paid onchap");
               account = data.account > 0 ? Number(data.account) - 100 : 0;
               await Transaction.create({

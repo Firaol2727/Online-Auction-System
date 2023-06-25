@@ -2,7 +2,7 @@ require("dotenv");
 const { sequelize } = require("../../models");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-
+const { Op } = require("sequelize");
 const fs = require("fs");
 var bodyParser = require("body-parser");
 const cors = require("cors");
@@ -38,10 +38,20 @@ const authorizecheck = async (req, res) => {
   let responseSeller = "";
 
   console.log("username", username);
-  console.log("password", password);
+  console.log("password", password); 
 
-  const buyer = await Buyer.findOne({ where: { phonenumber: username } });
-  const seller = await Seller.findOne({ where: { phonenumber: username } });
+  const buyer = await Buyer.findOne({
+     where:{
+      [Op.or]:
+          [ { phonenumber: username } ,{email: username } 
+          ]
+}});
+  const seller = await Seller.findOne({ 
+    where:{
+      [Op.or]:
+          [ { phonenumber: username } ,{email: username } 
+          ]
+      }});
 
   if (buyer) {
     const hashed = buyer.password;

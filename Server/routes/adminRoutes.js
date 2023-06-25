@@ -237,7 +237,8 @@ router.post('/deleteauction',checkAuthorization,async(req,res)=>{
       res.sendStatus(500);
     }
 })
-router.post('/deletseller',checkAuthorization,async (req,res)=>{
+router.post('/deleteseller',checkAuthorization,async (req,res)=>{
+    console.log("The body of the request is ",req.body)
     let sid=req.body.sid;
     try {
         await Seller.destroy({
@@ -333,7 +334,7 @@ router.get('/closedbid',checkAuthorization,async(req,res)=>{
         res.sendStatus(500)
     }) 
 })
-router.get('/reports',(req,res)=>{
+router.get('/reports',checkAuthorization,(req,res)=>{
     // return ReportedAuction.findAll({
     //     include:{model:Auction}
     // })
@@ -367,6 +368,29 @@ router.get('/reports',(req,res)=>{
         console.log("The closed bid fetching error is  ",err);
         res.sendStatus(500)
     }) 
+})
+router.post('/createadmin',async(req,res)=>{
+    const {email,phone,password,passkey}=req.body;
+    const secretkey="nuchereta123";
+    if(passkey==secretkey){
+    const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+    try {
+         await Admin.create({
+        id:"",
+        email:email,
+        phone:phone,
+        password:hash
+    })
+        res.status(200).send("Admin Created")
+    } catch (error) {
+        console.log("The error is",error);
+        res.status(400).send("You cant pay")
+    }
+    }else{
+        res.status(400).send("You cant add admins")
+    }
+    
+
 })
 
 

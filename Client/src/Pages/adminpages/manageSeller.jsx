@@ -60,9 +60,11 @@ const ManageSeller=()=>{
         .then(res=>{
             setdloading(false)
             if(res.status==200){
-                setuser("")
+                setdloading(false)
+                setuser(null)
             }
             else if (res.status==400){
+                setdloading(false)
                 setmessage("No Seller with this id")
             }
             else if (res.status==403){
@@ -72,7 +74,7 @@ const ManageSeller=()=>{
         })
         .catch(err=>{
             console.log("The error is ",err);
-            setloading(false);
+            setdloading(false);
             setmessage("Unable to delete")
         })
     }
@@ -90,7 +92,7 @@ const ManageSeller=()=>{
             <h3>Enter Seller Id </h3>
             <Stack direction="row"style={{marginLeft:"30px"}} >
                 <TextField id="filled-basic" label="id" variant="filled" sx={{width:"300px"}} onChange={(e)=>{setsearchid(e.target.value)}}/>
-                <Button id="find" variant="contained" sx={{width:"100px",height:"50px"}} disabled={loading} onClick={()=>{handleSearch(searchid)}}>
+                <Button id="find" variant="contained" sx={{width:"100px",height:"50px",backgroundColor:"brown"}} disabled={loading} onClick={()=>{handleSearch(searchid)}}>
                     { loading?<CircularProgress sx={{color:"white"}} />:<p>Search</p>}
                     </Button>
             </Stack>
@@ -143,16 +145,22 @@ const ManageSeller=()=>{
                     <ListItem direction={"row"} sx={{height:"20px",padding:"0px"}}><PlaceIcon/><p style={{color:"black"}} >Region  - <b>{user.region}</b></p></ListItem><br></br>
                     <br></br>
                     
-                    <Button variant="contained" disabled={dloading} onClick={()=>{handledelete(auction.id)}}sx={{
-                        position:"relative",
-                        marginLeft:"400px",
-                        width:"200px",
-                        backgroundColor:"red",
-                        color:"white",
-                        ':hover':{
-                            backgroundColor:"brown",
-                        }
-                    }}> { dloading?<center><p>Deleting...</p></center>:<p>Delete</p>}</Button>
+                    <Button variant="contained" disabled={dloading} 
+                        onClick={()=>{handledelete(user.id)}}
+                            sx={{
+                                position:"relative",
+                                marginLeft:"400px",
+                                width:"200px",
+                                height:"40px",
+                                border:"1px gray solid",
+                                borderRadius:"8px",
+                                backgroundColor:"red",
+                                color:"white",
+                                ':hover':{
+                                    backgroundColor:"1brown",
+                                }
+                            }}>
+                         { dloading?<center><p>Deleting...</p></center>:<p>Delete</p>}</Button>
                 </Box>
                  
                 </Box>

@@ -44,7 +44,7 @@ const Sidebar=()=>{
   const [seemore, setseemore] = useState(false);
   const [hasnotification, sethasnotifications] = useState(0);
   let [page, setpage] = useState(1);
-  function fetchNotifications(page) {
+  async function fetchNotifications(page) {
       if(page==1){
         sethasnotifications(0);
       }
@@ -81,11 +81,12 @@ const Sidebar=()=>{
           sethasnotifications(1);
         });
   }
-  const handleClickNotification = () => {
+  const handleClickNotification =async () => {
     setOp(op==0?1:0)
-    if (op==1) {
+    setNotifications(0)
+    if (op==0) {
       setNotifications([])
-      fetchNotifications(1);
+      await fetchNotifications(1);
     }else{
       setNotifications([])
       setpage(1)
@@ -145,18 +146,6 @@ const Sidebar=()=>{
         
         <Divider/>
         </nav>
-        <Link href="/paychapa" underline="none">
-          <ListItem disablePadding >
-          <ListItemButton>
-            <ListItemIcon>
-              <CommentIcon />
-            </ListItemIcon>
-            <ListItemText secondary="Comments"/>
-          </ListItemButton>
-        </ListItem>
-        </Link>
-        <Divider/>
-       
         <Link href="/manageseller" underline="none">
         {/* <Link  key ={subcategory} href={`/custom/${subcategory}`} underline="none" 
           sx={{
@@ -165,7 +154,6 @@ const Sidebar=()=>{
           > */}
           <ListItem disablePadding >
           <ListItemButton
-               
           >
             <ListItemIcon>
               < ManageAccountsIcon />          
