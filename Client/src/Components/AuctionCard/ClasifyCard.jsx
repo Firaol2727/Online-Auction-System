@@ -1318,7 +1318,14 @@ function ClasifyCard(props) {
                             },
                           }}
                         >
-                          Opening date :{formatDate(products.startdate)}
+                          {products.state == "open" && (
+                            <Typography>Live auction</Typography>
+                          )}
+                          {products.state == "waiting" && (
+                            <Typography>
+                              Opening date :{formatDate(products.startdate)}
+                            </Typography>
+                          )}
                         </Typography>
                         <Box
                           className="location"
@@ -1355,6 +1362,7 @@ function ClasifyCard(props) {
                             <RssFeedIcon
                               size="small"
                               sx={{
+                                color: "green",
                                 fontSize: {
                                   lg: "20px",
                                   md: "20px",
@@ -1375,6 +1383,7 @@ function ClasifyCard(props) {
                                 },
                                 display: "flex",
                                 textAlign: "center",
+                                color: "green",
                               }}
                             >
                               Live auction

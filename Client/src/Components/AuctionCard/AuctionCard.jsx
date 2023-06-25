@@ -235,7 +235,7 @@ function AuctionCard() {
                   {formatDate(state.productData[currentProductIndex].startdate)}
                 </Typography>
                 <Typography className="auctionPrice" sx={{ margin: "1px" }}>
-                  Base price :${" "}
+                  Base price :ETB{" "}
                   {state.productData[currentProductIndex].baseprice}
                 </Typography>
               </Box>
@@ -410,9 +410,10 @@ function AuctionCard() {
                               sm: "13px",
                               xs: "12px",
                             },
+                            fontWeight: "bold",
                           }}
                         >
-                          {products.baseprice}
+                          Base Price :ETB {products.baseprice}
                         </Typography>
                         <Typography
                           className="Date"
@@ -426,7 +427,14 @@ function AuctionCard() {
                             },
                           }}
                         >
-                          {products.startdate}
+                          {products.state == "open" && (
+                            <Typography>Live auction</Typography>
+                          )}
+                          {products.state == "waiting" && (
+                            <Typography>
+                              Open at {formatDate(products.startdate)}
+                            </Typography>
+                          )}
                         </Typography>
                         <Box
                           className="location"
@@ -463,6 +471,7 @@ function AuctionCard() {
                             <RssFeedIcon
                               size="small"
                               sx={{
+                                color: "green",
                                 fontSize: {
                                   lg: "20px",
                                   md: "20px",
@@ -483,6 +492,7 @@ function AuctionCard() {
                                 },
                                 display: "flex",
                                 textAlign: "center",
+                                color: "green",
                               }}
                             >
                               Live auction
@@ -632,7 +642,7 @@ function AuctionCard() {
         <Divider />
         <Box display="flex" justifyContent="center" mt="20px" mb="30px">
           <Link href="/auctions/furnitures">
-            <Typography sx={{ color: "blue" }}>See more products</Typography>
+            <Typography sx={{ color: "blue" }}>See more auctions</Typography>
           </Link>
         </Box>
       </Box>
