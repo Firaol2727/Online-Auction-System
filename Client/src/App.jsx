@@ -8,8 +8,7 @@ import About from "./Pages/Public/About";
 
 import Auctions from "./Pages/Auctions/Auctions";
 import Clasify from "./Pages/Auctions/Clasify";
-
-import Loading from "./Pages/Loading/Loading";
+import Search from "./Pages/Auctions/Search";
 import NotFound from "./Pages/NotFound/NotFound";
 // <<<<<<< Updated upstream
 
@@ -50,7 +49,7 @@ import LoginTrial from "./Pages/sellerpages/loginTrial";
 import SignUp from "./Pages/sellerpages/signUp";
 import AdLogin from "./Pages/adminpages/adLogin";
 
-import ForgotPassword from './Pages/sellerpages/forgotpassword';
+import ForgotPassword from "./Pages/sellerpages/forgotpassword";
 // import FilesUploadComponent from "./Pages/sellerpages/createtry";
 function App() {
   const [count, setCount] = useState(0);
@@ -62,15 +61,13 @@ function App() {
           <Route path="/" element={<Auctions />} />
           {/* ####   common routes */}
           <Route path="/auctions" element={<Auctions />} />
-          <Route
-            path="/manufactiring"
-            data="manufacturing"
-            element={<Clasify />}
-          />
+
           <Route path="/login" element={<Login />} />
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/about" element={<About />} />
           <Route path="/auctions/:id" element={<Clasify />} />
+          <Route path="/search" element={<Search />} />
+
           <Route path="/signup" element={<SignUp />} />
           {/* ### buyer routes */}
           <Route path="/detail/:id" element={<AuctionDetail />} />

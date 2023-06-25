@@ -104,24 +104,25 @@ function SellerNavbar(props) {
   const handleClickNotification = (event) => {
     setAnchorElNotification(anchorElNotification ? null : event.currentTarget);
     if (!openNotification) {
+
       fetchNotifications(1);
     }else{
       setNotifications([])
       setpage(1)
       setseemore(false)
+
     }
     setNo_of_notification(0);
   };
   socket.on("connect", () => {
     console.log("successfully connected to the server socket to connect");
   });
-  
+  socket.on("bidupdate", (data) => {
+    console.log("New server",data);
+    setNo_of_notification(no_of_notification + 1);
+  });
 
   useEffect(() => {
-    socket.on("bidupdate", (data) => {
-      console.log("New server",data);
-      setNo_of_notification(no_of_notification + 1);
-    });
     baseapi
       .get("/newnotification", { withCredentials: true })
       .then((res) => {

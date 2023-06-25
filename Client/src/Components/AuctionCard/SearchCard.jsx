@@ -1,6 +1,6 @@
 import { useState, useEffect, useReducer } from "react";
 
-import { useParams, NavLink, useNavigate } from "react-router-dom";
+import { useParams, NavLink, useNavigate, useLocation } from "react-router-dom";
 import IconButton from "@mui/material/IconButton";
 import SearchIcon from "@mui/icons-material/Search";
 import TextField from "@mui/material/TextField";
@@ -92,12 +92,21 @@ function reducer(state, action) {
   }
 }
 
-function ClasifyCard(props) {
+function SearchCard(props) {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [state, dispatch] = useReducer(reducer, initialState);
   const [page, setPage] = useState(10);
   const [isSideClassifyOpen, setSideClassifyOpen] = useState(false);
-  const navigate = useNavigate();
+  const [resultFound, setResultFound] = useState(false);
+  const [error, setError] = useState(null);
+
+  console.log(" cat id", id);
+  const searchParams = new URLSearchParams(location.search);
+  let item = searchParams.get("item");
+  let pageNo = searchParams.get("page");
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -750,124 +759,186 @@ function ClasifyCard(props) {
       type: "SET_CATEGORY",
       payload: { ...state.category, page: value },
     });
+    const queryParams = new URLSearchParams({
+      item: state.searchData.search,
+      page: state.category.page,
+    });
+    const searchUrl = `/search?${queryParams.toString()}`;
+    window.location.href = searchUrl;
+
     console.log("state.category.page", state.category.page);
   };
   const submitSearch = (event) => {
     event.preventDefault();
-    console.log("search submitted", state.searchData.search);
-    let x = state.searchData.search;
-    // let url = `/search?page=1&item=bed`;
-    let url = `/search?item=${x}&page=1`;
-    navigate(url);
+    console.log("search submitted");
+    console.log(state.searchData.search);
+    const queryParams = new URLSearchParams({
+      item: state.searchData.search,
+      page: state.category.page,
+    });
+    const searchUrl = `/search?${queryParams.toString()}`;
+    window.location.href = searchUrl;
+
+    // navigate(`?item=${state.searchData.search}&page=1`);
   };
+  console.log("state product found", state.productData);
+
+  console.log("state.categroy.page", state.category.page);
   useEffect(() => {
-    console.log("in the classify effect");
+    // This function will run whenever an error occurs in the component tree
+    const handleError = (error) => {
+      setError(error);
+    };
 
-    if (
-      id == "artwork" ||
-      id == "electronics" ||
-      id == "manufacturing" ||
-      id == "vehicles" ||
-      id == "building" ||
-      id == "furnitures" ||
-      id == "homes" ||
-      id == "other" ||
-      id == "jewelleries" ||
-      id == "other"
-    ) {
-      const query = [
-        {
-          str: "",
-          value: "",
-        },
-        {
-          str: "",
-          value: "",
-        },
-        {
-          str: "",
-          value: "",
-        },
-        {
-          str: "",
-          value: "",
-        },
-        {
-          str: "",
-          value: "",
-        },
-      ];
+    // Register the error handler
+    window.addEventListener("error", handleError);
 
-      if (state.category.date !== "") {
-        query[0].str = `daterange`;
-        query[0].value = state.category.date;
-      } else {
-        query[0].str = "";
-        query[0].value = "";
-      }
-      if (state.category.region !== "") {
-        query[1].str = `region`;
-        query[1].value = state.category.region;
-      } else {
-        query[1].str = "";
-        query[1].value = "";
-      }
+    // Cleanup function to remove the error handler when the component unmounts
+    return () => {
+      window.removeEventListener("error", handleError);
+    };
+  }, []);
+  //   useEffect(() => {
+  //     console.log("in the classify effect");
 
-      if (state.category.plow !== "") {
-        query[2].str = `plow`;
-        query[2].value = state.category.plow;
-      } else {
-        query[2].str = "";
-        query[2].value = "";
-      }
-      if (state.category.phigh !== "") {
-        query[3].str = `phigh`;
-        query[3].value = state.category.phigh;
-      } else {
-        query[3].str = "";
-        query[3].value = "";
-      }
-      if (state.category.page !== "") {
-        query[4].str = `page`;
-        query[4].value = state.category.page;
-      } else {
-        query[4].str = "";
-        query[4].value = "";
-      }
-      console.log("query", query);
-      // `http://localhost:5000/cat/${id}?daterange=${state.category.date}&region=/${state.category.region}&plow=/${state.category.plow}&phigh=/${state.category.phigh}`
-      axios
-        .get(
-          `http://localhost:5000/cat/${id}?${query[0].str}=${query[0].value}&${query[1].str}=${query[1].value}&${query[2].str}=${query[2].value}&${query[3].str}=${query[3].value}&${query[4].str}=${query[4].value}`
-        )
-        .then((response) => {
-          if (response.status == 404) {
-            console.lof("No data");
-          } else if (response.status == 200) {
-            dispatch({ type: "SET_PRODUCTS", payload: response.data.data });
-            console.log("data form back end", response.data);
-          } else {
-            console.log("in the else");
-          }
-        })
-        .catch((err) => {
-          console.log("errrr", err);
+  //     if (
+  //       id == "artwork" ||
+  //       id == "electronics" ||
+  //       id == "manufacturing" ||
+  //       id == "vehicles" ||
+  //       id == "building" ||
+  //       id == "furnitures" ||
+  //       id == "homes" ||
+  //       id == "other" ||
+  //       id == "jewelleries" ||
+  //       id == "other"
+  //     ) {
+  //       const query = [
+  //         {
+  //           str: "",
+  //           value: "",
+  //         },
+  //         {
+  //           str: "",
+  //           value: "",
+  //         },
+  //         {
+  //           str: "",
+  //           value: "",
+  //         },
+  //         {
+  //           str: "",
+  //           value: "",
+  //         },
+  //         {
+  //           str: "",
+  //           value: "",
+  //         },
+  //       ];
 
-          if (err.response.status === 403) {
-            console.log("errr r");
-          }
-        });
-    } else {
-      console.log("erro");
-    }
-  }, [
-    id,
-    state.category.date,
-    state.category.region,
-    state.category.plow,
-    state.category.phigh,
-    state.category.page,
-  ]);
+  //       if (state.category.date !== "") {
+  //         query[0].str = `daterange`;
+  //         query[0].value = state.category.date;
+  //       } else {
+  //         query[0].str = "";
+  //         query[0].value = "";
+  //       }
+  //       if (state.category.region !== "") {
+  //         query[1].str = `region`;
+  //         query[1].value = state.category.region;
+  //       } else {
+  //         query[1].str = "";
+  //         query[1].value = "";
+  //       }
+
+  //       if (state.category.plow !== "") {
+  //         query[2].str = `plow`;
+  //         query[2].value = state.category.plow;
+  //       } else {
+  //         query[2].str = "";
+  //         query[2].value = "";
+  //       }
+  //       if (state.category.phigh !== "") {
+  //         query[3].str = `phigh`;
+  //         query[3].value = state.category.phigh;
+  //       } else {
+  //         query[3].str = "";
+  //         query[3].value = "";
+  //       }
+  //       if (state.category.page !== "") {
+  //         query[4].str = `page`;
+  //         query[4].value = state.category.page;
+  //       } else {
+  //         query[4].str = "";
+  //         query[4].value = "";
+  //       }
+  //       console.log("query", query);
+  //       // `http://localhost:5000/cat/${id}?daterange=${state.category.date}&region=/${state.category.region}&plow=/${state.category.plow}&phigh=/${state.category.phigh}`
+  //       axios
+  //         .get(
+  //           `http://localhost:5000/cat/${id}?${query[0].str}=${query[0].value}&${query[1].str}=${query[1].value}&${query[2].str}=${query[2].value}&${query[3].str}=${query[3].value}&${query[4].str}=${query[4].value}`
+  //         )
+  //         .then((response) => {
+  //           if (response.status == 404) {
+  //             console.lof("No data");
+  //           } else if (response.status == 200) {
+  //             dispatch({ type: "SET_PRODUCTS", payload: response.data.data });
+  //             console.log("data form back end", response.data);
+  //           } else {
+  //             console.log("in the else");
+  //           }
+  //         })
+  //         .catch((err) => {
+  //           console.log("errrr", err);
+
+  //           if (err.response.status === 403) {
+  //             console.log("errr r");
+  //           }
+  //         });
+  //     } else {
+  //       console.log("erro");
+  //     }
+  //   }, [
+  //     id,
+  //     state.category.date,
+  //     state.category.region,
+  //     state.category.plow,
+  //     state.category.phigh,
+  //     state.category.page,
+  //   ]);
+  useEffect(() => {
+    console.log("in the use effect");
+    // ${pageNo}
+    axios
+      .get(`http://localhost:5000/search?item=${item}&page=${pageNo}`)
+      .then((response) => {
+        console.log("response", response);
+        console.log("(response.data.count", response.data.rows.length);
+        let data = response.data.rows;
+        if (data.length != 0) {
+          console.log("searched", response.data);
+          setResultFound(true);
+          dispatch({ type: "SET_PRODUCTS", payload: data });
+          console.log("fetched data", response.data);
+        } else {
+          console.log("ererrrrrrr");
+          setResultFound(false);
+        }
+      })
+      .catch((err) => {
+        setResultFound(false);
+        console.log("errrr", err);
+
+        if (err.response.status === 403) {
+          console.log("errr r");
+        }
+      });
+  }, [state.category.page]);
+
+  // if (error) {
+  //   // Render an error message if an error occurred
+  //   return <div>Something went wrong: {error.message}</div>;
+  // }
   return (
     <Box sx={{ marginTop: "25px" }} className="clasifyPageContainer">
       <form onSubmit={submitSearch}>
@@ -896,7 +967,7 @@ function ClasifyCard(props) {
           />
           <Button
             variant="outlined"
-            type="submit"
+            type="search"
             className="searchButton"
             sx={{
               fontSize: "12px",
@@ -945,23 +1016,16 @@ function ClasifyCard(props) {
               fontWeight: 200,
             }}
           >
-            {id == "artwork" ||
-            id == "electronics" ||
-            id == "manufacturing" ||
-            id == "vehicles" ||
-            id == "building" ||
-            id == "furnitures" ||
-            id == "homes" ||
-            id == "jewelleries" ? (
-              <Typography> {id.toUpperCase()}</Typography>
-            ) : (
-              <>
-                <Typography> Not Found</Typography>
-              </>
+            {resultFound && <Typography> Results for "{item}"</Typography>}
+            {!resultFound && (
+              <Typography dsiplay="flex" justifyContent="center">
+                {" "}
+                No Result Found
+              </Typography>
             )}
           </Typography>
           <Divider />
-          <Box
+          {/* <Box
             className="classifyMenu"
             sx={{
               display: {
@@ -973,7 +1037,7 @@ function ClasifyCard(props) {
             }}
           >
             {SideClassify}
-          </Box>
+          </Box> */}
 
           <Divider />
           <Box
@@ -988,10 +1052,10 @@ function ClasifyCard(props) {
             }}
             className="categoryDisplay"
           >
-            <Typography sx={{ display: "block", margin: "10px" }}>
+            {/* <Typography sx={{ display: "block", margin: "10px" }}>
               Categories :
-            </Typography>
-            {state.category.date !== "" && (
+            </Typography> */}
+            {/* {state.category.date !== "" && (
               <Box
                 sx={{
                   marginRight: "10px",
@@ -1098,36 +1162,6 @@ function ClasifyCard(props) {
                   <CloseIcon size="small" />
                 </Button>
               </Box>
-            )}
-            {/* {state.category.plow !== "" && (
-              <Box
-                sx={{
-                  marginRight: "10px",
-                  height: "35px",
-                  paddingLeft: "20px",
-                  paddingRight: "5px",
-                  border: "1px solid black",
-                  borderRadius: "50px",
-                  backgroundColor: "black",
-                  display: "flex",
-                  alignItems: "center",
-                  justify: "center",
-                }}
-              >
-                <Typography sx={{ color: "white" }}>
-                  {" "}
-                  Price range inp: {state.category.plow}-{state.category.phigh}
-                </Typography>
-                <Button
-                  sx={{
-                    fontSize: "20px",
-                    width: "2px",
-                    color: "white",
-                  }}
-                >
-                  <CloseIcon size="small" />
-                </Button>
-              </Box>
             )} */}
           </Box>
           <Divider />
@@ -1160,7 +1194,7 @@ function ClasifyCard(props) {
           // marginTop: "50px",
         }}
       >
-        <Box
+        {/* <Box
           className="category"
           sx={{
             width: {
@@ -1187,7 +1221,7 @@ function ClasifyCard(props) {
 
           {PriceRangeCategory()}
           {PriceInputCategory()}
-        </Box>
+        </Box> */}
 
         <Box
           className="auctions"
@@ -1217,6 +1251,7 @@ function ClasifyCard(props) {
                 return (
                   // <Grid item xs={12} sm={12} md={6} lg={6}>
                   <Box
+                    key={products.id}
                     sx={{
                       borderRadius: "30px",
                       border: "1px solid #E8E5E5 ",
@@ -1226,8 +1261,6 @@ function ClasifyCard(props) {
                       marginTop: "10px",
                     }}
                   >
-                    {/* <ProductCard /> */}
-
                     <Box
                       className="auction"
                       sx={{
@@ -1271,7 +1304,6 @@ function ClasifyCard(props) {
                         <Link
                           id="productlink"
                           underline="hover"
-                          // sx={{ color: "black", fontweight: "bold" }}
                           href={`/detail/${products.id}`}
                         >
                           <Typography
@@ -1318,14 +1350,7 @@ function ClasifyCard(props) {
                             },
                           }}
                         >
-                          {products.state == "open" && (
-                            <Typography>Live auction</Typography>
-                          )}
-                          {products.state == "waiting" && (
-                            <Typography>
-                              Opening date :{formatDate(products.startdate)}
-                            </Typography>
-                          )}
+                          Opening date :{formatDate(products.startdate)}
                         </Typography>
                         <Box
                           className="location"
@@ -1362,7 +1387,6 @@ function ClasifyCard(props) {
                             <RssFeedIcon
                               size="small"
                               sx={{
-                                color: "green",
                                 fontSize: {
                                   lg: "20px",
                                   md: "20px",
@@ -1383,7 +1407,6 @@ function ClasifyCard(props) {
                                 },
                                 display: "flex",
                                 textAlign: "center",
-                                color: "green",
                               }}
                             >
                               Live auction
@@ -1541,6 +1564,7 @@ function ClasifyCard(props) {
             <Pagination
               count={10}
               page={state.category.page}
+              value={state.category.page}
               onChange={handlePage}
               sx={{
                 "& .Mui-selected": {
@@ -1560,4 +1584,4 @@ function ClasifyCard(props) {
     </Box>
   );
 }
-export default ClasifyCard;
+export default SearchCard;

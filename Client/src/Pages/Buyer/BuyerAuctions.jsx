@@ -1,5 +1,5 @@
-import NavBuyer from "../../Layouts/NavBar/NavBuyer";
-import Footer from "../../Layouts/Footer/Footer";
+import NavBuyer from "../../Layouts/NavBuyer";
+import Footer from "../../Layouts/Footer";
 import BuyerAuctionsBody from "../../Components/BuyerAuctionsBody";
 function BuyerAuctions() {
   return (
