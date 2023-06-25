@@ -195,7 +195,7 @@ app.get("/images/:picid", (req, res) => {
       if (data) {
         res.sendFile(__dirname + "/dbImages/" + data);
       } else {
-        res.state(404).send("Image not found");
+        res.status(404).send("Image not found");
       }
     })
     .catch((err) => {
@@ -789,6 +789,7 @@ app.post("/hele", (req, res) => {
 app.get("/details/:id", async (req, res) => {
   let id = req.params.id;
   console.log("the id is ", id);
+  let response={data:"",nobidder:""}
   return Auction.findOne({
     attributes: { exclude: ["createdAt", "updatedAt"] },
     where: { id: id },
@@ -797,6 +798,7 @@ app.get("/details/:id", async (req, res) => {
         model: Pictures,
         attributes: { exclude: ["createdAt", "updatedAt", "picpath"] },
       },
+
       {
         model: Seller,
         attributes: { exclude: ["fname", "lname", "phonenumber", "city"] },
@@ -805,7 +807,13 @@ app.get("/details/:id", async (req, res) => {
   })
     .then(async (data) => {
       if (data) {
-        res.send(data);
+        const tempbiddders=await Bid.findAndCountAll({where:{AuctionId:data.id}})
+        response.data=data;
+        if(tempbiddders){
+          response.nobidder=tempbiddders.count;
+        }
+        
+        res.send(response);
       } else {
         res.sendStatus(404);
       }
@@ -888,8 +896,8 @@ http.listen(5000, () => {
 });
 const auctionManage = async () => {
   const date = new Date();
+  let tempseller;
   let auctions = await Auction.findAll({
-    attributes: ["id", "startdate", "enddate"],
     where: {
       [Op.or]: [{ state: "open" }, { state: "waiting" }],
     },
@@ -913,7 +921,7 @@ const auctionManage = async () => {
         await Notification.create({
           id: "",
           AuctionId: auction.id,
-          uid: winner.BuyerId,
+          uid: notifime.BuyerId,
           message: `The auction  ${auction.name} you want to participate on has been opened }`,
           nottype: "start",
         });
@@ -925,33 +933,69 @@ const auctionManage = async () => {
         message: `your auction ${auction.name} has been opened }`,
         nottype: "start",
       });
+       tempseller=await Seller.findOne({where:{id:auction.SellerId}})
+      var mailOptions = {
+        from: "nuchereta27@gmail.com",
+        to: tempseller.email,
+        subject: "User verification",
+        text: `Dear ${tempseller.fname+" "+tempseller.lname} your auction ${auction.name} has been opened`,
+      };
+      transporter.sendMail(mailOptions, async function (error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          
+        }
+      });
     }
     if (auction.enddate == date || auction.enddate > date) {
+      await auction.update({
+        state: "closed",
+      },{where: { id: auction.id }});
+      tempseller=await Seller.findOne({where:{id:auction.SellerId}})
       waitingchangeauctions.push(auction);
       let winner = await Bid.findOne({
         where: {
           AuctionId: auction.id,
-          bidprice: auction.hammerprice?auction.hammerprice:0,
+          bidprice: auction.hammerprice?auction.hammerprice:-1,
         },
       });
-      let winnerUser
+      var mailOptions = {
+        from: "nuchereta27@gmail.com",
+        to: tempseller.email,
+        subject: "Bid Close",
+        text: `Dear Mr/Mrs ${tempseller.fname+" "+tempseller.lname} your auction ${auction.name} 
+        has been closed check your auction on "http://localhost:5000/sel/detail/:${auction.id}" ${tempseller.email}`,
+      };
+      transporter.sendMail(mailOptions, async function (error, info) {
+        if (error) {
+          console.log(error);
+        }})
       if(winner){
-        winnerUser=await Buyer.findOne({
-          where: { id: winner.buyerId },
-        });
         await auction.update({
-        state: "closed",
-        winnerId: winner.buyerId != null ? winner.buyerId : "",
-      },{where: { id: auction.id }});
-      }
-      
-      if (winnerUser) {
-        await Notification.create({
-          id: "",
-          AuctionId: auction.id,
-          uid: winner.BuyerId,
-          message: `Congratulations you have won the auction ${auction.name} you can reach the vendor with phonenumber - ${auction.Seller.phonenumber} `,
+          winnerId: winner.buyerId != null ? winner.buyerId : "",
+        },{where: { id: auction.id }});
+        var mailOptions = {
+          from: "nuchereta27@gmail.com",
+          to: tempseller.email,
+          subject: "Bid close",
+          text: `Congratulations Mr/Mrs ${winner.fname+" "+winner.lname} your auction ${auction.name} 
+          you were participating on  has been closed and you are the winner,  contact the seller through ${tempseller.email}`,
+        };
+        transporter.sendMail(mailOptions, async function (error, info) {
+          if (error) {
+            console.log(error);
+          } else {
+            
+          }
         });
+
+      await Notification.create({
+        id: "",
+        AuctionId: auction.id,
+        uid: winner.BuyerId,
+        message: `Congratulations you have won the auction ${auction.name} you can reach the vendor with phonenumber - ${auction.Seller.phonenumber} `,
+      });
       }
       await Notification.create({
         id: "",
@@ -979,7 +1023,11 @@ const auctionManage = async () => {
     }
   });
 };
-// auctionManage();
+// setInterval(()=>{
+//     console.log("The function is running")
+    // auctionManage();
+// },[20000])
+
 const addOnlineUser = (userid, socketid) => {
   console.log("The user id is ", userid);
   console.log("The user socket id is ", socketid);
@@ -1048,11 +1096,12 @@ io.on("connection", (socket) => {
 
         io.to(a).emit("bidupdate", "new notification");
         // socket.broadcast.emit('bidupdate',data);
-        // socket.emit('bidupdate',"new notification");
+        socket.emit('bidupdate',"new notification");
         console.log("notified");
       }
       bidders.map((bid) => {
         if (user.userid == bid.BuyerId && user.userid != socket.user) {
+          let a=user.socketid;
           console.log("yes there is active bidders");
           // socket.to(user.socketid).emit("bidupdate", "new notification");
           io.to(a).emit("bidupdate", "new notification");

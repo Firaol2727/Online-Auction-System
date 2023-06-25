@@ -149,7 +149,7 @@ const LoginTrial=()=>{
                <Link href='/signup' underline='none'
                 sx={{marginLeft:"10px",color:" #92291C  ",
                 fontSize:"17px",':hover':{color:'green',cursor:"pointer"}
-                }}>Signup Up For Free</Link>
+                }}>Sign Up For Free</Link>
             </div>
             <center><p style={{position:"absolute",bottom:"10%",left:"20%"}}>Ⓒ All rights reserved by Nuchereta</p></center>
             </Box>

@@ -4,8 +4,12 @@ import { useState,useEffect } from 'react';
 import axios from 'axios';
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 const baseapi=axios.create({baseURL:"http://localhost:5000/sel"})
+import { useNavigate, useParams } from "react-router-dom";
+
 const ChartDisplay = (props) => {
-	let aid=props.aid
+	let itemid = useParams();
+	let aid=itemid.id
+
   const [options,setOptions] =useState( {
     theme: "light2",
     animationEnabled: true,
@@ -13,14 +17,21 @@ const ChartDisplay = (props) => {
     title: {
       text: "Bid price offered"
     },
+	axisX: {
+		intervalType: "day",
+		interval: 1,
+		title:"Bidding date"
+	  },
     axisY: {
-      title: "Bid offered in (ETB)"
+      title: "Bid offered in (ETB)",
+	  interval: 100000,
     },
     data: [
       {
         type: "area",
-        xValueFormatString: "YYYY",
+		xValueFormatString: "DD MMM YYYY",
         yValueFormatString: "#,##0.## Million",
+        // xValueFormatString: "YYYY",
         dataPoints: [
           { x: new Date(2017, 0), y: 7.6},
           { x: new Date(2016, 0), y: 7.3},
@@ -33,15 +44,45 @@ const ChartDisplay = (props) => {
       }
     ]
   });
+  
 	useEffect(()=>{
 		baseapi.get(`/graphdetail/${aid}`)
 		    .then(res=>{
+				let temdataarrays=[];
+				temdataarrays=res.data;
+				if(res.status==200){
+					const formattedDataPoints = temdataarrays.map(dataPoint => ({
+					x: new Date(dataPoint.x).getDate(),
+					y: dataPoint.y
+				  }));
+				  let temppricerange=temdataarrays[0].y*0.3;
+                    
+				console.log("Tempdatarrays",temdataarrays)
+				setOptions(prevOptions => ({
+					...prevOptions,
+					axisY: {
+					  ...prevOptions.axisY,
+					  interval: temppricerange
+					}
+				  }));
+				setOptions(prevOptions => ({
+					...prevOptions,
+					data: [
+					  {
+						...prevOptions.data[0],
+						dataPoints: formattedDataPoints
+					  }
+					]
+				  }));
+				}
+				
+				
 				console.log("The graph is",res.data)
 			})
 			.catch(err=>{
 				console.log("Error in graph ",err)
 			})
-	})
+	},[props.bidupdate])
 
   return (
     <div>

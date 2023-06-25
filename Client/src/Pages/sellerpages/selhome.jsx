@@ -14,14 +14,7 @@ import TimelapseIcon from "@mui/icons-material/Timelapse";
 import { useNavigate } from "react-router-dom";
 import { AddCircleOutline } from "@mui/icons-material";
 // import { Link } from 'react-router-dom';
-const getmarings = () => {
-  let materialwidth = window.innerWidth;
-  if (materialwidth > 800) {
-    return "20%";
-  } else {
-    return "0%";
-  }
-};
+
 const getDateform = (formdate) => {
   const date = new Date(formdate);
   const options = {
@@ -37,7 +30,7 @@ const getDateform = (formdate) => {
 const selHome = () => {
   const baseapi = axios.create({ baseURL: "http://localhost:5000/sel" });
   const [my_auc, setMy_auc] = useState([]);
-  const [hasuct,sethasauct]=useState(false);
+  const [hasuct,sethasauct]=useState(true);
   const [loading, setloading] = useState(false);
   const nav = useNavigate();
   useEffect(() => {
@@ -50,7 +43,7 @@ const selHome = () => {
         if (response.data) {
           let datas = response.data;
           setMy_auc(datas);
-          if(!data){
+          if(datas){
             sethasauct(true);
           }
           setloading(false);

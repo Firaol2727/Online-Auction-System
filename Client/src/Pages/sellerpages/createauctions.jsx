@@ -94,7 +94,7 @@ function PaymentChooseDialog(props) {
         <DialogTitle sx={{fontWeight:"bold"}}>Important</DialogTitle>
         <DialogContent>
         <Typography gutterBottom>
-        To post an auction, you must pay a <b>200ETB</b> fee.
+        To post an auction, you must pay a <b>100ETB</b> fee.
         This fee is required to ensure the quality of our marketplace and to prevent spam listings.
         Once you have paid the fee, you will be granted access to post auctions and reach a vast network of potential buyers.
         <br />

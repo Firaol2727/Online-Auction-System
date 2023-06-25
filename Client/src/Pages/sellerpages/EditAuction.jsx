@@ -19,7 +19,6 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import ChartDisplay from './chartDisplay';
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-
 const getDateform = (formdate) => {
   const date = new Date(formdate);
   const options = {
@@ -136,6 +135,7 @@ const EditAuction = () => {
   function onchangepic(index) {
     setimgdisplay(index);
   }
+  
   return (
     <div>
       <SellerNavbar />
@@ -318,9 +318,7 @@ const EditAuction = () => {
                             </table>
                             <br />  <br />
                             </div>}
-                            <h4>Final Bid Report </h4> 
-                            <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Soluta, quisquam. Omnis suscipit, maiores, sapiente odio libero nostrum ex corrupti nemo nesciunt repudiandae at mollitia dolore, quaerat excepturi! Illum, vero laudantium.</p>
-                            
+                          
                             <br />  <br /> 
                             <Button color="error" variant='contained' disabled={dload} onClick={()=>{
                                 handledelete(auct.id)}}> {dload? <p>Deleting...</p>: <p>Delete</p>}</Button>
