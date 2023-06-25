@@ -207,13 +207,23 @@ router.post("/register", async (req, res) => {
     region: region,
     account: 0,
   })
-    .then(() => {
-      res.status(200).send("registeration verified");
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).send("It looks like you have already an account");
-    });
+  .then(async (data) => {
+    const user = data.id;
+    console.log(data);
+    const accessToken = await jwt.sign(
+      user,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+    // console.log("accessToken",accessToken);
+    res
+      .cookie("u", accessToken, { httpOnly: true })
+      .send("registeration verified");
+  })
+  .catch((err) => {
+    console.log(err);
+
+    res.status(500).send("It looks like you have already an account");
+  });
 });
 // change profile
 
@@ -284,13 +294,15 @@ router.get("/moreon/:id", checkAuthorizationSeller, async (req, res) => {
   let response = {
     detail: "",
     pictures: "",
+    bidders:"",
   };
   console.log("running get profile ");
   return Auction.findOne({
     include: [
       {
-        model: Pictures,
-      },
+        model:Buyer,
+        attributes:{exclude:["id","password","id","account","createdAt","updatedAt"]}
+      }
     ],
     where: { id: aid, SellerId: uid },
   })
@@ -299,15 +311,42 @@ router.get("/moreon/:id", checkAuthorizationSeller, async (req, res) => {
         response.detail = data;
       }
       let pic = await Pictures.findAll({ where: { AuctionId: data.id } });
+      let bid=  await Bid.findAll({  where: { AuctionId: data.id } });
       response.pictures = pic;
+      response.bidders=data.Buyers;
       res.send(response);
     })
     .catch((err) => {
-      res.sendStatus(404);
+      console.log("ERror occured",err)
+      res.status(500).send("Internal server error");
     });
 });
 // change password
-
+router.get("/graphdetail/:aid",async(req,res)=>{
+  let aid=req.params.aid;
+  let dataPoints=[]
+  let xy={x:"",y:""}
+  try{
+    if(aid){
+        let bidders=await Bid.findAll({
+          where:{
+            AuctionId:aid
+          }
+        });
+        bidders.map(bidder=>{
+          xy={x:bidder.biddate,y:bidder.bidprice}
+          dataPoints.push(xy);
+        })
+        res.send(dataPoints)
+      }else{
+        res.status(400).send("Auction id required")
+      }
+  }catch{(err)=>{
+    res.status(400).send("Some thing went wrong",err)
+  }
+  }
+  
+})
 router.post("/changepp", checkAuthorizationSeller, async (req, res) => {
   let { fname, lname, email, region, city, telUsername } = req.body;
 

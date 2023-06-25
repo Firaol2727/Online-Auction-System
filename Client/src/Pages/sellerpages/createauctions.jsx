@@ -40,7 +40,6 @@ const baseapi = axios.create({
 });
 function PaymentChooseDialog(props) {
   const {open, handleClose }= props
- 
   const theme = useTheme();
   const [loading,setloading]=useState(false)
   const [selectedValue, setSelectedValue] = useState('');
@@ -181,7 +180,7 @@ export default class CreateAuction extends Component {
       datetooltip: false,
       categorytooltip: false,
       // payment controllers
-      uploadgranted:false
+      uploadgranted:true
     };
   }
   regions = [
@@ -249,7 +248,6 @@ export default class CreateAuction extends Component {
     for (const key of Object.keys(this.state.imgCollection)) {
       formData.append("imgCollection", this.state.imgCollection[key]);
     }
-      this.setState({ loading: false });
       formData.append("name", this.state.name);
       formData.append("baseprice", this.state.baseprice);
       formData.append("startdate", this.state.startdate);
@@ -266,7 +264,8 @@ export default class CreateAuction extends Component {
         .then((res) => {
           this.setState({ loading: false });
           if (res.status === 200) {
-            history.push('/sel/home');
+            this.setState({ loading: false });
+            window.location.replace('http://localhost:5173/sel/home');
           }
           console.log(res.data);
         })
@@ -633,7 +632,7 @@ export default class CreateAuction extends Component {
                 sx={{
                   width:"300px",
                   color: "white",
-
+                  ":hover":{backgroundColor:"red"},
                   marginTop: "50px",
                   left: "1%",
                   backgroundColor: "brown",
@@ -641,9 +640,6 @@ export default class CreateAuction extends Component {
               > {this.state.loading?"Loading...":"Create my auction"}
               </Button>
               </center>
-              <Button onClick={()=>{
-                this.setState({uploadgranted:true})
-              }}>Open the Dialoge</Button>
             </div>
           </form>
            {this.state.uploadgranted&&< PaymentChooseDialog open={this.state.open} handleClose={()=>{this.setState({open:false})}} />}

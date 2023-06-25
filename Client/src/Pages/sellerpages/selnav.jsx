@@ -24,7 +24,7 @@ import * as React from 'react';
 import Popper from "@mui/material/Popper";
 import io from "socket.io-client";
 import axios from "axios";
-import NotificationPop from "./Notificationpop";
+
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
@@ -303,7 +303,7 @@ function SellerNavbar(props) {
               style={({ isActive, isPending }) => {
                 return {
                   // fontWeight: isPending ? "bold" : "",
-                  color: isActive ? "#DF1B03" : "inherit",
+                  color: isActive ? "#DF1B03" : "black",
                 };
               }}
             >
@@ -403,7 +403,7 @@ function SellerNavbar(props) {
         id={id}
         open={openNotification}
         anchorEl={anchorElNotification}
-        sx={{ zIndex: "2",height:"100%"}}
+        sx={{ zIndex: 2,height:"100%"}}
 
       >
         {hasnotification == 0 && (
@@ -426,7 +426,7 @@ function SellerNavbar(props) {
           </Box>
         )}
         {hasnotification == 1 && (
-          <ListItem alignItems="flex-start">
+          <ListItem alignItems="flex-start" sx={{backgroundColor:"white"}}>
           <ListItemAvatar>
             <Avatar sx={{ bgcolor: "brown" }}>W</Avatar>
           </ListItemAvatar>

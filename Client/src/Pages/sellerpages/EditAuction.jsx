@@ -16,6 +16,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import ChartDisplay from './chartDisplay';
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -33,7 +34,6 @@ const getDateform = (formdate) => {
 };
 const EditAuction = () => {
   let itemid = useParams();
-
   const api = axios.create({ baseURL: "http://localhost:5000/sel" });
   const [auct, setauct] = useState();
   const [pics, setpics] = useState();
@@ -64,7 +64,6 @@ const EditAuction = () => {
   useEffect(() => {
     setloading(true);
     let id = itemid.id;
-    
     api
       .get(`/moreon/${id}`, { withCredentials: true })
       .then((response) => {
@@ -83,6 +82,7 @@ const EditAuction = () => {
             setimgdisplay(item.see);
             setimglength(hasdat.pictures.length);
             setloading(false);
+            setbidders(hasdat.bidders)
           } else {
             sethasdata(false);
             setloading(false);
@@ -139,7 +139,7 @@ const EditAuction = () => {
   return (
     <div>
       <SellerNavbar />
-
+      <chartDisplay />
       {!loading && hasdata && 
         <Box
           sx={{
@@ -171,6 +171,9 @@ const EditAuction = () => {
                   backgroundColor: "white",
                 }}
               >
+                <Stack direction={"column"} gap={2}>
+
+                
                 <Stack
                   direction={{ sm: "row", xs: "column-reverse" }}
                   spacing={1}
@@ -237,7 +240,11 @@ const EditAuction = () => {
                       <IconButton onClick={()=>{changePictures(1)}} sx={{position:"absolute",top:"40%",right:"0%"
                   }}><NavigateNextIcon/></IconButton>
                   </Box>
-                                </Stack>
+                  
+                </Stack>
+                <h2>Hello Nuchereta members </h2>
+                <ChartDisplay />
+                </Stack>
                             </Box>
                         <Box  className="description"style={{
                             height:"120%",
@@ -291,16 +298,18 @@ const EditAuction = () => {
                                 <th>No</th>
                                 <th>Name</th>
                                 <th>Offer</th>
+                                <th>phone</th>
                                 <th>Date</th>
                             </thead>
                                 {
                                     bidders.map((bidder)=>(
-                                        <thead >
+                                        <thead  key={bidder.id}>
                                             <tr>
                                             <td>1</td>
-                                            <td>Yohannes Dejene</td>
-                                            <td>5000</td>
-                                            <td>2/12/2020 </td>
+                                            <td>{bidder.fname?bidder.fname+bidder.lname:""}</td>
+                                            <td>{bidder.Bid.bidprice?bidder.Bid.bidprice :""}</td>
+                                            <td>{bidder.phonenumber?bidder.phonenumber:""}</td>
+                                            <td>{bidder.Bid.biddate? new Date(bidder.Bid.biddate).toLocaleString():""}</td>
                                         </tr>
                                         
                                         </thead>
