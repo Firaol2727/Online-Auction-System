@@ -3,7 +3,7 @@ import "./selSidebar";
 import SellerNavbar from "./selnav";
 import SelSidebar from "./selSidebar";
 import { useRef, useEffect, useState, useDebugValue } from "react";
-import { Box, List, Stack, Typography, Button, Link } from "@mui/material";
+import { Box, List, Stack, Typography, Button, Link, IconButton } from "@mui/material";
 import { Component } from "react";
 import axios from "axios";
 import PlaceIcon from "@mui/icons-material/Place";
@@ -12,6 +12,7 @@ import DoNotDisturbAltOutlinedIcon from "@mui/icons-material/DoNotDisturbAltOutl
 import DoneIcon from "@mui/icons-material/Done";
 import TimelapseIcon from "@mui/icons-material/Timelapse";
 import { useNavigate } from "react-router-dom";
+import { AddCircleOutline } from "@mui/icons-material";
 // import { Link } from 'react-router-dom';
 const getmarings = () => {
   let materialwidth = window.innerWidth;
@@ -36,6 +37,7 @@ const getDateform = (formdate) => {
 const selHome = () => {
   const baseapi = axios.create({ baseURL: "http://localhost:5000/sel" });
   const [my_auc, setMy_auc] = useState([]);
+  const [hasuct,sethasauct]=useState(false);
   const [loading, setloading] = useState(false);
   const nav = useNavigate();
   useEffect(() => {
@@ -48,14 +50,17 @@ const selHome = () => {
         if (response.data) {
           let datas = response.data;
           setMy_auc(datas);
+          if(!data){
+            sethasauct(true);
+          }
           setloading(false);
         }
-        if (response.status === 403) {
+        if (response.status == 403) {
           nav("/sel/login");
         }
       })
       .catch((err) => {
-        if (err.response.status === 403) {
+        if (err.response.status == 403) {
           nav("/sel/login");
         }
         setloading(false);
@@ -371,176 +376,15 @@ const selHome = () => {
                 </Box>
               </Link>
             ))}
-          <Box
-            sx={{
-              borderRadius: "30px",
-              border: "1px solid #E8E5E5 ",
-              "&:hover": {
-                border: "1px solid red",
-              },
-            }}
-          >
-            <Link
-              to={`http://localhost:5173/sel/detail/dfgasdf`}
-              underline="none"
-            >
-              <Box
-                className="auction"
-                sx={{
-                  display: "flex",
-                  height: "90px",
-                  paddingTop: "30px",
-                  marginBottom: "100px",
-                }}
-              >
-                <Box
-                  className="imageBox"
-                  sx={{
-                    width: {
-                      lg: "20%",
-                      md: "30%",
-                      sm: "30%",
-                      xs: "40%",
-                    },
-                    marginRight: "10px",
-                  }}
-                >
-                  <Link
-                    id="productlink"
-                    underline="hover"
-                    // sx={{ color: "black", fontweight: "bold" }}
-                    href={`/singleauction/${1}`}
-                  >
-                    <img
-                      className="auctionImage"
-                      alt="auctionImage"
-                      src="/Imges/Auction/7.jpg"
-                      style={{ width: "100%" }}
-                    />
-                  </Link>
-                </Box>
-
-                <Box
-                  className="detail"
-                  sx={{ width: "60%", marginRight: "5px" }}
-                >
-                  <Link
-                    id="productlink"
-                    underline="hover"
-                    // sx={{ color: "black", fontweight: "bold" }}
-                    href={`/singleauction/${1}`}
-                  >
-                    <Typography
-                      sx={{
-                        textDecoration: "none",
-                        color: "black",
-                        fontwight: "bold",
-                        fontSize: {
-                          lg: "19px",
-                          md: "15px",
-                          sm: "13px",
-                          xs: "13px",
-                        },
-                        // margin: "3px",
-                      }}
-                      className="title"
-                    >
-                      Coins US and Foreign Inherited Assets Special 3 Day
-                      Auction
-                    </Typography>
-                  </Link>
-                  <Typography
-                    className="Price"
-                    sx={{
-                      marginTop: "10px",
-                      fontSize: {
-                        lg: "18px",
-                        md: "15px",
-                        sm: "13px",
-                        xs: "12px",
-                      },
-                    }}
-                  >
-                    $500
-                  </Typography>
-                  <Typography
-                    className="Date"
-                    sx={{
-                      marginTop: "10px",
-                      fontSize: {
-                        lg: "18px",
-                        md: "15px",
-                        sm: "13px",
-                        xs: "12px",
-                      },
-                    }}
-                  >
-                    April 30, 2023 10:15 AM EST
-                  </Typography>
-                  <Box
-                    className="location"
-                    sx={{ display: "flex", marginTop: "15px" }}
-                  >
-                    <PlaceIcon />
-                    <Typography
-                      className="Location"
-                      sx={{
-                        fontSize: {
-                          lg: "16px",
-                          md: "15px",
-                          sm: "13px",
-                          xs: "12px",
-                        },
-                        // margin: "3px",
-                      }}
-                    >
-                      New York, NY, US
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box
-                  className="Buttons"
-                  sx={{
-                    width: "20%",
-                  }}
-                >
-                  <Box
-                    className="status"
-                    sx={{ display: "flex", alignItems: "center" }}
-                  >
-                    <DoneIcon
-                      size="small"
-                      sx={{
-                        color: "blue",
-                        fontSize: {
-                          lg: "20px",
-                          md: "20px",
-                          sm: "18px",
-                          xs: "15px",
-                        },
-                      }}
-                    />
-                    <Typography
-                      className="status"
-                      sx={{
-                        color: "blue",
-                        fontSize: {
-                          lg: "11px",
-                          md: "10px",
-                          sm: "9px",
-                          xs: "7px",
-                        },
-                        display: "flex",
-                        textAlign: "center",
-                      }}
-                    >
-                      closed auction
-                    </Typography>
-                  </Box>
-                </Box>
-              </Box>
-            </Link>
-          </Box>
+          {!hasuct && <center>  <img src="/newtoauction.jpg" width={{sm:"80%",xs:"100%"}} height="400px" alt="user" />   
+          <h3 style={{fontFamily:"cursive"}}>Seems you don't have any auction yet!</h3>
+          <Link href="/sel/newauction" underline="none">
+            <IconButton  sx={{backgroundColor:"brown",color:"white",height:"35px",width:"50%",borderRadius:"7px",":hover":{backgroundColor:"red"}}}>
+              <AddCircleOutline/>
+              Create New
+            </IconButton>
+          </Link>
+           </center> }
         </div>
       </Box>
     </div>

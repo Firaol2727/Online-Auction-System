@@ -253,7 +253,7 @@ const SelProfie=()=>{
             withCredentials:true
         })
         .then(res=>{
-            if(res.status===200){
+            if(res.status==200){
                 setloading(false);
                 let userdata=res.data;
                 setfname(userdata.fname);
@@ -266,12 +266,12 @@ const SelProfie=()=>{
                 console.log("The user userdata is ",userdata)
                 console.log("The user profile is ",profile)
             }
-            else if(res.status===403){
+            else if(res.status==403){
                 // nav('/sel/login')
             }
         }).catch(
             err=>{
-                if(err.response.status===403){
+                if(err.response.status==403){
                     nav('/login')
                 }
                 setloading(false);
@@ -511,6 +511,29 @@ const SelProfie=()=>{
                         variant="outlined"
                         value={profile.telUsername}
                         label="Telusername"
+                    />
+                    </Box>
+                    <Box className="Deposit">
+                    <TextField
+                        sx={{
+                        marginLeft: "10px",
+                        marginRight: "10px",
+
+                        marginTop: "20px",
+                        width: {
+                            lg: 510,
+                            md: 540,
+                            sm: 420,
+                            xs: 250,
+                        },
+                        "& .MuiInputBase-root": {
+                            height: 40,
+                        },
+                        }}
+                        id="outlined-basic"
+                        variant="outlined"
+                        value={profile.account}
+                        label="Deposit Amount"
                     />
                     </Box>
                     <Box className="City">

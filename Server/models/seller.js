@@ -53,8 +53,9 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       account: {
-        type: DataTypes.STRING,
+        type: DataTypes.DOUBLE,
         allowNull: true,
+        defaultValue:0
       },
       region: {
         type: DataTypes.STRING,

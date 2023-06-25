@@ -5,6 +5,7 @@ import SellerNavbar from "./selnav";
 import {
   Box,
   Button,
+  CircularProgress,
   IconButton,
   List,
   Stack,
@@ -26,6 +27,126 @@ import Select from "@mui/material/Select";
 import Tooltip from "@mui/material/Tooltip";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
+import { Radio, RadioGroup, FormControlLabel } from '@mui/material';
+const baseapi = axios.create({
+  baseURL: "http://localhost:5000/sel",
+});
+function PaymentChooseDialog(props) {
+  const {open, handleClose }= props
+  const theme = useTheme();
+  const [loading,setloading]=useState(false)
+  const [selectedValue, setSelectedValue] = useState('');
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const handleChange = (event) => {
+    setSelectedValue(event.target.value);
+  };
+  const handlePayment = () => {
+    handleClose();
+    setloading(true)
+    baseapi.get('/paychapa',{withCredentials:true})
+    .then(res=>{
+        if(res.status==202){
+          window.location.replace(res.data);
+        }else{
+          setloading(false)
+        }
+    })
+    .catch(err=>{
+      setloading(false)
+      console.log("The error is",err)
+    })
+    
+  };
+
+  // const handleClose = () => {
+  //   setOpen(false);
+  // };
+  
+  return (
+    <div>
+      {/* <Button variant="outlined" onClick={handleClickOpen}>
+        Open responsive dialog
+      </Button> */}
+      <Dialog
+        open={loading}
+        sx={{color:"gray"}}
+        fullScreen={fullScreen}
+        aria-labelledby="responsive-dialog-title"
+      >
+        <DialogContent>
+        <center><CircularProgress/></center>
+        <h4>Redirecting wait a moment...</h4>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        fullScreen={fullScreen}
+        aria-labelledby="responsive-dialog-title"
+      >
+        <DialogTitle sx={{fontWeight:"bold"}}>Important</DialogTitle>
+        <DialogContent>
+        <Typography gutterBottom>
+        To post an auction, you must pay a <b>200ETB</b> fee.
+        This fee is required to ensure the quality of our marketplace and to prevent spam listings.
+        Once you have paid the fee, you will be granted access to post auctions and reach a vast network of potential buyers.
+        <br />
+        <br />
+        <b>Don't miss out on this opportunity to showcase your items and make a profit.</b> <br />
+        <p>Proceed with</p>
+
+          </Typography>
+          <RadioGroup value={selectedValue} onChange={handleChange}>
+      <FormControlLabel
+        value="option1"
+        control={
+          <Radio disableRipple />
+        }
+        label={
+        <Stack direction={"row"} gap={2}>
+          <img src="/chapa.jpeg" style={{width:"100px",height:"80px"}} />
+          <h4 >Chapa</h4></Stack>}
+      />
+      <FormControlLabel
+        value="option2"
+        control={<Radio disableRipple />}
+        label={
+          <Stack direction={"row"} gap={2}>
+            <img src="/telebirr.png" style={{width:"100px",height:"80px"}} />
+            <h4 style={{fontStyle:"italic"}}>Tele birr</h4></Stack>}
+      />
+      <FormControlLabel
+        value="option3"
+        control={<Radio disableRipple={true} />}
+        label={
+          <Stack direction={"row"} gap={2}>
+            <img src="/cbe.jpeg" style={{width:"100px",height:"80px"}} />
+            <h4>CBE birr</h4></Stack>}
+      />
+        <br /><br />
+        <center><p style={{fontSize:"18px"}}>Thank you for using our platform!</p></center>
+        </RadioGroup>
+        </DialogContent>
+        
+        <DialogActions>
+          <Button autoFocus onClick={handleClose} >
+            Cancel
+          </Button>
+          <Button onClick={handlePayment} autoFocus ={selectedValue==''?true:false}>
+            Next
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+}
 export default class CreateAuction extends Component {
   constructor(props) {
     super(props);
@@ -52,11 +173,14 @@ export default class CreateAuction extends Component {
       startdatevalid: true,
       error: "",
       range: null,
+      open:true,
       // tooltip controllers //
       nametooltip: false,
       pricetooltip: false,
       datetooltip: false,
       categorytooltip: false,
+      // payment controllers
+      uploadgranted:true
     };
   }
   regions = [
@@ -82,15 +206,22 @@ export default class CreateAuction extends Component {
   handleChange = (event) => {
     this.setState({ type: event.target.value });
   };
+  handleClose() {
+    console.log("Executing handleClose function")
+    this.setState({ open: false });
+  }
+  handleClickOpen() {
+    this.setState({ open: true });
+  }
   //  nav=useNavigate()
   onFileChange(e) {
     this.setState({ imgCollection: e.target.files, filevalid: true });
     let fileObj = [];
     let fileArray = [];
-    console.log("uploading multiple files");
+    console.log("uploading multiple files",this.state.filevalid);
     fileObj.push(e.target.files);
     console.log(fileObj);
-    console.log(fileArray);
+    this.state.inputfilelength=fileObj[0].length;
     this.setState({ inputfilelength: fileObj[0].length });
     if (this.state.inputfilelength == 0) {
       this.setState({ filevalid: false });
@@ -102,7 +233,6 @@ export default class CreateAuction extends Component {
         } 
       }
     }
-
     console.log("are all the files valid ?", this.state.filevalid);
     if (this.state.filevalid) {
       for (let i = 0; i < fileObj[0].length; i++) {
@@ -113,14 +243,42 @@ export default class CreateAuction extends Component {
       this.setState({ preview: [...fileArray] });
     }
   }
-  onSubmit(e) {
-    e.preventDefault();
-
-    this.setState({ loading: true });
+  finalCreateAuction(){
     var formData = new FormData();
     for (const key of Object.keys(this.state.imgCollection)) {
       formData.append("imgCollection", this.state.imgCollection[key]);
     }
+      formData.append("name", this.state.name);
+      formData.append("baseprice", this.state.baseprice);
+      formData.append("startdate", this.state.startdate);
+      formData.append("enddate", this.state.enddate);
+      formData.append("type", this.state.type);
+      formData.append("category", this.state.category);
+      formData.append("region", this.state.region);
+      formData.append("city", this.state.city);
+      formData.append("description", this.state.description);
+      axios
+        .post("http://localhost:5000/sel/upload", formData, {
+          withCredentials: true,
+        })
+        .then((res) => {
+          this.setState({ loading: false });
+          if (res.status === 200) {
+            this.setState({ loading: false });
+            window.location.replace('http://localhost:5173/sel/home');
+          }
+          console.log(res.data);
+        })
+        .catch((err) => {
+          this.setState({ loading: false });
+          console.log("the error is ", err);
+        });
+  
+
+  }
+  onSubmit(e) {
+    e.preventDefault();
+    this.setState({ loading: true }); 
     if (this.state.startdate != null && this.state.enddate != null) {
       
       //   let sd = new Date(this.state.range[0]);
@@ -169,39 +327,35 @@ export default class CreateAuction extends Component {
       this.state.categoryvalid = false;
       this.setState({ loading: false });
     }
-    if (!this.state.filevalid){
-      this.setState({ loading: false });
-    }
-    
     console.log("starting date ", this.state.startdate);
     console.log("ending date", this.state.enddate);
     console.log("Is the auction date valid ?", this.state.startdatevalid);
-
     if (
       this.state.basepricevalid &&
       this.state.filevalid &&
       this.state.startdatevalid &&
       this.state.categoryvalid
     ) {
-      formData.append("name", this.state.name);
-      formData.append("baseprice", this.state.baseprice);
-      formData.append("startdate", this.state.startdate);
-      formData.append("enddate", this.state.enddate);
-      formData.append("type", this.state.type);
-      formData.append("category", this.state.category);
-      formData.append("region", this.state.region);
-      formData.append("city", this.state.city);
-      formData.append("description", this.state.description);
       axios
-        .post("http://localhost:5000/sel/upload", formData, {
+        .get("http://localhost:5000/sel/checkcanupload",{
           withCredentials: true,
         })
         .then((res) => {
-          this.setState({ loading: false });
+          
           if (res.status === 200) {
-            nav("/myauction");
+            console.log(" Auction create is permitted",res.data)
+            // nav("/myauction");
+            this.finalCreateAuction();
           }
-          console.log(res.data);
+          else if(res.status==202){
+            this.setState({ loading: false });
+            console.log(" Auction create is not  permitted but it is okay",res.data)
+            this.setState({uploadgranted:true})
+          }
+          else{
+            this.setState({ loading: false });
+            console.log("Auction posting error",res.data);
+          }
         })
         .catch((err) => {
           this.setState({ loading: false });
@@ -209,7 +363,9 @@ export default class CreateAuction extends Component {
         });
     }
   }
+
   render() {
+    
     return (
       <div>
         <SellerNavbar />
@@ -421,7 +577,7 @@ export default class CreateAuction extends Component {
               )}
               <br />
               <Button
-                variant="contained"
+                
                 component="label"
                 sx={{ backgroundColor: "lightred", height: "50px" }}
               >
@@ -476,17 +632,17 @@ export default class CreateAuction extends Component {
                 sx={{
                   width:"300px",
                   color: "white",
-
+                  ":hover":{backgroundColor:"red"},
                   marginTop: "50px",
                   left: "1%",
                   backgroundColor: "brown",
                 }}
-              > Create my auction
+              > {this.state.loading?"Loading...":"Create my auction"}
               </Button>
               </center>
-              
             </div>
           </form>
+           {this.state.uploadgranted&&< PaymentChooseDialog open={this.state.open} handleClose={()=>{this.setState({open:false})}} />}
         </Box>
         <Box
           sx={{

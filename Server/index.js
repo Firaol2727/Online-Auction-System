@@ -90,9 +90,9 @@ async function tableChange() {
   //  a function used to commit database changes just change name of model you want to update and call function
   // await Buyer.sync({ alter: true });
   // await Order.sync({ alter: true });
-  await Notification.sync({ alter: true });
+  await Seller.sync({ alter: true });
   // await Passcode.sync({ alter: true });
-  // console.log("finished");
+  console.log("finished");
 }
 // tableChange();
 // chapaVerify();
@@ -275,10 +275,7 @@ app.post("/forgotpassword", async (req, res) => {
     console.log("It is the seller ");
     try {
       let verificationcode = uid(5);
-      userverification.push({
-        email: email,
-        verificationcode: verificationcode,
-      });
+
       var mailOptions = {
         from: "nuchereta27@gmail.com",
         to: email,
@@ -973,6 +970,7 @@ const auctionManage = async () => {
           id: "",
           AuctionId: auction.id,
           uid: bid.BuyerId,
+          nottype:"close",
           message: `The auction ${auction.name} you were participating on has been closed with winning price ${auction.hammerprice}`,
         });
       });

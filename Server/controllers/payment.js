@@ -22,7 +22,7 @@ const paychapa = async (aid, req, res) => {
     },
   });
   if (user) {
-    console.log("User found");
+    console.log("buyer found");
     var myHeaders = new fetch.Headers();
     myHeaders.append(
       "Authorization",
@@ -76,7 +76,7 @@ const paychapa = async (aid, req, res) => {
         res.status(500).send("Internal server error ");
       });
   } else if (user2) {
-    console.log("User found");
+    console.log("seller found");
     var myHeaders = new fetch.Headers();
     myHeaders.append(
       "Authorization",
@@ -115,9 +115,9 @@ const paychapa = async (aid, req, res) => {
           Order.create({
             id: "",
             textref: a,
-            userid: user.id,
-            email: user.email,
-            phone: user.phonenumber,
+            userid: user2.id,
+            email: user2.email,
+            phone: user2.phonenumber,
           });
           console.log("It was successfull");
           res.status(202).send(result.data.checkout_url);
@@ -244,14 +244,6 @@ const verifyOrdersSeller = async (order) => {
             }
           );
           let payingdate = verifySession.created_at;
-          await Payment.create({
-            id: "",
-            bankerId: "chapa_id",
-            BuyerId: order.userid,
-            paymentid: order.textref,
-            paymentreference: verifySession.data.reference,
-            date: payingdate,
-          });
           return true;
         } else {
           return false;
