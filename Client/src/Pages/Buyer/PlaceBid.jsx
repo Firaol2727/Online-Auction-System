@@ -1,4 +1,4 @@
-import NavBuyer from "../../Layouts/NavBar/NavBuyer";
+import NavBuyer from "../../Layouts/NavBuyer";
 
 function PlaceBid() {
   return (

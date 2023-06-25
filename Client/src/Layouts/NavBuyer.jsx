@@ -23,12 +23,6 @@ import MoreIcon from "@mui/icons-material/MoreVert";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
-import SignupFormBuyer from "../../Components/SignupForm/SignupFormBuyer";
-import SignupFormSeller from "../../Components/SignupForm/SignupFormSeller";
-import SignupForm from "../../Components/SignupForm/SignupForm";
-// import SignupFormBuyer from "../../Components/SignupForm/SignupFormBuyer";
-// import SignupFormSeller from "../../Components/SignupForm/SignupFormBuyer";
-import LoginForm from "../../Components/LoginForm";
 
 import FormControlLabel from "@mui/material/Dialog";
 
@@ -45,12 +39,19 @@ import CloseIcon from "@mui/icons-material/Close";
 import TextField from "@mui/material/TextField";
 
 import InputLabel from "@mui/material/InputLabel";
+import io from "socket.io-client";
 
 import Select from "@mui/material/Select";
 import CircularProgress from "@mui/material/CircularProgress";
 import axios from "axios";
 axios.create({
   baseURL: "http://localhost:5000",
+});
+const socket = io("http://localhost:5000", {
+  withCredentials: true,
+  extraHeaders: {
+    "my-custom-header": "my-custom-value",
+  },
 });
 
 const NotoficationText = [
@@ -281,7 +282,6 @@ export default function NavBuyer(props) {
   const [savingSeller, setSavingSeller] = useState(false);
 
   ////login
-
   const [loginState, setLoginState] = useState({
     username: "",
     password: "",
@@ -289,6 +289,11 @@ export default function NavBuyer(props) {
 
   const [savingLogin, setSavingLogin] = useState(false);
   const [responseLogin, setResponseLogin] = useState("");
+
+  //////notifications
+  const [Notifications, setNotifications] = useState([]);
+  const [hasnotification, sethasnotifications] = useState(0);
+  const [no_of_notification, setNo_of_notification] = useState(0);
 
   ////login Functions
   const handleUsernameChange = (e) => {
@@ -935,7 +940,66 @@ export default function NavBuyer(props) {
   }
 
   const menuId = "primary-search-account-menu";
+  socket.on("connect", () => {
+    console.log("successfully connected to the server socket to connect");
+  });
+  socket.on("bidupdate", (data) => {
+    console.log("New server", data);
+    setNo_of_notification(no_of_notification + 1);
+  });
 
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/custom/newnotification", {
+        withCredentials: true,
+      })
+      .then((res) => {
+        console.log(res);
+        if (res.status == 200) {
+          setNo_of_notification(res.data.nopage);
+        }
+      })
+      .catch((err) => {
+        console.log("The error is ", err);
+      });
+  }, []);
+  useEffect(() => {
+    if (notifyOpen) {
+      fetchNotifications();
+      console.log("fetching notifiation");
+    } else {
+      console.log("not fetching");
+    }
+  }, [notifyOpen]);
+  function fetchNotifications(params) {
+    sethasnotifications(0);
+
+    axios
+      .get("http://localhost:5000/custom/notification", {
+        withCredentials: true,
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          let data = response.data;
+          console.log("response data", data);
+          if (data.length > 0) {
+            setNotifications([...response.data]);
+            sethasnotifications(2);
+          } else {
+            sethasnotifications(1);
+          }
+        } else if (response.status === 403) {
+          nav("/login");
+        } else {
+          sethasnotifications(1);
+        }
+        console.log("hasnotification", hasnotification);
+      })
+      .catch((err) => {
+        console.log(err);
+        sethasnotifications(1);
+      });
+  }
   const Notification = (
     <Menu
       // notify={notify}
@@ -952,9 +1016,113 @@ export default function NavBuyer(props) {
       onClose={notifyClose}
       sx={{ marginTop: "50px" }}
     >
-      {NotoficationText.map((option, index) => (
+      {/* {NotoficationText.map((option, index) => (
         <MenuItem key={option}>{option}</MenuItem>
-      ))}
+      ))} */}
+      {hasnotification == 0 && (
+        <Box
+          sx={{
+            border: 1,
+            p: 1,
+            width: {
+              sm: "400px",
+              xs: "300px",
+              backgroundColor: "#FFE4C4",
+              height: "100px",
+              marginTop: "20px",
+            },
+          }}
+        >
+          <center>
+            <CircularProgress />
+          </center>
+        </Box>
+      )}
+      {hasnotification == 1 && (
+        <div>
+          <Box
+            sx={{
+              border: 1,
+              p: 1,
+              width: {
+                sm: "400px",
+                xs: "300px",
+                backgroundColor: "#FFE4C4",
+                height: "80px",
+                marginTop: "2px",
+              },
+            }}
+          >
+            <center>
+              {" "}
+              <Typography sx={{ color: "black" }}>
+                No notifications yet.{" "}
+              </Typography>
+            </center>
+          </Box>
+        </div>
+      )}
+      {hasnotification == 2 && (
+        <Box
+          sx={{
+            border: 1,
+            p: 1,
+            bgcolor: "background.paper",
+            height: "600px",
+            overflowY: "scroll",
+            overflowX: "hidden",
+            paddingTop: "22px",
+          }}
+        >
+          {Notifications.map((notification) =>
+            notification.type === "bidupdate" ? (
+              <Link href={`/moreon/${notification.AuctionId}`}>
+                <Box
+                  sx={{
+                    border: 1,
+                    p: 1,
+                    width: {
+                      sm: "400px",
+                      xs: "300px",
+                      backgroundColor: "#FFE4C4",
+                      height: "100px",
+                      marginTop: "20px",
+                    },
+                  }}
+                >
+                  <center>
+                    {" "}
+                    <Typography sx={{ color: "black" }}>
+                      This is the notification
+                    </Typography>
+                  </center>
+                </Box>
+              </Link>
+            ) : (
+              <Box
+                sx={{
+                  border: 1,
+                  p: 1,
+                  width: {
+                    sm: "400px",
+                    xs: "300px",
+                    backgroundColor: "#FFE4C4",
+                    height: "100px",
+                    marginTop: "20px",
+                  },
+                }}
+              >
+                <center>
+                  {" "}
+                  <Typography sx={{ color: "black" }}>
+                    This is the notification
+                  </Typography>
+                </center>
+              </Box>
+            )
+          )}
+        </Box>
+      )}
     </Menu>
   );
   const Account = (
@@ -983,18 +1151,35 @@ export default function NavBuyer(props) {
     >
       <MenuItem onClose={accountClose}>
         <Box className="account" sx={{ display: "block" }}>
-          <Box sx={{ display: "flex", margin: "10px" }}>
-            <PersonIcon size="large" />
-            <Typography className="account name">Yohannes dejene</Typography>
-          </Box>
-          <Box sx={{ margin: "20px" }}>
-            <Typography className="balance">Balance :$500</Typography>
-          </Box>
-          <Box sx={{ margin: "20px" }}>
-            <Link href="/payment">
-              <Typography sx={{ color: "red" }}>Deposite</Typography>
-            </Link>
-          </Box>
+          {loggedin && (
+            <>
+              {" "}
+              <Box sx={{ display: "flex", margin: "10px" }}>
+                <PersonIcon size="large" />
+
+                <Typography className="account name">
+                  {state.profileData.fname} {state.profileData.lname}
+                </Typography>
+              </Box>
+              <Box sx={{ margin: "20px" }}>
+                <Typography className="balance">
+                  Balance :ETB {state.profileData.account}
+                </Typography>
+              </Box>
+              <Box sx={{ margin: "20px" }}>
+                <Link href="/payment">
+                  <Typography sx={{ color: "red" }}>Deposite</Typography>
+                </Link>
+              </Box>
+            </>
+          )}
+          {!loggedin && (
+            <>
+              <Link href="/sel/login">
+                <Typography sx={{ color: "red" }}>Login First</Typography>
+              </Link>
+            </>
+          )}
         </Box>
       </MenuItem>
     </Menu>
@@ -1063,8 +1248,9 @@ export default function NavBuyer(props) {
       })
       .then((response) => {
         setLoggedin(true);
-
+        dispatch({ type: "SET_PROFILE_DATA", payload: response.data });
         console.log("fetched data", response.data);
+        console.log("profileData", state.profileData);
       })
       //
       .catch((err) => {

@@ -1,17 +1,15 @@
 import { useState } from "react";
-import AuctionCard from "../../Components/AuctionCard/AuctionCard";
+import SearchCard from "../../Components/AuctionCard/SearchCard";
+
 import NavBuyer from "../../Layouts/NavBuyer";
 import Footer from "../../Layouts/Footer";
-import "./Auctions.css";
 
-export default function Auctions() {
+export default function Clasify() {
   const [loggedin, setLogedin] = useState(0);
   return (
     <div>
-      {/* {loggedin && <NavBar />} */}
       <NavBuyer />
-
-      <AuctionCard />
+      <SearchCard />
       <Footer />
     </div>
   );
