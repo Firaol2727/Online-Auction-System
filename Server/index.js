@@ -83,7 +83,7 @@ app.use("/sel", sellerRoute);
 
 async function CreateDatabase() {
   // creating database structures
-  await sequelize.sync({ alter: true });
+  await sequelize.sync({ force: true });
   console.log("finished");
 }
 async function tableChange() {
@@ -94,6 +94,7 @@ async function tableChange() {
   // await Passcode.sync({ alter: true });
   console.log("finished");
 }
+// CreateDatabase();
 // tableChange();
 // chapaVerify();
 
@@ -115,7 +116,7 @@ async function addAdmin() {
       console.log(err);
     });
 }
-//addAdmin();
+// addAdmin();
 
 async function selRegistrationTrial() {
   await Seller.create({
@@ -130,50 +131,51 @@ async function selRegistrationTrial() {
   });
 }
 async function addCategories() {
-  // Adding categories to database
-  // await  Category.bulkCreate([
-  //     {
-  //         id:"0",
-  //         name:"furnitures"
-  //     },
-  //     {
-  //         id:"",
-  //         name:"homes"
-  //     },
-  //     {
-  //         id:"",
-  //         name:"jewelleries"
-  //     },
-  //     {
-  //         id:"",
-  //         name:"artwork"
-  //     },
-  //     {
-  //         id:"",
-  //         name:"electronics"
-  //     },
-  //     {
-  //         id:"",
-  //         name:"manufacturing"
-  //     },
-  //     {
-  //         id:"",
-  //         name:"vehicles"
-  //     },
-  //     {
-  //         id:"",
-  //         name:"or"
-  //     },
-  // {
-  //     id:"",
-  //     name:"building"
-  // }
+  //Adding categories to database
+  await  Category.bulkCreate([
+      {
+          id:"0",
+          name:"furnitures"
+      },
+      {
+          id:"",
+          name:"homes"
+      },
+      {
+          id:"",
+          name:"jewelleries"
+      },
+      {
+          id:"",
+          name:"artwork"
+      },
+      {
+          id:"",
+          name:"electronics"
+      },
+      {
+          id:"",
+          name:"manufacturing"
+      },
+      {
+          id:"",
+          name:"vehicles"
+      },
+      {
+          id:"",
+          name:"or"
+      },
+  {
+      id:"",
+      name:"building"
+  }
 
-  // ]);
+  ]);
   //adding categories
 
   console.log("Categories are added in to  database successfully");
 }
+// addCategories()
 let onlineUsers = [];
 let reisStart = false;
 let waitingchangeauctions = [];
