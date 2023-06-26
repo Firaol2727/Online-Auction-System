@@ -232,10 +232,9 @@ export default function BuyerProfile() {
                   height: 40,
                 },
               }}
-              autoFocus
-              variant="outlined"
               value={state.profileData.fname}
               label="First name"
+              // placeholder={state.profileData.fname}
               // disabled={true}
             />
 
@@ -374,9 +373,9 @@ export default function BuyerProfile() {
               </Typography>
             </Button>
           </Box> */}
-          <Divider />
         </Box>
       </Box>
+      <Divider />
       <Footer />
     </div>
   );

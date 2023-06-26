@@ -131,7 +131,9 @@ function LoginForm(props) {
             required
           />
 
-          <Typography sx={{ marginTop: "30px" }}>{responseLogin}</Typography>
+          <Typography sx={{ marginTop: "30px", color: "red" }}>
+            {responseLogin}
+          </Typography>
           <Button
             variant="contained"
             color="primary"

@@ -30,7 +30,6 @@ import Footer from "../../Layouts/Footer";
 
 import SearchIcon from "@mui/icons-material/Search";
 import TextField from "@mui/material/TextField";
-
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -45,6 +44,7 @@ import TimelapseIcon from "@mui/icons-material/Timelapse";
 import ClosedCaptionDisabledIcon from "@mui/icons-material/ClosedCaptionDisabled";
 import GppBadIcon from "@mui/icons-material/GppBad";
 import PhoneIcon from "@mui/icons-material/Phone";
+import CircularProgress from "@mui/material/CircularProgress";
 import EmailIcon from "@mui/icons-material/Email";
 import PersonIcon from "@mui/icons-material/Person";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
@@ -247,6 +247,7 @@ const AuctionDetail = () => {
   const [reasonReport, setReasonReport] = useState("");
   const [reload, setReload] = useState(false);
   const [minIncrease, setMinIncrease] = useState(0);
+  const [savingBid, setSavingBid] = useState(false);
   const itemid = useParams();
 
   const api = axios.create({ baseURL: "http://localhost:5000/" });
@@ -269,6 +270,7 @@ const AuctionDetail = () => {
   }
 
   const submitBid = (event) => {
+    setSavingBid(true);
     event.preventDefault();
     console.log("submiteded");
     console.log("bid Price", bidPrice);
@@ -286,18 +288,23 @@ const AuctionDetail = () => {
       .then((response) => {
         console.log("response", response);
         if (response.status == 200) {
+          setSavingBid(false);
           setLeadingPrice(bidPrice);
 
           socket.emit("bidupdate", itemid.id);
         } else if (response.status == 202) {
+          setSavingBid(false);
           window.location.replace(response.data);
         } else if (response.status == 403) {
+          setSavingBid(false);
           nav("/sel/login");
         } else {
+          setSavingBid(false);
           console.log("error in chapa", response);
         }
       })
       .catch((error) => {
+        setSavingBid(false);
         if (error.response.status == 404) {
           setReload(!reload);
         }
@@ -475,556 +482,396 @@ const AuctionDetail = () => {
 
   // Render the component as normal if no error occurred
   return (
-    <div>
-      <NavBuyer data={loggedin} />
+    <>
+      <div sx={{ marginBottom: "50px" }}>
+        <NavBuyer data={loggedin} />
 
-      {!loading && hasdata && (
-        <>
-          <Box>
-            <Link href="/">Back to Home</Link>
-          </Box>
-          <Box
-            sx={{
-              // position: "relative",
-              // marginTop: "50px",
-              height: "130%",
-              backgroundColor: "white",
-              width: {
-                xs: "100%",
-                md: "93%",
-                lg: "90%",
-                sm: "90%",
-              },
-              marginLeft: {
-                lg: "80px",
-                md: "50px",
-                sm: "20px",
-              },
-              marginRight: {
-                sm: "20px",
-              },
-            }}
-          >
+        {!loading && hasdata && (
+          <>
+            <Box>
+              <Link href="/">Back to Home</Link>
+            </Box>
             <Box
               sx={{
-                position: "relative",
-                marginTop: "50px",
+                // position: "relative",
+                // marginTop: "50px",
+                height: "130%",
                 backgroundColor: "white",
+                width: {
+                  xs: "100%",
+                  md: "93%",
+                  lg: "90%",
+                  sm: "90%",
+                },
+                marginLeft: {
+                  lg: "80px",
+                  md: "50px",
+                  sm: "20px",
+                },
+                marginRight: {
+                  sm: "20px",
+                },
               }}
             >
-              <Stack
-                direction={{ sm: "column", xs: "column", lg: "row", md: "row" }}
-                spacing={3}
+              <Box
+                sx={{
+                  position: "relative",
+                  marginTop: "50px",
+                  backgroundColor: "white",
+                }}
               >
-                <Box
-                  className="picture"
-                  style={{
-                    backgroundColor: "white",
+                <Stack
+                  direction={{
+                    sm: "column",
+                    xs: "column",
+                    lg: "row",
+                    md: "row",
                   }}
-                >
-                  <Stack
-                    direction={{
-                      sm: "row",
-                      md: "row",
-                      xs: "column-reverse",
-                    }}
-                    spacing={1}
-                  >
-                    <Box
-                      sx={{
-                        // position:"relative",
-                        marginTop: "6px",
-                        marginRight: "6px",
-
-                        border: "1px grey solid",
-                        width: { sm: "82px", xs: "100%" },
-                        // display:"flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexDirection: { sm: "column", xs: "row" },
-                        maxHeight: { sm: "400px", xs: "90px" },
-                        overflow: "scroll",
-                        overflowX: "hidden",
-                        overflowY: "hidden",
-                      }}
-                    >
-                      {pics.map((pic) => (
-                        <img
-                          className="auctionImage"
-                          key={pic.id}
-                          alt="auctionImage"
-                          src={`http://localhost:5000/images/${pic.id}`}
-                          onClick={() => {
-                            onchangepic(pic.id);
-                          }}
-                          style={{
-                            position: "relative",
-                            marginTop: "5px",
-                            marginRight: "5px",
-                            width: "80px",
-                            height: "80px",
-                          }}
-                        />
-                      ))}
-                    </Box>
-                    <Box
-                      className="picture"
-                      sx={{
-                        position: "relative",
-                        display: "flex",
-                        width: {
-                          sm: "100%",
-                          xs: "100%",
-                          lg: "500px",
-                          md: "450px",
-                        },
-                        // height: "400px",
-
-                        justifyContent: "center",
-                        alignItems: "center",
-                        backgroundColor: "lightgrey",
-                      }}
-                    >
-                      {/* <center> */}
-                      <img
-                        className="auctionImage"
-                        alt="auctionImage"
-                        src={`http://localhost:5000/images/${imgdisplay}`}
-                        style={{ width: "85%" }}
-                      />
-                      {/* </center> */}
-
-                      <IconButton
-                        onClick={() => {
-                          changePictures(0);
-                        }}
-                        sx={{ position: "absolute", top: "40%", left: "0%" }}
-                      >
-                        <NavigateBeforeIcon />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => {
-                          changePictures(1);
-                        }}
-                        sx={{ position: "absolute", top: "40%", right: "0%" }}
-                      >
-                        <NavigateNextIcon />
-                      </IconButton>
-                    </Box>
-                  </Stack>
-                  <Box
-                    className="description"
-                    sx={{
-                      display: {
-                        xs: "none",
-                        sm: "none",
-                        md: "block",
-                        lg: "block",
-                      },
-                      width: {
-                        lg: "550px",
-                        md: "500px",
-                      },
-                      marginTop: "50px",
-                      marginLeft: "20px",
-                      marginRight: "20px",
-                    }}
-                  >
-                    <Typography
-                      display="flex"
-                      justifyContent="center"
-                      sx={{ marginTop: "10px", fontWeight: "bold" }}
-                    >
-                      Description
-                    </Typography>
-
-                    <Typography sx={{ display: "flex" }}>
-                      {auct.description}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box
-                  sx={{
-                    border: "1px solid ",
-                    borderColor: "#EBECEC",
-                    width: "100%",
-                    height: "auto",
-                  }}
+                  spacing={3}
                 >
                   <Box
-                    sx={{
-                      float: "right",
-                      mt: "-30px",
+                    className="picture"
+                    style={{
+                      backgroundColor: "white",
                     }}
                   >
-                    <Tooltip
-                      title={
-                        reasonReport
-                          ? "You have reported"
-                          : "Report on this auction"
-                      }
+                    <Stack
+                      direction={{
+                        sm: "row",
+                        md: "row",
+                        xs: "column-reverse",
+                      }}
+                      spacing={1}
                     >
-                      <Button
-                        startIcon={<ReportProblemOutlined />}
-                        onClick={handleClickOpen}
+                      <Box
                         sx={{
-                          color: "grey",
-                          fontWight: "bold",
-                          textTransform: "none",
+                          // position:"relative",
+                          marginTop: "6px",
+                          marginRight: "6px",
+
+                          border: "1px grey solid",
+                          width: { sm: "82px", xs: "100%" },
+                          // display:"flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexDirection: { sm: "column", xs: "row" },
+                          maxHeight: { sm: "400px", xs: "90px" },
+                          overflow: "scroll",
+                          overflowX: "hidden",
+                          overflowY: "hidden",
                         }}
-                      ></Button>
-                    </Tooltip>
-                    <Dialog open={openReport} onClose={handleClose}>
-                      <DialogTitle>Reason for report</DialogTitle>
-                      <DialogContent>
-                        <FormControl component="fieldset">
-                          <RadioGroup
-                            value={reasonReport}
-                            onChange={handleReasonChange}
-                          >
-                            <FormControlLabel
-                              value="spam"
-                              control={<Radio />}
-                              label=" spam"
-                            />
-                            <FormControlLabel
-                              value="Violance"
-                              control={<Radio />}
-                              label=" Violance"
-                            />
-                            <FormControlLabel
-                              value="Child Abuse"
-                              control={<Radio />}
-                              label="Child Abuse"
-                            />
-                            <FormControlLabel
-                              value="Pornogaphy"
-                              control={<Radio />}
-                              label="Pornogaphy"
-                            />
-                            <FormControlLabel
-                              value="Copyright"
-                              control={<Radio />}
-                              label=" Copyright"
-                            />
-                            <FormControlLabel
-                              value="Illegal Drug"
-                              control={<Radio />}
-                              label="Illegal Drug"
-                            />
-                            <FormControlLabel
-                              value="other"
-                              control={<Radio />}
-                              label="Other reason"
-                            />
-                          </RadioGroup>
-                        </FormControl>
-                      </DialogContent>
-                      <DialogActions>
-                        <Button onClick={handleClose} color="primary">
-                          Cancel
-                        </Button>
-                        <Button onClick={handleReport} sx={{ color: "red" }}>
-                          Report
-                        </Button>
-                      </DialogActions>
-                    </Dialog>
-                  </Box>
-
-                  <Box sx={{ marginTop: "0px" }}>
-                    {auct.state == "waiting" && (
-                      <>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            marginTop: "5px",
-                          }}
-                        >
-                          <Box
-                            className="status"
-                            sx={{
-                              display: "flex",
-
-                              marginLeft: "10px",
+                      >
+                        {pics.map((pic) => (
+                          <img
+                            className="auctionImage"
+                            key={pic.id}
+                            alt="auctionImage"
+                            src={`http://localhost:5000/images/${pic.id}`}
+                            onClick={() => {
+                              onchangepic(pic.id);
                             }}
-                          >
-                            <TimelapseIcon
-                              size="large"
-                              sx={{
-                                fontSize: {
-                                  lg: "20px",
-                                  md: "20px",
-                                  sm: "20px",
-                                  xs: "20px",
-                                  color: "red",
-                                },
-                              }}
-                            />
-                            <Typography
-                              className="status"
-                              sx={{
-                                fontSize: {
-                                  lg: "13px",
-                                  md: "10px",
-                                  sm: "10px",
-                                  xs: "10px",
-                                  margin: "2px",
-                                },
-                                display: "flex",
-                                textAlign: "center",
-                              }}
-                            >
-                              Pending
-                            </Typography>
-                          </Box>
-                          <Box>
-                            <Tooltip
-                              title={
-                                !notify
-                                  ? "Notify me when Open"
-                                  : "you will be notified"
-                              }
-                            >
-                              <Button
-                                onClick={handleClick}
-                                endIcon={
-                                  notify ? (
-                                    <NotificationsActiveIcon
-                                      size="large"
-                                      sx={{ color: "red" }}
-                                    />
-                                  ) : (
-                                    <NotificationsIcon
-                                      size="large"
-                                      sx={{ color: "black" }}
-                                    />
-                                  )
-                                }
-                                // sx={{
-                                //   color: "white",
-                                //   // backgroundColor: notify ? "grey" : "#7F1705",
-                                // }}
-                              >
-                                <Typography sx={{ fontSize: "15px" }}>
-                                  {/* {notify ? "Notified !" : "Notify me"} */}
-                                </Typography>
-                              </Button>
-                            </Tooltip>
-                          </Box>
-                        </Box>
-
-                        <Box
-                          className="name"
-                          display="flex"
-                          justifyContent="center"
-                        >
-                          <Typography
-                            sx={{
-                              fontWeight: "bold",
-                              fontSize: "20px",
-                              marginTop: "10px",
-                            }}
-                          >
-                            {" "}
-                            {auct.name}
-                          </Typography>
-                        </Box>
-
-                        <Box
-                          className="name"
-                          display="flex"
-                          justifyContent="center"
-                        >
-                          <LocationOnIcon sx={{ marginTop: "12px" }} />
-                          <Typography
-                            sx={{
-                              fontWeight: "bold",
-                              fontSize: "20px",
-                              marginTop: "10px",
-                            }}
-                          >
-                            {" "}
-                            {auct.city}
-                          </Typography>
-                        </Box>
-
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            marginTop: "20px",
-                          }}
-                        >
-                          <Typography
-                            sx={{ fontWeight: "bold", fontSize: "20px" }}
-                          >
-                            Base Price :{" "}
-                          </Typography>
-                          <Typography
-                            sx={{
-                              color: "black",
-                              fontWeight: "bold",
-                              marginLeft: "5px",
-                              fontSize: "20px",
-                            }}
-                          >
-                            {/* ETB :{auct.hammerprice} */}
-                            ETB :{auct.baseprice}
-                          </Typography>
-                        </Box>
-
-                        <Box
-                          sx={{
-                            // marginTop: "10px",
-                            // marginTop: "30px",
-                            display: "flex",
-                            justifyContent: "center",
-                            marginTop: "50px",
-                            marginBottom: "50px",
-                          }}
-                        >
-                          <TimerIcon
-                            sx={{
-                              marginRight: "10px",
-                              fontSize: "30px",
+                            style={{
+                              position: "relative",
+                              marginTop: "5px",
+                              marginRight: "5px",
+                              width: "80px",
+                              height: "80px",
                             }}
                           />
+                        ))}
+                      </Box>
+                      <Box
+                        className="picture"
+                        sx={{
+                          position: "relative",
+                          display: "flex",
+                          width: {
+                            sm: "100%",
+                            xs: "100%",
+                            lg: "500px",
+                            md: "450px",
+                          },
+                          // height: "400px",
 
-                          <Typography
-                            sx={{
-                              fontSize: {
-                                lg: "50px",
-                                md: "50px",
-                                sm: "30px",
-                                xs: "30px",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          backgroundColor: "lightgrey",
+                        }}
+                      >
+                        {/* <center> */}
+                        <img
+                          className="auctionImage"
+                          alt="auctionImage"
+                          src={`http://localhost:5000/images/${imgdisplay}`}
+                          style={{ width: "85%" }}
+                        />
+                        {/* </center> */}
 
-                                // color: "red",
-                              },
-                            }}
-                          >
-                            <AuctionCountdown startDate={auct.startdate} />
-                          </Typography>
-                        </Box>
-                      </>
-                    )}
-                    {auct.state == "open" && (
-                      <>
-                        <Box
-                          sx={{
-                            display: "block",
-                            // justifyContent: "space-between",
-                            marginTop: "20px",
+                        <IconButton
+                          onClick={() => {
+                            changePictures(0);
                           }}
+                          sx={{ position: "absolute", top: "40%", left: "0%" }}
                         >
+                          <NavigateBeforeIcon />
+                        </IconButton>
+                        <IconButton
+                          onClick={() => {
+                            changePictures(1);
+                          }}
+                          sx={{ position: "absolute", top: "40%", right: "0%" }}
+                        >
+                          <NavigateNextIcon />
+                        </IconButton>
+                      </Box>
+                    </Stack>
+                    <Box
+                      className="description"
+                      sx={{
+                        display: {
+                          xs: "none",
+                          sm: "none",
+                          md: "block",
+                          lg: "block",
+                        },
+                        width: {
+                          lg: "550px",
+                          md: "500px",
+                        },
+                        marginTop: "50px",
+                        marginLeft: "20px",
+                        marginRight: "20px",
+                      }}
+                    >
+                      <Typography
+                        display="flex"
+                        justifyContent="center"
+                        sx={{ marginTop: "10px", fontWeight: "bold" }}
+                      >
+                        Description
+                      </Typography>
+
+                      <Typography sx={{ display: "flex" }}>
+                        {auct.description}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      border: "1px solid ",
+                      borderColor: "#EBECEC",
+                      width: "100%",
+                      height: "auto",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        float: "right",
+                        mt: "-30px",
+                      }}
+                    >
+                      <Tooltip
+                        title={
+                          reasonReport
+                            ? "You have reported"
+                            : "Report on this auction"
+                        }
+                      >
+                        <Button
+                          startIcon={<ReportProblemOutlined />}
+                          onClick={handleClickOpen}
+                          sx={{
+                            color: "grey",
+                            fontWight: "bold",
+                            textTransform: "none",
+                          }}
+                        ></Button>
+                      </Tooltip>
+                      <Dialog open={openReport} onClose={handleClose}>
+                        <DialogTitle>Reason for report</DialogTitle>
+                        <DialogContent>
+                          <FormControl component="fieldset">
+                            <RadioGroup
+                              value={reasonReport}
+                              onChange={handleReasonChange}
+                            >
+                              <FormControlLabel
+                                value="spam"
+                                control={<Radio />}
+                                label=" spam"
+                              />
+                              <FormControlLabel
+                                value="Violance"
+                                control={<Radio />}
+                                label=" Violance"
+                              />
+                              <FormControlLabel
+                                value="Child Abuse"
+                                control={<Radio />}
+                                label="Child Abuse"
+                              />
+                              <FormControlLabel
+                                value="Pornogaphy"
+                                control={<Radio />}
+                                label="Pornogaphy"
+                              />
+                              <FormControlLabel
+                                value="Copyright"
+                                control={<Radio />}
+                                label=" Copyright"
+                              />
+                              <FormControlLabel
+                                value="Illegal Drug"
+                                control={<Radio />}
+                                label="Illegal Drug"
+                              />
+                              <FormControlLabel
+                                value="other"
+                                control={<Radio />}
+                                label="Other reason"
+                              />
+                            </RadioGroup>
+                          </FormControl>
+                        </DialogContent>
+                        <DialogActions>
+                          <Button onClick={handleClose} color="primary">
+                            Cancel
+                          </Button>
+                          <Button onClick={handleReport} sx={{ color: "red" }}>
+                            Report
+                          </Button>
+                        </DialogActions>
+                      </Dialog>
+                    </Box>
+
+                    <Box sx={{ marginTop: "0px" }}>
+                      {auct.state == "waiting" && (
+                        <>
                           <Box
-                            className="status"
                             sx={{
                               display: "flex",
-                              marginRight: "10px",
-                              float: "right",
+                              justifyContent: "space-between",
+                              marginTop: "5px",
                             }}
                           >
-                            <RssFeedIcon
-                              size="large"
-                              sx={{
-                                fontSize: {
-                                  lg: "20px",
-                                  md: "20px",
-                                  sm: "20px",
-                                  xs: "20px",
-                                },
-                                color: "red",
-                                marginLeft: "10px",
-                                marginTop: "-4px",
-                              }}
-                            />
-                            <Typography
+                            <Box
                               className="status"
                               sx={{
-                                fontSize: {
-                                  lg: "11px",
-                                  md: "10px",
-                                  sm: "10px",
-                                  xs: "10px",
+                                display: "flex",
 
-                                  // color: "red",
-                                },
+                                marginLeft: "10px",
                               }}
                             >
-                              Live Auction
+                              <TimelapseIcon
+                                size="large"
+                                sx={{
+                                  fontSize: {
+                                    lg: "20px",
+                                    md: "20px",
+                                    sm: "20px",
+                                    xs: "20px",
+                                    color: "red",
+                                  },
+                                }}
+                              />
+                              <Typography
+                                className="status"
+                                sx={{
+                                  fontSize: {
+                                    lg: "13px",
+                                    md: "10px",
+                                    sm: "10px",
+                                    xs: "10px",
+                                    margin: "2px",
+                                  },
+                                  display: "flex",
+                                  textAlign: "center",
+                                }}
+                              >
+                                Pending
+                              </Typography>
+                            </Box>
+                            <Box>
+                              <Tooltip
+                                title={
+                                  !notify
+                                    ? "Notify me when Open"
+                                    : "you will be notified"
+                                }
+                              >
+                                <Button
+                                  onClick={handleClick}
+                                  endIcon={
+                                    notify ? (
+                                      <NotificationsActiveIcon
+                                        size="large"
+                                        sx={{ color: "red" }}
+                                      />
+                                    ) : (
+                                      <NotificationsIcon
+                                        size="large"
+                                        sx={{ color: "black" }}
+                                      />
+                                    )
+                                  }
+                                  // sx={{
+                                  //   color: "white",
+                                  //   // backgroundColor: notify ? "grey" : "#7F1705",
+                                  // }}
+                                >
+                                  <Typography sx={{ fontSize: "15px" }}>
+                                    {/* {notify ? "Notified !" : "Notify me"} */}
+                                  </Typography>
+                                </Button>
+                              </Tooltip>
+                            </Box>
+                          </Box>
+
+                          <Box
+                            className="name"
+                            display="flex"
+                            justifyContent="center"
+                          >
+                            <Typography
+                              sx={{
+                                fontWeight: "bold",
+                                fontSize: "20px",
+                                marginTop: "10px",
+                              }}
+                            >
+                              {" "}
+                              {auct.name}
+                            </Typography>
+                          </Box>
+
+                          <Box
+                            className="name"
+                            display="flex"
+                            justifyContent="center"
+                          >
+                            <LocationOnIcon sx={{ marginTop: "12px" }} />
+                            <Typography
+                              sx={{
+                                fontWeight: "bold",
+                                fontSize: "20px",
+                                marginTop: "10px",
+                              }}
+                            >
+                              {" "}
+                              {auct.city}
                             </Typography>
                           </Box>
 
                           <Box
                             sx={{
-                              marginLeft: "10px",
-                              // marginTop: "10px",
-                              marginTop: "10px",
+                              display: "flex",
+                              justifyContent: "center",
+                              marginTop: "20px",
                             }}
                           >
                             <Typography
-                              sx={{
-                                fontSize: {
-                                  lg: "15px",
-                                  md: "15px",
-                                  sm: "15px",
-                                  xs: "15px",
-
-                                  // color: "red",
-                                },
-                              }}
+                              sx={{ fontWeight: "bold", fontSize: "20px" }}
                             >
-                              Remaining Time :
-                              <AuctionTimer endDate={auct.enddate} />
-                            </Typography>
-                          </Box>
-                        </Box>
-                        <Box
-                          className="name"
-                          display="flex"
-                          justifyContent="center"
-                        >
-                          <Typography
-                            sx={{
-                              fontWeight: "bold",
-                              fontSize: "20px",
-                              marginTop: "10px",
-                            }}
-                          >
-                            {" "}
-                            {auct.name}
-                          </Typography>
-                        </Box>
-                        <Box
-                          className="name"
-                          display="flex"
-                          justifyContent="center"
-                        >
-                          <LocationOnIcon sx={{ marginTop: "12px" }} />
-                          <Typography
-                            sx={{
-                              fontWeight: "bold",
-                              fontSize: "20px",
-                              marginTop: "10px",
-                            }}
-                          >
-                            {" "}
-                            {auct.city}
-                          </Typography>
-                        </Box>
-                        <Box
-                          display="block"
-                          justifyContent="center"
-                          sx={{
-                            marginTop: "50px",
-                            fontSize: "15px",
-
-                            marginLeft: "18%",
-                          }}
-                        >
-                          <Box sx={{ display: "flex" }}>
-                            <Typography sx={{ fontWeight: "bold" }}>
                               Base Price :{" "}
                             </Typography>
                             <Typography
@@ -1032,218 +879,395 @@ const AuctionDetail = () => {
                                 color: "black",
                                 fontWeight: "bold",
                                 marginLeft: "5px",
+                                fontSize: "20px",
                               }}
                             >
                               {/* ETB :{auct.hammerprice} */}
                               ETB :{auct.baseprice}
                             </Typography>
                           </Box>
-                          <Box sx={{ display: "flex", marginTop: "10px" }}>
-                            <Typography sx={{ fontWeight: "bold" }}>
-                              Leading price :{" "}
-                            </Typography>
+
+                          <Box
+                            sx={{
+                              // marginTop: "10px",
+                              // marginTop: "30px",
+                              display: "flex",
+                              justifyContent: "center",
+                              marginTop: "50px",
+                              marginBottom: "50px",
+                            }}
+                          >
+                            <TimerIcon
+                              sx={{
+                                marginRight: "10px",
+                                fontSize: "30px",
+                              }}
+                            />
+
                             <Typography
                               sx={{
-                                color: "black",
-                                fontWeight: "bold",
-                                marginLeft: "5px",
+                                fontSize: {
+                                  lg: "50px",
+                                  md: "50px",
+                                  sm: "30px",
+                                  xs: "30px",
+
+                                  // color: "red",
+                                },
                               }}
                             >
-                              {/* ETB :{auct.hammerprice} */}
-                              ETB :{leadingPrice}
+                              <AuctionCountdown startDate={auct.startdate} />
                             </Typography>
                           </Box>
-                          <br />
-                          <Box sx={{ display: "flex" }}>
-                            <Typography sx={{ fontWeight: "bold" }}>
-                              Minimum increase :
-                            </Typography>
-                            <Typography
+                        </>
+                      )}
+                      {auct.state == "open" && (
+                        <>
+                          <Box
+                            sx={{
+                              display: "block",
+                              // justifyContent: "space-between",
+                              marginTop: "20px",
+                            }}
+                          >
+                            <Box
+                              className="status"
                               sx={{
-                                color: "black",
-                                fontWeight: "bold",
-                                marginLeft: "5px",
+                                display: "flex",
+                                marginRight: "10px",
+                                float: "right",
                               }}
                             >
-                              {leadingPrice == 0 && (
-                                <div>
-                                  {" "}
-                                  ETB :
-                                  {roundNumber(Number(auct.baseprice) * 2) /
-                                    100}
-                                </div>
-                              )}
-                              {leadingPrice != 0 && (
-                                <div>
-                                  {" "}
-                                  ETB :
-                                  {roundNumber(Number(leadingPrice) * 2) / 100}
-                                </div>
-                              )}
-                            </Typography>
-                          </Box>
-                          <Box>
-                            {!loggedin && (
-                              <Box
-                                className="login"
+                              <RssFeedIcon
+                                size="large"
                                 sx={{
-                                  width: "80%",
-                                  backgroundColor: "#951003",
-                                  marginTop: "10px",
+                                  fontSize: {
+                                    lg: "20px",
+                                    md: "20px",
+                                    sm: "20px",
+                                    xs: "20px",
+                                  },
+                                  color: "red",
+                                  marginLeft: "10px",
+                                  marginTop: "-4px",
+                                }}
+                              />
+                              <Typography
+                                className="status"
+                                sx={{
+                                  fontSize: {
+                                    lg: "11px",
+                                    md: "10px",
+                                    sm: "10px",
+                                    xs: "10px",
+
+                                    // color: "red",
+                                  },
                                 }}
                               >
-                                <Button sx={{ width: "100%" }}>
-                                  <Link
-                                    href="/sel/login"
-                                    sx={{
-                                      textDecoration: "none",
+                                Live Auction
+                              </Typography>
+                            </Box>
 
-                                      color: "white",
-                                    }}
-                                  >
-                                    Log in to bid
-                                  </Link>
-                                </Button>
-                              </Box>
-                            )}
-                            {loggedin && (
-                              <Box
-                                className="placeBid"
-                                sx={{ marginTop: "20px", marginBottom: "40px" }}
+                            <Box
+                              sx={{
+                                marginLeft: "10px",
+                                // marginTop: "10px",
+                                marginTop: "10px",
+                              }}
+                            >
+                              <Typography
+                                sx={{
+                                  fontSize: {
+                                    lg: "15px",
+                                    md: "15px",
+                                    sm: "15px",
+                                    xs: "15px",
+
+                                    // color: "red",
+                                  },
+                                }}
                               >
-                                <form onSubmit={submitBid}>
-                                  <InputLabel
-                                    htmlFor="placebid"
-                                    sx={{ color: "black" }}
-                                  >
-                                    Place Bid
-                                  </InputLabel>
-                                  <TextField
-                                    id="placebid"
-                                    variant="outlined"
-                                    required
-                                    sx={{ width: "80%" }}
-                                    type="number"
-                                    inputProps={inputProps}
-                                    value={bidPrice}
-                                    onChange={(event) => {
-                                      setBidPrice(event.target.value);
-                                    }}
-                                  />
-                                  <Box
-                                    sx={{
-                                      width: "80%",
-                                      backgroundColor: "#951003",
-                                      marginTop: "10px",
-                                    }}
-                                  >
-                                    <Button
-                                      sx={{
-                                        color: "white",
-                                        width: "100%",
-                                      }}
-                                      type="submit"
-                                    >
-                                      Submit Bid
-                                    </Button>
-                                  </Box>
-                                </form>
-                              </Box>
-                            )}
+                                Remaining Time :
+                                <AuctionTimer endDate={auct.enddate} />
+                              </Typography>
+                            </Box>
                           </Box>
-                        </Box>
-                      </>
-                    )}
-                  </Box>
+                          <Box
+                            className="name"
+                            sx={{ marginLeft: "18%", display: "flex" }}
+                          >
+                            <Typography
+                              sx={{
+                                fontSize: "20px",
+                                marginTop: "10px",
+                                display: "flex",
+                              }}
+                            >
+                              {" "}
+                              {auct.name}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ marginLeft: "18%", display: "flex" }}>
+                            <LocationOnIcon sx={{ marginTop: "12px" }} />
+                            <Typography
+                              sx={{
+                                fontSize: "20px",
+                                marginTop: "10px",
+                              }}
+                            >
+                              {" "}
+                              {auct.city}
+                            </Typography>
+                          </Box>
+                          <Box
+                            display="block"
+                            justifyContent="center"
+                            sx={{
+                              marginTop: "50px",
+                              fontSize: "15px",
 
-                  <Box>
-                    <Divider sx={{ marginLeft: "18%", marginRight: "18%" }} />
+                              marginLeft: "18%",
+                            }}
+                          >
+                            <Box sx={{ display: "flex" }}>
+                              <Typography sx={{ fontWeight: "bold" }}>
+                                Base Price :{" "}
+                              </Typography>
+                              <Typography
+                                sx={{
+                                  color: "black",
+                                  fontWeight: "bold",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {/* ETB :{auct.hammerprice} */}
+                                ETB :{auct.baseprice}
+                              </Typography>
+                            </Box>
+                            <Box sx={{ display: "flex", marginTop: "10px" }}>
+                              <Typography sx={{ fontWeight: "bold" }}>
+                                Leading price :{" "}
+                              </Typography>
+                              <Typography
+                                sx={{
+                                  color: "black",
+                                  fontWeight: "bold",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {/* ETB :{auct.hammerprice} */}
+                                ETB :{leadingPrice}
+                              </Typography>
+                            </Box>
+                            <br />
+                            <Box sx={{ display: "flex" }}>
+                              <Typography sx={{ fontWeight: "bold" }}>
+                                Minimum increase :
+                              </Typography>
+                              <Typography
+                                sx={{
+                                  color: "black",
+                                  fontWeight: "bold",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {leadingPrice == 0 && (
+                                  <div>
+                                    {" "}
+                                    ETB :
+                                    {roundNumber(Number(auct.baseprice) * 2) /
+                                      100}
+                                  </div>
+                                )}
+                                {leadingPrice != 0 && (
+                                  <div>
+                                    {" "}
+                                    ETB :
+                                    {roundNumber(Number(leadingPrice) * 2) /
+                                      100}
+                                  </div>
+                                )}
+                              </Typography>
+                            </Box>
+                            <Box>
+                              {!loggedin && (
+                                <Box
+                                  className="login"
+                                  sx={{
+                                    width: "80%",
+                                    backgroundColor: "#951003",
+                                    marginTop: "10px",
+                                  }}
+                                >
+                                  <Button sx={{ width: "100%" }}>
+                                    <Link
+                                      href="/sel/login"
+                                      sx={{
+                                        textDecoration: "none",
 
-                    <Box
-                      className="contactSeller"
-                      display="block"
-                      justifyContent="center"
-                      sx={{
-                        marginTop: "10px",
-                        marginLeft: "18%",
-                        marginRight: "18%",
-                      }}
-                    >
-                      <Typography
+                                        color: "white",
+                                      }}
+                                    >
+                                      Log in to bid
+                                    </Link>
+                                  </Button>
+                                </Box>
+                              )}
+                              {loggedin && (
+                                <Box
+                                  className="placeBid"
+                                  sx={{
+                                    marginTop: "20px",
+                                    marginBottom: "40px",
+                                  }}
+                                >
+                                  <form onSubmit={submitBid}>
+                                    <InputLabel
+                                      htmlFor="placebid"
+                                      sx={{ color: "black" }}
+                                    >
+                                      Place Bid
+                                    </InputLabel>
+                                    <TextField
+                                      id="placebid"
+                                      variant="outlined"
+                                      required
+                                      sx={{ width: "80%" }}
+                                      type="number"
+                                      inputProps={inputProps}
+                                      value={bidPrice}
+                                      onChange={(event) => {
+                                        setBidPrice(event.target.value);
+                                      }}
+                                    />
+                                    <Box
+                                      sx={{
+                                        width: "80%",
+                                        backgroundColor: "#951003",
+                                        marginTop: "10px",
+                                      }}
+                                      disabled={savingBid}
+                                    >
+                                      <Button
+                                        sx={{
+                                          color: "white",
+                                          width: "100%",
+                                        }}
+                                        type="submit"
+                                      >
+                                        {savingBid ? (
+                                          <>
+                                            <CircularProgress size={24} />
+                                            Submiting...
+                                          </>
+                                        ) : (
+                                          " Submit Bid"
+                                        )}
+                                      </Button>
+                                    </Box>
+                                  </form>
+                                </Box>
+                              )}
+                            </Box>
+                          </Box>
+                        </>
+                      )}
+                    </Box>
+
+                    <Box>
+                      <Divider sx={{ marginLeft: "18%", marginRight: "18%" }} />
+
+                      <Box
+                        className="contactSeller"
+                        display="block"
+                        justifyContent="center"
                         sx={{
-                          fontFamily: "Open Sans, sans-serif",
-                          fontWeight: 600,
-                          color: "#06688A",
-                          // textAlign: "center",
-                          marginTop: "20px",
+                          marginTop: "10px",
+                          marginLeft: "18%",
+                          marginRight: "18%",
                         }}
                       >
-                        Contact the Seller
-                      </Typography>
-                      <br />
+                        <Typography
+                          sx={{
+                            fontFamily: "Open Sans, sans-serif",
+                            fontWeight: 600,
+                            color: "#06688A",
+                            // textAlign: "center",
+                            marginTop: "20px",
+                          }}
+                        >
+                          Contact the Seller
+                        </Typography>
+                        <br />
 
-                      <Box sx={{ marginRight: "25px" }}>
-                        <Box sx={{ display: "flex" }}>
-                          <TelegramIcon
-                            sx={{ marginRight: "10px", color: "#1BACF4 " }}
-                          />
-                          {auct.Seller.telUsername}
+                        <Box sx={{ marginRight: "25px" }}>
+                          <Box sx={{ display: "flex" }}>
+                            <TelegramIcon
+                              sx={{ marginRight: "10px", color: "#1BACF4 " }}
+                            />
+                            {auct.Seller.telUsername}
+                          </Box>
+                          <Box sx={{ display: "flex" }}>
+                            <EmailIcon
+                              sx={{ marginRight: "10px", color: "red" }}
+                            />
+                            {auct.Seller.email}
+                          </Box>
                         </Box>
-                        <Box sx={{ display: "flex" }}>
-                          <EmailIcon
-                            sx={{ marginRight: "10px", color: "red" }}
-                          />
-                          {auct.Seller.email}
-                        </Box>
+                        <Typography></Typography>
                       </Box>
-                      <Typography></Typography>
                     </Box>
                   </Box>
-                </Box>
-              </Stack>
+                </Stack>
+              </Box>
             </Box>
-          </Box>
-          <Box
-            sx={{
-              display: {
-                xs: "block",
-                sm: "block",
-                md: "none",
-                lg: "none",
-              },
-              marginTop: "50px",
-              marginLeft: "20px",
-              marginRight: "20px",
-            }}
-          >
-            <Typography
-              display="flex"
-              justifyContent="center"
-              sx={{ marginTop: "10px", fontWeight: "bold" }}
+            <Box
+              sx={{
+                display: {
+                  xs: "block",
+                  sm: "block",
+                  md: "none",
+                  lg: "none",
+                },
+                marginTop: "50px",
+                marginLeft: "20px",
+                marginRight: "20px",
+              }}
             >
-              Description
-            </Typography>
+              <Typography
+                display="flex"
+                justifyContent="center"
+                sx={{ marginTop: "10px", fontWeight: "bold" }}
+              >
+                Description
+              </Typography>
 
-            {auct.description}
-          </Box>
-        </>
-      )}
+              {auct.description}
+            </Box>
+          </>
+        )}
 
-      <Divider sx={{ marginTop: "50px" }} />
+        <Divider sx={{ marginTop: "50px" }} />
 
-      {!loading && !hasdata && (
-        <center>
-          <h2> Page Not found</h2>
-        </center>
-      )}
-      {loading && (
-        <center>
-          <h2 sx={{ position: "absolute", top: "48%", width: "100px" }}>
-            <LinearProgress />{" "}
-          </h2>
-        </center>
-      )}
-    </div>
+        {!loading && !hasdata && (
+          <center>
+            <h2> Page Not found</h2>
+          </center>
+        )}
+        {loading && (
+          <center>
+            <h2 sx={{ position: "absolute", top: "48%", width: "100px" }}>
+              <LinearProgress />{" "}
+            </h2>
+          </center>
+        )}
+
+        <Box>
+          <Footer />
+        </Box>
+      </div>
+    </>
   );
 };
 export default AuctionDetail;
